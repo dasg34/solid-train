@@ -33,20 +33,22 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   @override
   void initState() {
     super.initState();
-    _controller = SurfaceController(
-      catalogs: [
-        Catalog([
-          BasicCatalogItems.card,
-          BasicCatalogItems.column,
-          BasicCatalogItems.divider,
-          BasicCatalogItems.icon,
-          BasicCatalogItems.row,
-          BasicCatalogItems.text,
-        ], catalogId: _catalogId),
-      ],
-    );
+    _controller = _createController();
     _loadScenario();
   }
+
+  SurfaceController _createController() => SurfaceController(
+        catalogs: [
+          Catalog([
+            BasicCatalogItems.card,
+            BasicCatalogItems.column,
+            BasicCatalogItems.divider,
+            BasicCatalogItems.icon,
+            BasicCatalogItems.row,
+            BasicCatalogItems.text,
+          ], catalogId: _catalogId),
+        ],
+      );
 
   @override
   void didUpdateWidget(covariant GenUiScenarioSurface oldWidget) {
@@ -58,6 +60,11 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
 
   Future<void> _loadScenario() async {
     final loadId = ++_loadId;
+
+    // Dispose old controller and create a fresh one to avoid accumulating
+    // surfaces from previous scenarios.
+    _controller.dispose();
+    _controller = _createController();
 
     try {
       final messages =
