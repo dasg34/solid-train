@@ -34,11 +34,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_localizations:
     sdk: flutter
-  genui: ^0.7.0
-  genui_a2ui: ^0.7.0
+  genui:
+    path: ../genui/packages/genui
   google_fonts: ^8.0.2
-  http: ^1.6.0
-  xml: ^6.5.0
 
 dev_dependencies:
   flutter_test:
@@ -46,3 +44,5 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 flutter:
   uses-material-design: true
+  assets:
+    - assets/a2ui/
