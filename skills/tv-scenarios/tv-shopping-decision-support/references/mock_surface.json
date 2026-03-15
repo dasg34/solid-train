@@ -1,0 +1,80 @@
+{
+  "title": "쇼핑 결정 지원",
+  "headline": "거실 TV에서 바로 비교하고 결정할 수 있게 핵심 차이만 남겼습니다.",
+  "primaryMetrics": [
+    {
+      "label": "비교 대상",
+      "value": "3개",
+      "detail": "65인치 TV"
+    },
+    {
+      "label": "최저가",
+      "value": "1,290,000원",
+      "detail": "쿠폰 적용 기준"
+    },
+    {
+      "label": "추천",
+      "value": "1개",
+      "detail": "가성비 우세"
+    }
+  ],
+  "sections": [
+    {
+      "title": "핵심 비교",
+      "items": [
+        {
+          "icon": "tv",
+          "label": "모델 A",
+          "value": "밝기 우수",
+          "detail": "거실 시청 환경에 유리"
+        },
+        {
+          "icon": "tv",
+          "label": "모델 B",
+          "value": "가격 우수",
+          "detail": "가성비 중심 선택지"
+        },
+        {
+          "icon": "tv",
+          "label": "모델 C",
+          "value": "사운드 우수",
+          "detail": "별도 사운드바 없이도 무난"
+        }
+      ]
+    },
+    {
+      "title": "판단 포인트",
+      "items": [
+        {
+          "icon": "priceCheck",
+          "label": "가격",
+          "value": "모델 B 우세",
+          "detail": "예산 민감하면 우선 고려"
+        },
+        {
+          "icon": "star",
+          "label": "리뷰",
+          "value": "모델 A 안정적",
+          "detail": "밝기와 색감 평가가 높음"
+        }
+      ]
+    }
+  ],
+  "alert": {
+    "icon": "balance",
+    "title": "근거 기반 비교",
+    "summary": "쇼핑 비교 화면은 광고성 문구보다 가격, 핵심 사양, 리뷰 요약 근거를 같이 보여주는 편이 신뢰에 유리합니다.",
+    "meta": "상품 비교 정책"
+  },
+  "actions": [
+    {
+      "label": "새로고침",
+      "event": "refreshShoppingDecision"
+    },
+    {
+      "label": "상세 비교",
+      "event": "openShoppingComparison"
+    }
+  ],
+  "footer": "초기 PoC에서는 실제 오픈웹 검색보다 큐레이션된 비교 시나리오로 품질을 먼저 안정화하는 편이 좋습니다."
+}

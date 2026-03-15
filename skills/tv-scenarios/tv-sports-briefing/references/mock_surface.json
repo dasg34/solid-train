@@ -1,0 +1,80 @@
+{
+  "title": "오늘의 스포츠 브리핑",
+  "headline": "현재 경기, 다음 경기, 순위 변동을 점수판처럼 크게 보여줍니다.",
+  "primaryMetrics": [
+    {
+      "label": "메인 경기",
+      "value": "서울 2 : 1 수원",
+      "detail": "후반 68분"
+    },
+    {
+      "label": "다음 경기",
+      "value": "19:30 KBO",
+      "detail": "잠실 구장"
+    },
+    {
+      "label": "순위",
+      "value": "2위",
+      "detail": "1계단 상승"
+    }
+  ],
+  "sections": [
+    {
+      "title": "메인 매치",
+      "items": [
+        {
+          "icon": "sportsSoccer",
+          "label": "서울",
+          "value": "2",
+          "detail": "후반 52분 결승골"
+        },
+        {
+          "icon": "sportsSoccer",
+          "label": "수원",
+          "value": "1",
+          "detail": "전반 21분 선제골"
+        }
+      ]
+    },
+    {
+      "title": "오늘 경기와 순위",
+      "items": [
+        {
+          "icon": "stadium",
+          "label": "다음 경기",
+          "value": "19:30 LG vs 두산",
+          "detail": "KBO 잠실 라이벌전"
+        },
+        {
+          "icon": "leaderboard",
+          "label": "순위 변동",
+          "value": "2위",
+          "detail": "선두와 1경기 차"
+        },
+        {
+          "icon": "update",
+          "label": "갱신",
+          "value": "실시간",
+          "detail": "최근 30초 이내 데이터"
+        }
+      ]
+    }
+  ],
+  "alert": {
+    "icon": "info",
+    "title": "지연 표기 필요",
+    "summary": "실시간 경기로 보이는 순간 stale data에 매우 민감해지므로 갱신 주기를 항상 같이 보여주는 편이 좋습니다.",
+    "meta": "라이브 스코어 정책"
+  },
+  "actions": [
+    {
+      "label": "새로고침",
+      "event": "refreshSports"
+    },
+    {
+      "label": "리그 변경",
+      "event": "changeLeague"
+    }
+  ],
+  "footer": "한국 사용자에게는 KBO, K리그, 주요 해외축구 순으로 우선 노출하는 편이 자연스럽습니다."
+}

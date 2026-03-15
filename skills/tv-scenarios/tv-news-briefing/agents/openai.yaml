@@ -1,0 +1,4 @@
+interface:
+  display_name: "TV News Briefing"
+  short_description: "Korea-first TV news scenario skill"
+  default_prompt: "Use $tv-news-briefing to design or assess a Korea-first TV news surface for the utterance \"뉴스 보여줘\"."

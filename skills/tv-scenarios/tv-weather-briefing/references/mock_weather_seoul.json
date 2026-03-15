@@ -1,0 +1,61 @@
+{
+  "location": {
+    "city": "서울",
+    "district": "강남구"
+  },
+  "updated_at": "2026-03-15T07:20:00+09:00",
+  "headline": "출근 시간대에는 약한 비 가능성이 있습니다.",
+  "current": {
+    "temperature_c": 8,
+    "feels_like_c": 5,
+    "condition": "흐림",
+    "humidity_pct": 61,
+    "precip_probability_pct": 70
+  },
+  "alert": {
+    "level": "주의",
+    "title": "강풍 예비특보",
+    "summary": "오전부터 해안과 일부 내륙에 순간 강한 바람이 불 수 있습니다.",
+    "source": "기상청",
+    "issued_at": "2026-03-15T06:50:00+09:00"
+  },
+  "hourly": [
+    {
+      "time": "2026-03-15T09:00:00+09:00",
+      "temperature_c": 10,
+      "precip_probability_pct": 30,
+      "condition": "흐림"
+    },
+    {
+      "time": "2026-03-15T12:00:00+09:00",
+      "temperature_c": 12,
+      "precip_probability_pct": 20,
+      "condition": "흐림"
+    },
+    {
+      "time": "2026-03-15T15:00:00+09:00",
+      "temperature_c": 13,
+      "precip_probability_pct": 10,
+      "condition": "맑음"
+    },
+    {
+      "time": "2026-03-15T18:00:00+09:00",
+      "temperature_c": 11,
+      "precip_probability_pct": 20,
+      "condition": "구름 많음"
+    },
+    {
+      "time": "2026-03-15T21:00:00+09:00",
+      "temperature_c": 9,
+      "precip_probability_pct": 30,
+      "condition": "흐림"
+    },
+    {
+      "time": "2026-03-16T00:00:00+09:00",
+      "temperature_c": 7,
+      "precip_probability_pct": 40,
+      "condition": "비"
+    }
+  ],
+  "footer": "특보와 갱신 시각을 함께 표시해 신뢰도를 빠르게 판단할 수 있게 합니다."
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "TV Smart Home Summary"
+  short_description: "Korea-first TV smart home skill"
+  default_prompt: "Use $tv-smart-home-summary to design or assess a Korea-first TV smart home summary surface."

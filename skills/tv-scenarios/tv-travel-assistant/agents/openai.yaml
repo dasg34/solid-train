@@ -1,0 +1,4 @@
+interface:
+  display_name: "TV Travel Assistant"
+  short_description: "Korea-first TV travel scenario skill"
+  default_prompt: "Use $tv-travel-assistant to design or assess a Korea-first TV travel assistant surface."
