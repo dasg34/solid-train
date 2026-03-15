@@ -1,0 +1,4 @@
+interface:
+  display_name: "TV Finance Snapshot"
+  short_description: "Assess finance scenario feasibility for TV GenUI"
+  default_prompt: "Use $tv-finance-snapshot to assess or design a TV-first finance scenario."

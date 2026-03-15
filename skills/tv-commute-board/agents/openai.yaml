@@ -1,0 +1,4 @@
+interface:
+  display_name: "TV Commute Board"
+  short_description: "Assess commute scenario feasibility for TV GenUI"
+  default_prompt: "Use $tv-commute-board to assess or design a TV-first commute scenario."

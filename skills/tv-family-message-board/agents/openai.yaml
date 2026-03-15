@@ -1,0 +1,4 @@
+interface:
+  display_name: "TV Family Message Board"
+  short_description: "Assess family board feasibility for TV GenUI"
+  default_prompt: "Use $tv-family-message-board to assess or design a TV-first family message board scenario."

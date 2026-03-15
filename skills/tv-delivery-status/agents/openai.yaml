@@ -1,0 +1,4 @@
+interface:
+  display_name: "TV Delivery Status"
+  short_description: "Assess delivery scenario feasibility for TV GenUI"
+  default_prompt: "Use $tv-delivery-status to assess or design a TV-first delivery scenario."

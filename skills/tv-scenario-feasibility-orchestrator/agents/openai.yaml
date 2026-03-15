@@ -1,0 +1,4 @@
+interface:
+  display_name: "TV Scenario Feasibility"
+  short_description: "Coordinate parallel TV scenario feasibility reviews"
+  default_prompt: "Use $tv-scenario-feasibility-orchestrator to compare multiple TV scenarios and coordinate a parallel feasibility review."

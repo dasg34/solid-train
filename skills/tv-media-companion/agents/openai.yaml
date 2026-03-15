@@ -1,0 +1,4 @@
+interface:
+  display_name: "TV Media Companion"
+  short_description: "Assess media companion feasibility for TV GenUI"
+  default_prompt: "Use $tv-media-companion to assess or design a TV-first media companion scenario."
