@@ -2,148 +2,125 @@ import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../models/template_registry.dart';
-import '../models/template_scenario.dart';
-import '../models/template_surface.dart';
+import '../../../core/a2ui/a2ui_payload_source.dart';
+import '../../../core/a2ui/surface_style.dart';
+import '../models/scenario_entry.dart';
+
+// Skills emit this catalogId in their createSurface messages.
+const _catalogId =
+    'https://a2ui.org/specification/v0_9/standard_catalog.json';
 
 class GenUiScenarioSurface extends StatefulWidget {
   const GenUiScenarioSurface({
     required this.scenario,
-    required this.templateRegistry,
+    required this.payloadSource,
     super.key,
   });
 
-  final TemplateScenario scenario;
-  final TemplateRegistry templateRegistry;
+  final ScenarioEntry scenario;
+  final A2uiPayloadSource payloadSource;
 
   @override
   State<GenUiScenarioSurface> createState() => _GenUiScenarioSurfaceState();
 }
 
 class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
-  late final A2uiMessageProcessor _processor;
-  int _renderLoadId = 0;
-  TemplateSurfaceStyle _surfaceStyle = TemplateSurfaceStyle.standard;
+  late SurfaceController _controller;
+  int _loadId = 0;
+  SurfaceStyle _style = SurfaceStyle.standard;
+  bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
-    _processor = A2uiMessageProcessor(
+    _controller = SurfaceController(
       catalogs: [
         Catalog([
-          CoreCatalogItems.card,
-          CoreCatalogItems.column,
-          CoreCatalogItems.divider,
-          CoreCatalogItems.icon,
-          CoreCatalogItems.row,
-          CoreCatalogItems.text,
-        ], catalogId: tvPocCatalogId),
+          BasicCatalogItems.card,
+          BasicCatalogItems.column,
+          BasicCatalogItems.divider,
+          BasicCatalogItems.icon,
+          BasicCatalogItems.row,
+          BasicCatalogItems.text,
+        ], catalogId: _catalogId),
       ],
     );
-    _renderScenario();
+    _loadScenario();
   }
 
   @override
   void didUpdateWidget(covariant GenUiScenarioSurface oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.scenario.id != widget.scenario.id) {
-      _renderScenario();
+      _loadScenario();
     }
   }
 
-  void _renderScenario() {
-    _renderScenarioAsync();
-  }
-
-  Future<void> _renderScenarioAsync() async {
-    final presenter = widget.templateRegistry.presenterFor(widget.scenario.id);
-    final loadId = ++_renderLoadId;
-    final loadingPayload = presenter.buildLoading();
-    if (loadingPayload != null) {
-      _renderPayload(loadingPayload);
-    }
+  Future<void> _loadScenario() async {
+    final loadId = ++_loadId;
 
     try {
-      final payload = await presenter.load();
-      if (!mounted || loadId != _renderLoadId) {
-        return;
-      }
-      _renderPayload(payload);
-    } catch (error) {
-      if (!mounted || loadId != _renderLoadId) {
-        return;
-      }
-      _renderPayload(presenter.buildError(error));
-    }
-  }
+      final messages =
+          await widget.payloadSource.load(widget.scenario.id);
+      if (!mounted || loadId != _loadId) return;
 
-  void _renderPayload(TemplateSurfacePayload payload) {
-    if (mounted && _surfaceStyle != payload.surfaceStyle) {
+      // Resolve style from the CreateSurface message's surfaceId.
+      final createMsg = messages.whereType<CreateSurface>().firstOrNull;
+      final newStyle = createMsg != null
+          ? resolveSurfaceStyle(createMsg.surfaceId)
+          : SurfaceStyle.standard;
+
       setState(() {
-        _surfaceStyle = payload.surfaceStyle;
+        _style = newStyle;
+        _hasError = false;
       });
-    } else {
-      _surfaceStyle = payload.surfaceStyle;
-    }
 
-    _processor.handleMessage(
-      SurfaceUpdate(
-        surfaceId: previewSurfaceId,
-        components: payload.components,
-      ),
-    );
-    if (payload.dataModel.isNotEmpty) {
-      _processor.handleMessage(
-        DataModelUpdate(
-          surfaceId: previewSurfaceId,
-          contents: payload.dataModel,
-        ),
-      );
+      for (final message in messages) {
+        _controller.handleMessage(message);
+      }
+    } catch (_) {
+      if (!mounted || loadId != _loadId) return;
+      setState(() => _hasError = true);
     }
-    _processor.handleMessage(
-      const BeginRendering(
-        surfaceId: previewSurfaceId,
-        root: 'root',
-        catalogId: tvPocCatalogId,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _processor.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_hasError) {
+      return const Center(
+        child: Text('시나리오를 불러올 수 없습니다.'),
+      );
+    }
+
     final content = SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
         32,
-        _surfaceStyle == TemplateSurfaceStyle.atmosphericWeather ? 36 : 28,
+        _style == SurfaceStyle.atmosphericWeather ? 36 : 28,
         32,
         32,
       ),
-      child: GenUiSurface(host: _processor, surfaceId: previewSurfaceId),
+      child: Surface(
+        surfaceContext: _controller.contextFor(widget.scenario.surfaceId),
+      ),
     );
 
-    if (_surfaceStyle == TemplateSurfaceStyle.atmosphericWeather) {
-      return _WeatherSurfaceShell(child: content);
-    }
+    return switch (_style) {
+      SurfaceStyle.atmosphericWeather =>
+        _WeatherSurfaceShell(child: content),
+      SurfaceStyle.newsPanel => _NewsSurfaceShell(child: content),
+      SurfaceStyle.schedulePanel => _ScheduleSurfaceShell(child: content),
+      SurfaceStyle.standard => Material(
+          color: const Color(0xFF12212D),
+          borderRadius: BorderRadius.circular(32),
+          child: content,
+        ),
+    };
+  }
 
-    if (_surfaceStyle == TemplateSurfaceStyle.newsPanel) {
-      return _NewsSurfaceShell(child: content);
-    }
-
-    if (_surfaceStyle == TemplateSurfaceStyle.schedulePanel) {
-      return _ScheduleSurfaceShell(child: content);
-    }
-
-    return Material(
-      color: const Color(0xFF12212D),
-      borderRadius: BorderRadius.circular(32),
-      child: content,
-    );
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 
