@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
 
-import 'models/template_registry.dart';
-import 'models/template_scenario.dart';
+import '../../core/a2ui/a2ui_payload_source.dart';
+import 'models/scenario_entry.dart';
 import 'widgets/genui_scenario_surface.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({required this.templateRegistry, super.key});
+  const HomeScreen({required this.payloadSource, super.key});
 
-  final TemplateRegistry templateRegistry;
+  final A2uiPayloadSource payloadSource;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late final TextEditingController _promptController;
-  late TemplateScenario _selectedScenario;
+  late ScenarioEntry _selectedScenario;
 
   @override
   void initState() {
     super.initState();
-    _selectedScenario = widget.templateRegistry.scenarios.first;
-    _promptController = TextEditingController(text: _selectedScenario.prompt);
+    _selectedScenario = scenarioCatalog.first;
   }
 
   @override
@@ -48,16 +46,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: _ScenarioRail(
                           selectedScenario: _selectedScenario,
                           onSelectScenario: _handleScenarioChanged,
-                          promptController: _promptController,
-                          onRoutePrompt: _routePrompt,
-                          scenarios: widget.templateRegistry.scenarios,
                         ),
                       ),
                       const SizedBox(width: 24),
                       Expanded(
                         child: _PreviewPanel(
                           scenario: _selectedScenario,
-                          templateRegistry: widget.templateRegistry,
+                          payloadSource: widget.payloadSource,
                         ),
                       ),
                     ],
@@ -69,16 +64,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: _ScenarioRail(
                           selectedScenario: _selectedScenario,
                           onSelectScenario: _handleScenarioChanged,
-                          promptController: _promptController,
-                          onRoutePrompt: _routePrompt,
-                          scenarios: widget.templateRegistry.scenarios,
                         ),
                       ),
                       const SizedBox(height: 24),
                       Expanded(
                         child: _PreviewPanel(
                           scenario: _selectedScenario,
-                          templateRegistry: widget.templateRegistry,
+                          payloadSource: widget.payloadSource,
                         ),
                       ),
                     ],
@@ -89,26 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _handleScenarioChanged(TemplateScenario scenario) {
+  void _handleScenarioChanged(ScenarioEntry scenario) {
     setState(() {
       _selectedScenario = scenario;
-      _promptController.text = scenario.prompt;
     });
-  }
-
-  void _routePrompt() {
-    final selectedTemplate = widget.templateRegistry.route(
-      _promptController.text,
-    );
-    setState(() {
-      _selectedScenario = selectedTemplate;
-    });
-  }
-
-  @override
-  void dispose() {
-    _promptController.dispose();
-    super.dispose();
   }
 }
 
@@ -116,16 +92,10 @@ class _ScenarioRail extends StatelessWidget {
   const _ScenarioRail({
     required this.selectedScenario,
     required this.onSelectScenario,
-    required this.promptController,
-    required this.onRoutePrompt,
-    required this.scenarios,
   });
 
-  final TemplateScenario selectedScenario;
-  final ValueChanged<TemplateScenario> onSelectScenario;
-  final TextEditingController promptController;
-  final VoidCallback onRoutePrompt;
-  final List<TemplateScenario> scenarios;
+  final ScenarioEntry selectedScenario;
+  final ValueChanged<ScenarioEntry> onSelectScenario;
 
   @override
   Widget build(BuildContext context) {
@@ -163,30 +133,14 @@ class _ScenarioRail extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 24),
-            Text('템플릿 라우팅 입력', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 12),
-            TextField(
-              controller: promptController,
-              onSubmitted: (_) => onRoutePrompt(),
-              decoration: const InputDecoration(
-                hintText: '예: 날씨 보여줘',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: onRoutePrompt,
-              child: const Text('주제에 맞는 템플릿 선택'),
-            ),
-            const SizedBox(height: 24),
             Text('준비된 템플릿', style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             Expanded(
               child: ListView.separated(
-                itemCount: scenarios.length,
+                itemCount: scenarioCatalog.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
-                  final scenario = scenarios[index];
+                  final scenario = scenarioCatalog[index];
                   final isSelected = scenario.id == selectedScenario.id;
 
                   return InkWell(
@@ -218,16 +172,9 @@ class _ScenarioRail extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            '"${scenario.prompt}"',
+                            scenario.summary,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.secondary,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            scenario.summary,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.72),
                             ),
                           ),
                           const SizedBox(height: 14),
@@ -247,10 +194,10 @@ class _ScenarioRail extends StatelessWidget {
 }
 
 class _PreviewPanel extends StatelessWidget {
-  const _PreviewPanel({required this.scenario, required this.templateRegistry});
+  const _PreviewPanel({required this.scenario, required this.payloadSource});
 
-  final TemplateScenario scenario;
-  final TemplateRegistry templateRegistry;
+  final ScenarioEntry scenario;
+  final A2uiPayloadSource payloadSource;
 
   @override
   Widget build(BuildContext context) {
@@ -292,7 +239,7 @@ class _PreviewPanel extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '${scenario.pattern.detail}\n입력 예시: "${scenario.prompt}"',
+              '${scenario.pattern.detail}\n"${scenario.summary}"',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: Colors.white.withValues(alpha: 0.74),
               ),
@@ -382,7 +329,7 @@ class _PreviewPanel extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(34),
                                     child: GenUiScenarioSurface(
                                       scenario: scenario,
-                                      templateRegistry: templateRegistry,
+                                      payloadSource: payloadSource,
                                     ),
                                   ),
                                 ),
