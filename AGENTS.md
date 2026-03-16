@@ -198,6 +198,44 @@ Important references:
 - The result is easy to understand quickly without reading long prose.
 - Failure states are still demoable and visually coherent.
 
+## TV App Architecture (Post-Refactoring)
+
+The TV app (`openclaw_tv_genui`) is a thin A2UI rendering client:
+
+```
+A2UI JSON (NDJSON) → A2uiPayloadSource → SurfaceController → Surface → Flutter UI
+```
+
+- The app does NOT fetch data or generate component trees.
+- It receives A2UI JSON and renders it using genui's SurfaceController.
+- Theme shells (weather gradient, news backdrop, schedule backdrop) are
+  applied based on the surfaceId prefix.
+
+Phase 1 (current): loads pre-generated JSON from `assets/a2ui/`.
+Phase 2 (planned): receives JSON from OpenClaw via HTTP or streaming protocol.
+
+## LLM Integration
+
+The OpenClaw Gemini agent generates A2UI JSON for the TV app:
+
+```
+User request → OpenClaw Gemini agent
+  1. tv-a2ui-catalog skill → learn A2UI generation rules
+  2. Domain skill (e.g., tv-weather-briefing) → fetch data
+  3. Generate A2UI JSON using catalog components
+→ TV App renders the JSON
+```
+
+The `tv-a2ui-catalog` skill in `/skills/tv-a2ui-catalog/` is the shared
+knowledge base for A2UI generation. It contains:
+- Component definitions (7 registered components)
+- Generation rules and common mistakes
+- TV UX principles
+- Reference examples
+
+Domain skills (`/skills/tv-scenarios/tv-*/`) provide data fetching and
+domain-specific context. They do NOT generate A2UI — the LLM agent does.
+
 ## Practical Commands
 
 For the actual PoC app, prefer package-based setup:
