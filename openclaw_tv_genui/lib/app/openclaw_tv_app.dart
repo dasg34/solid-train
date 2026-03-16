@@ -3,13 +3,15 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../core/a2ui/a2ui_payload_source.dart';
 import '../core/a2ui/json_file_payload_source.dart';
+import '../core/platform/app_control_handler.dart';
 import '../core/theme/app_theme.dart';
 import '../features/home/home_screen.dart';
 
 class OpenclawTvApp extends StatelessWidget {
-  const OpenclawTvApp({super.key, this.payloadSource});
+  const OpenclawTvApp({super.key, this.payloadSource, this.appControlHandler});
 
   final A2uiPayloadSource? payloadSource;
+  final AppControlHandler? appControlHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +24,7 @@ class OpenclawTvApp extends StatelessWidget {
       theme: buildAppTheme(),
       home: HomeScreen(
         payloadSource: payloadSource ?? const JsonFilePayloadSource(),
+        appControlHandler: appControlHandler,
       ),
     );
   }

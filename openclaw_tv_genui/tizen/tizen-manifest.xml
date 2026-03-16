@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages"
+          api-version="6.5"
+          package="org.openclaw.tv.genui"
+          version="1.0.0">
+  <profile name="tv" />
+  <ui-application appid="org.openclaw.tv.genui"
+                  exec="Runner.dll"
+                  type="dotnet"
+                  multiple="false"
+                  taskmanage="true"
+                  launch_mode="single">
+    <label>OpenClaw TV</label>
+    <app-control>
+      <operation name="http://tizen.org/appcontrol/operation/default" />
+    </app-control>
+  </ui-application>
+  <privileges>
+    <privilege>http://tizen.org/privilege/mediastorage</privilege>
+    <privilege>http://tizen.org/privilege/externalstorage</privilege>
+  </privileges>
+</manifest>

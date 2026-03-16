@@ -1,13 +1,21 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../core/a2ui/a2ui_payload_source.dart';
+import '../../core/platform/app_control_handler.dart';
 import 'models/scenario_entry.dart';
 import 'widgets/genui_scenario_surface.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({required this.payloadSource, super.key});
+  const HomeScreen({
+    required this.payloadSource,
+    this.appControlHandler,
+    super.key,
+  });
 
   final A2uiPayloadSource payloadSource;
+  final AppControlHandler? appControlHandler;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -15,15 +23,34 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late ScenarioEntry _selectedScenario;
+  StreamSubscription<String>? _appControlSub;
+  String? _externalFilePath;
 
   @override
   void initState() {
     super.initState();
     _selectedScenario = scenarioCatalog.first;
+
+    _appControlSub = widget.appControlHandler?.onFileReceived.listen((path) {
+      setState(() {
+        _externalFilePath = path;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    // External file mode: full-screen rendering, no scenario rail.
+    if (_externalFilePath != null) {
+      return Scaffold(
+        body: GenUiScenarioSurface.file(
+          key: ValueKey(_externalFilePath),
+          filePath: _externalFilePath!,
+        ),
+      );
+    }
+
+    // Catalog mode: existing layout.
     final isWideLayout = MediaQuery.sizeOf(context).width >= 720;
 
     return Scaffold(
@@ -85,6 +112,12 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedScenario = scenario;
     });
+  }
+
+  @override
+  void dispose() {
+    _appControlSub?.cancel();
+    super.dispose();
   }
 }
 
@@ -327,7 +360,7 @@ class _PreviewPanel extends StatelessWidget {
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(34),
-                                    child: GenUiScenarioSurface(
+                                    child: GenUiScenarioSurface.scenario(
                                       scenario: scenario,
                                       payloadSource: payloadSource,
                                     ),

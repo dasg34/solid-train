@@ -3,6 +3,7 @@ import 'package:genui/genui.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/a2ui/a2ui_payload_source.dart';
+import '../../../core/a2ui/file_payload_source.dart';
 import '../../../core/a2ui/surface_style.dart';
 import '../models/scenario_entry.dart';
 
@@ -11,14 +12,23 @@ const _catalogId =
     'https://a2ui.org/specification/v0_9/standard_catalog.json';
 
 class GenUiScenarioSurface extends StatefulWidget {
-  const GenUiScenarioSurface({
-    required this.scenario,
-    required this.payloadSource,
+  const GenUiScenarioSurface.scenario({
+    required A2uiPayloadSource payloadSource,
+    required ScenarioEntry scenario,
     super.key,
-  });
+  })  : _payloadSource = payloadSource,
+        _scenario = scenario,
+        filePath = null;
 
-  final ScenarioEntry scenario;
-  final A2uiPayloadSource payloadSource;
+  const GenUiScenarioSurface.file({
+    required this.filePath,
+    super.key,
+  })  : _payloadSource = null,
+        _scenario = null;
+
+  final A2uiPayloadSource? _payloadSource;
+  final ScenarioEntry? _scenario;
+  final String? filePath;
 
   @override
   State<GenUiScenarioSurface> createState() => _GenUiScenarioSurfaceState();
@@ -27,6 +37,7 @@ class GenUiScenarioSurface extends StatefulWidget {
 class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   late SurfaceController _controller;
   int _loadId = 0;
+  String _surfaceId = 'main';
   SurfaceStyle _style = SurfaceStyle.standard;
   bool _hasError = false;
 
@@ -54,7 +65,8 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   @override
   void didUpdateWidget(covariant GenUiScenarioSurface oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.scenario.id != widget.scenario.id) {
+    if (oldWidget.filePath != widget.filePath ||
+        oldWidget._scenario?.id != widget._scenario?.id) {
       _loadScenario();
     }
   }
@@ -68,17 +80,25 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
     _controller = _createController();
 
     try {
-      final messages =
-          await widget.payloadSource.load(widget.scenario.id);
+      final List<A2uiMessage> messages;
+
+      if (widget.filePath != null) {
+        messages = await FilePayloadSource().loadFile(widget.filePath!);
+      } else {
+        messages = await widget._payloadSource!.load(widget._scenario!.id);
+      }
+
       if (!mounted || loadId != _loadId) return;
 
-      // Resolve style from the CreateSurface message's surfaceId.
+      // Resolve surfaceId and style from the CreateSurface message.
       final createMsg = messages.whereType<CreateSurface>().firstOrNull;
-      final newStyle = createMsg != null
-          ? resolveSurfaceStyle(createMsg.surfaceId)
-          : SurfaceStyle.standard;
+      final surfaceId = createMsg?.surfaceId
+          ?? widget._scenario?.surfaceId
+          ?? 'main';
+      final newStyle = resolveSurfaceStyle(surfaceId);
 
       setState(() {
+        _surfaceId = surfaceId;
         _style = newStyle;
         _hasError = false;
       });
@@ -108,7 +128,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
         32,
       ),
       child: Surface(
-        surfaceContext: _controller.contextFor(widget.scenario.surfaceId),
+        surfaceContext: _controller.contextFor(_surfaceId),
       ),
     );
 
