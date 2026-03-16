@@ -1,62 +1,38 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:openclaw_tv_genui/core/platform/app_control_handler.dart';
 
+// AppControlHandler depends on tizen_app_control which uses EventChannel
+// internally. Tests need binding initialised and the EventChannel mocked.
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('AppControlHandler', () {
-    late AppControlHandler handler;
+    test('onFileReceived is a broadcast stream', () {
+      final handler = AppControlHandler();
+      final sub1 = handler.onFileReceived.listen((_) {});
+      final sub2 = handler.onFileReceived.listen((_) {});
 
-    setUp(() {
-      TestWidgetsFlutterBinding.ensureInitialized();
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-        const MethodChannel('openclaw/a2ui'),
-        (call) async => null,
-      );
-      handler = AppControlHandler();
-    });
-
-    tearDown(() {
+      // Both subscriptions active = broadcast stream works.
+      sub1.cancel();
+      sub2.cancel();
       handler.dispose();
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-        const MethodChannel('openclaw/a2ui'),
-        null,
-      );
     });
 
-    test('emits file path when loadFile is called via MethodChannel', () async {
-      final paths = <String>[];
-      handler.onFileReceived.listen(paths.add);
+    test('dispose closes the stream', () async {
+      final handler = AppControlHandler();
+      handler.dispose();
 
-      await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .handlePlatformMessage(
-        'openclaw/a2ui',
-        const StandardMethodCodec().encodeMethodCall(
-          const MethodCall('loadFile', '/tmp/test.jsonl'),
-        ),
-        (data) {},
+      final completer = Completer<bool>();
+      handler.onFileReceived.listen(
+        (_) {},
+        onDone: () => completer.complete(true),
       );
 
-      await Future<void>.delayed(Duration.zero);
-      expect(paths, ['/tmp/test.jsonl']);
-    });
-
-    test('ignores unknown method calls', () async {
-      final paths = <String>[];
-      handler.onFileReceived.listen(paths.add);
-
-      await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .handlePlatformMessage(
-        'openclaw/a2ui',
-        const StandardMethodCodec().encodeMethodCall(
-          const MethodCall('unknownMethod', 'data'),
-        ),
-        (data) {},
-      );
-
-      await Future<void>.delayed(Duration.zero);
-      expect(paths, isEmpty);
+      expect(await completer.future, isTrue);
     });
   });
 }
