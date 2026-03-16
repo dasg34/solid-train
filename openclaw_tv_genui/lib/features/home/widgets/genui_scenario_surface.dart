@@ -40,6 +40,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   SurfaceController _createController() => SurfaceController(
         catalogs: [
           Catalog([
+            BasicCatalogItems.button,
             BasicCatalogItems.card,
             BasicCatalogItems.column,
             BasicCatalogItems.divider,
