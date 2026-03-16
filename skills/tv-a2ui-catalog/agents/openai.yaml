@@ -1,0 +1,7 @@
+interface:
+  display_name: "TV A2UI Catalog"
+  short_description: "A2UI component catalog and generation rules for Samsung Tizen TV"
+  default_prompt: |
+    Use this skill to learn how to generate valid A2UI JSON for the TV app.
+    Contains component definitions, generation rules, TV UX principles,
+    and reference examples.
