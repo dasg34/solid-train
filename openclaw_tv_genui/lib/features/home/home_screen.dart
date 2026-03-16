@@ -37,18 +37,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(32),
             child: isWideLayout
                 ? Row(
                     children: [
                       SizedBox(
-                        width: 340,
+                        width: 400,
                         child: _ScenarioRail(
                           selectedScenario: _selectedScenario,
                           onSelectScenario: _handleScenarioChanged,
                         ),
                       ),
-                      const SizedBox(width: 24),
+                      const SizedBox(width: 32),
                       Expanded(
                         child: _PreviewPanel(
                           scenario: _selectedScenario,

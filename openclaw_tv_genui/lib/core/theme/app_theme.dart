@@ -42,10 +42,13 @@ ThemeData buildAppTheme() {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
     ),
     cardTheme: CardThemeData(
-      color: colorScheme.surface,
+      color: const Color(0xFF1A2D3B),
       elevation: 0,
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
+      ),
     ),
   );
 }
