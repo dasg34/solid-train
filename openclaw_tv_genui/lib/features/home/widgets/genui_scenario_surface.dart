@@ -346,7 +346,7 @@ class _OverlayLayoutSpec {
 
     switch (pattern) {
       case TvSurfacePattern.immersive:
-        alignment = smallScreen ? Alignment.center : Alignment.centerRight;
+        alignment = Alignment.center;
         widthFactor = smallScreen ? 0.92 : (compactTv ? 0.52 : 0.56);
         maxWidth = compactTv ? 620 : 920;
         heightFactor = smallScreen ? 0.84 : (compactTv ? 0.80 : 0.84);
