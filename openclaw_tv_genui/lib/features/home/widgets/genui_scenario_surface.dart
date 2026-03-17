@@ -350,9 +350,9 @@ class _OverlayLayoutSpec {
     switch (pattern) {
       case TvSurfacePattern.immersive:
         alignment = Alignment.center;
-        widthFactor = smallScreen ? 0.92 : (compactTv ? 0.52 : 0.56);
-        maxWidth = compactTv ? 620 : 920;
-        heightFactor = smallScreen ? 0.84 : (compactTv ? 0.80 : 0.84);
+        widthFactor = smallScreen ? 0.94 : (compactTv ? 0.62 : 0.68);
+        maxWidth = compactTv ? 720 : 1040;
+        heightFactor = smallScreen ? 0.86 : (compactTv ? 0.84 : 0.88);
       case TvSurfacePattern.sidePanel:
         alignment = smallScreen ? Alignment.center : Alignment.centerRight;
         widthFactor = smallScreen ? 0.88 : (compactTv ? 0.38 : 0.42);
@@ -360,9 +360,9 @@ class _OverlayLayoutSpec {
         heightFactor = smallScreen ? 0.82 : (compactTv ? 0.84 : 0.88);
       case TvSurfacePattern.centerCard:
         alignment = Alignment.center;
-        widthFactor = smallScreen ? 0.86 : (compactTv ? 0.44 : 0.48);
-        maxWidth = compactTv ? 520 : 780;
-        heightFactor = smallScreen ? 0.74 : (compactTv ? 0.68 : 0.72);
+        widthFactor = smallScreen ? 0.82 : (compactTv ? 0.36 : 0.40);
+        maxWidth = compactTv ? 440 : 640;
+        heightFactor = smallScreen ? 0.68 : (compactTv ? 0.58 : 0.64);
     }
 
     final width = (availableWidth * widthFactor).clamp(360.0, maxWidth);
