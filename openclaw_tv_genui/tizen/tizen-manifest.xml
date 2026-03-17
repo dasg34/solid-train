@@ -5,8 +5,8 @@
           version="1.0.0">
   <profile name="tv" />
   <ui-application appid="com.example.openclaw_tv_genui"
-                  exec="Runner.dll"
-                  type="dotnet"
+                  exec="openclaw_tv_genui"
+                  type="capp"
                   multiple="false"
                   taskmanage="true"
                   launch_mode="single">
@@ -14,10 +14,6 @@
     <app-control>
       <operation name="http://tizen.org/appcontrol/operation/default" />
     </app-control>
-    <metadata key="http://tizen.org/metadata/prefer_dotnet_aot"
-              value="true" />
-    <metadata key="http://tizen.org/metadata/prefer_nuget_cache"
-              value="true" />
   </ui-application>
   <privileges>
     <privilege>http://tizen.org/privilege/mediastorage</privilege>
