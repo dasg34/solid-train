@@ -13,10 +13,10 @@ generate A2UI and it does not launch the viewer.
 
 Current command coverage is split in two layers:
 
-- Live-ready domains: `weather`, `news`, `finance`, `commute`, `sports`
-- Mock-ready scenario parity with the TV skills: `daily`, `emergency`, `family`,
-  `meal-delivery`, `media`, `schedule`, `shopping`, `smart-home`, `travel`,
-  `wellness`
+- Live-ready domains: `weather`, `news`, `finance`, `commute`, `sports`,
+  `schedule`, `travel`, `emergency`, `daily`
+- Mock-ready scenario parity for the remaining TV skills: `family`,
+  `meal-delivery`, `media`, `shopping`, `smart-home`, `wellness`
 
 For Tizen packaging, the repository includes the RPM spec at
 [packaging/tv_fetch.spec](/Users/yohoho/work/tv_fetch/packaging/tv_fetch.spec).
@@ -187,6 +187,76 @@ Live league payload:
   --format pretty
 ```
 
+### Fetch schedule context
+
+Mock payload:
+
+```bash
+./builddir/tv_fetch schedule --source mock --format pretty
+```
+
+Live ICS payload:
+
+```bash
+./builddir/tv_fetch schedule \
+  --source ics-url \
+  --ics-url https://holidays.hyunbin.page/basic.ics \
+  --days 7 \
+  --max-events 6 \
+  --format pretty
+```
+
+### Fetch travel context
+
+Mock payload:
+
+```bash
+./builddir/tv_fetch travel --source mock --format pretty
+```
+
+Live airport payload:
+
+```bash
+./builddir/tv_fetch travel \
+  --source airport-kr \
+  --flight-number KE913 \
+  --terminal T2 \
+  --date 20260315 \
+  --format pretty
+```
+
+### Fetch emergency context
+
+Mock payload:
+
+```bash
+./builddir/tv_fetch emergency --source mock --format pretty
+```
+
+Live KMA payload:
+
+```bash
+./builddir/tv_fetch emergency \
+  --source kma-combined \
+  --format pretty
+```
+
+### Fetch daily context
+
+Mock payload:
+
+```bash
+./builddir/tv_fetch daily --source mock --format pretty
+```
+
+Live composed payload:
+
+```bash
+./builddir/tv_fetch daily \
+  --source compose-live \
+  --format pretty
+```
+
 ### Fetch additional mock-ready scenario context
 
 These commands mirror the remaining TV scenario skills so downstream agents can
@@ -194,22 +264,19 @@ always ask `tv_fetch` for a normalized payload, even when a live adapter is not
 implemented yet.
 
 ```bash
-./builddir/tv_fetch daily --source mock --format pretty
-./builddir/tv_fetch emergency --source mock --format pretty
 ./builddir/tv_fetch family --source mock --format pretty
 ./builddir/tv_fetch meal-delivery --source mock --format pretty
 ./builddir/tv_fetch media --source mock --format pretty
-./builddir/tv_fetch schedule --source mock --format pretty
 ./builddir/tv_fetch shopping --source mock --format pretty
 ./builddir/tv_fetch smart-home --source mock --format pretty
-./builddir/tv_fetch travel --source mock --format pretty
 ./builddir/tv_fetch wellness --source mock --format pretty
 ```
 
 Dry run works the same way for these scenario commands:
 
 ```bash
-./builddir/tv_fetch daily --dry-run --format pretty
+./builddir/tv_fetch emergency --dry-run --format pretty
+./builddir/tv_fetch daily --source compose-live --dry-run --format pretty
 ```
 
 ## Output shape
@@ -262,6 +329,6 @@ skill contract. A few representative top-level shapes:
 
 ## Roadmap
 
-- Add live adapters for daily, emergency, schedule, and travel
 - Add top-level `schema` command for output contracts
 - Add stable machine-readable error codes across all domains
+- Improve UTF-8-safe shortening and source-specific copy cleanup for a few live feeds

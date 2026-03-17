@@ -12,10 +12,10 @@ Requires:    libjson
 
 %description
 tv_fetch is a data-only CLI for Tizen TV workflows. It fetches and normalizes
-weather, news, finance, commute, and sports context into machine-friendly JSON
-for downstream A2UI composition. It also bundles mock-ready scenario payloads
-for daily, emergency, family, meal-delivery, media, schedule, shopping,
-smart-home, travel, and wellness surfaces.
+weather, news, finance, commute, sports, schedule, travel, emergency, and
+daily context into machine-friendly JSON for downstream A2UI composition. It
+also bundles mock-ready scenario payloads for family, meal-delivery, media,
+shopping, smart-home, and wellness surfaces.
 
 %prep
 %autosetup

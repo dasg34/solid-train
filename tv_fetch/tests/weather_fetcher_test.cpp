@@ -6,11 +6,15 @@
 
 #include "tv_fetch/cli.hpp"
 #include "tv_fetch/commute/commute_fetcher.hpp"
+#include "tv_fetch/daily/daily_fetcher.hpp"
+#include "tv_fetch/emergency/emergency_fetcher.hpp"
 #include "tv_fetch/finance/finance_fetcher.hpp"
 #include "tv_fetch/json.hpp"
 #include "tv_fetch/news/news_fetcher.hpp"
 #include "tv_fetch/scenario/scenario_fetcher.hpp"
+#include "tv_fetch/schedule/schedule_fetcher.hpp"
 #include "tv_fetch/sports/sports_fetcher.hpp"
+#include "tv_fetch/travel/travel_fetcher.hpp"
 #include "tv_fetch/weather/weather_fetcher.hpp"
 
 namespace {
@@ -60,21 +64,20 @@ void TestParseNewsQueryCommand() {
   Assert(news.count == 4, "news count should be preserved");
 }
 
-void TestParseScenarioCommand() {
+void TestParseScheduleCommand() {
   const char* argv[] = {
       "tv_fetch", "schedule", "--source", "mock", "--format", "pretty"};
   const auto parsed = tv_fetch::ParseCommand(6, const_cast<char**>(argv));
   Assert(std::holds_alternative<tv_fetch::Command>(parsed),
-         "scenario command should parse");
+         "schedule command should parse");
   const auto& command = std::get<tv_fetch::Command>(parsed);
-  Assert(std::holds_alternative<tv_fetch::ScenarioCommand>(command),
-         "parsed command should be a scenario command");
-  const auto& scenario = std::get<tv_fetch::ScenarioCommand>(command);
-  Assert(scenario.kind == tv_fetch::ScenarioCommand::Kind::kSchedule,
-         "scenario kind should be preserved");
-  Assert(scenario.source == "mock", "scenario source should be preserved");
-  Assert(scenario.format == tv_fetch::OutputFormat::kPretty,
-         "scenario format should be preserved");
+  Assert(std::holds_alternative<tv_fetch::ScheduleCommand>(command),
+         "parsed command should be schedule");
+  const auto& schedule = std::get<tv_fetch::ScheduleCommand>(command);
+  Assert(schedule.source == tv_fetch::ScheduleCommand::Source::kMock,
+         "schedule source should be preserved");
+  Assert(schedule.format == tv_fetch::OutputFormat::kPretty,
+         "schedule format should be preserved");
 }
 
 void TestNormalizeOpenMeteoResponse() {
@@ -145,22 +148,46 @@ void TestAdditionalMockFixturesLoad() {
   Assert(std::get<tv_fetch::JsonValue>(sports).At("domain").AsString() ==
              "sports",
          "sports mock domain");
+
+  const auto schedule = tv_fetch::schedule::LoadMockSchedulePayload();
+  Assert(std::holds_alternative<tv_fetch::JsonValue>(schedule),
+         "schedule mock fixture should load");
+  Assert(std::get<tv_fetch::JsonValue>(schedule).At("domain").AsString() ==
+             "schedule",
+         "schedule mock domain");
+
+  const auto travel = tv_fetch::travel::LoadMockTravelPayload();
+  Assert(std::holds_alternative<tv_fetch::JsonValue>(travel),
+         "travel mock fixture should load");
+  Assert(std::get<tv_fetch::JsonValue>(travel).At("domain").AsString() ==
+             "travel",
+         "travel mock domain");
+
+  const auto emergency = tv_fetch::emergency::LoadMockEmergencyPayload();
+  Assert(std::holds_alternative<tv_fetch::JsonValue>(emergency),
+         "emergency mock fixture should load");
+  Assert(std::get<tv_fetch::JsonValue>(emergency).At("domain").AsString() ==
+             "emergency",
+         "emergency mock domain");
+
+  const auto daily = tv_fetch::daily::LoadMockDailyPayload();
+  Assert(std::holds_alternative<tv_fetch::JsonValue>(daily),
+         "daily mock fixture should load");
+  Assert(std::get<tv_fetch::JsonValue>(daily).At("domain").AsString() ==
+             "daily",
+         "daily mock domain");
 }
 
 void TestScenarioMockFixturesLoad() {
   constexpr std::array<std::pair<tv_fetch::ScenarioCommand::Kind,
                                  std::string_view>,
-                       10>
+                       6>
       kScenarios = {{
-          {tv_fetch::ScenarioCommand::Kind::kDaily, "daily"},
-          {tv_fetch::ScenarioCommand::Kind::kEmergency, "emergency"},
           {tv_fetch::ScenarioCommand::Kind::kFamily, "family"},
           {tv_fetch::ScenarioCommand::Kind::kMealDelivery, "meal-delivery"},
           {tv_fetch::ScenarioCommand::Kind::kMedia, "media"},
-          {tv_fetch::ScenarioCommand::Kind::kSchedule, "schedule"},
           {tv_fetch::ScenarioCommand::Kind::kShopping, "shopping"},
           {tv_fetch::ScenarioCommand::Kind::kSmartHome, "smart-home"},
-          {tv_fetch::ScenarioCommand::Kind::kTravel, "travel"},
           {tv_fetch::ScenarioCommand::Kind::kWellness, "wellness"},
       }};
 
@@ -186,7 +213,7 @@ int main() {
   TestDescribeWeather();
   TestDescribeAdditionalDomains();
   TestParseNewsQueryCommand();
-  TestParseScenarioCommand();
+  TestParseScheduleCommand();
   TestNormalizeOpenMeteoResponse();
   TestMockFixtureLoads();
   TestAdditionalMockFixturesLoad();

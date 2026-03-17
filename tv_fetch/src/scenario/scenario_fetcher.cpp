@@ -18,17 +18,7 @@ struct ScenarioMeta {
   std::string_view description;
 };
 
-constexpr std::array<ScenarioMeta, 10> kScenarioMetas = {{
-    {ScenarioCommand::Kind::kDaily,
-     "daily",
-     "daily",
-     "mock_daily.json",
-     "Return a morning briefing surface payload that combines weather, news, schedule, and commute style cards."},
-    {ScenarioCommand::Kind::kEmergency,
-     "emergency",
-     "emergency",
-     "mock_emergency.json",
-     "Return a high-priority emergency or alert surface payload."},
+constexpr std::array<ScenarioMeta, 6> kScenarioMetas = {{
     {ScenarioCommand::Kind::kFamily,
      "family",
      "family",
@@ -44,11 +34,6 @@ constexpr std::array<ScenarioMeta, 10> kScenarioMetas = {{
      "media",
      "mock_media.json",
      "Return a media companion payload for cast, episode, or soundtrack-style panels."},
-    {ScenarioCommand::Kind::kSchedule,
-     "schedule",
-     "schedule",
-     "mock_schedule.json",
-     "Return a schedule briefing payload for agenda and conflict cards."},
     {ScenarioCommand::Kind::kShopping,
      "shopping",
      "shopping",
@@ -59,11 +44,6 @@ constexpr std::array<ScenarioMeta, 10> kScenarioMetas = {{
      "smart-home",
      "mock_smart_home.json",
      "Return a smart home summary payload for doors, climate, and alerts."},
-    {ScenarioCommand::Kind::kTravel,
-     "travel",
-     "travel",
-     "mock_travel.json",
-     "Return a travel assistant payload for airport or departure helper cards."},
     {ScenarioCommand::Kind::kWellness,
      "wellness",
      "wellness",

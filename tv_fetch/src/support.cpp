@@ -48,9 +48,17 @@ std::vector<std::filesystem::path> CandidateFixturePaths(
 }  // namespace
 
 std::string CleanText(std::string_view value, std::size_t max_length) {
+  std::string cleaned_input(value);
+  const std::string replacement_char = "\xEF\xBF\xBD";
+  std::size_t replacement_pos = 0;
+  while ((replacement_pos = cleaned_input.find(replacement_char, replacement_pos)) !=
+         std::string::npos) {
+    cleaned_input.erase(replacement_pos, replacement_char.size());
+  }
+
   std::ostringstream normalized;
   bool last_was_space = false;
-  for (unsigned char ch : value) {
+  for (unsigned char ch : cleaned_input) {
     const bool is_space = std::isspace(ch) != 0;
     if (is_space) {
       if (!last_was_space && normalized.tellp() > 0) {
@@ -67,7 +75,18 @@ std::string CleanText(std::string_view value, std::size_t max_length) {
   if (text.size() <= max_length) {
     return text;
   }
-  return text.substr(0, max_length - 3) + "...";
+  if (max_length <= 3) {
+    return text.substr(0, max_length);
+  }
+  std::size_t cut = max_length - 3;
+  while (cut > 0 &&
+         (static_cast<unsigned char>(text[cut]) & 0xC0) == 0x80) {
+    --cut;
+  }
+  if (cut == 0) {
+    return "...";
+  }
+  return text.substr(0, cut) + "...";
 }
 
 std::string UrlEncode(std::string_view value) {

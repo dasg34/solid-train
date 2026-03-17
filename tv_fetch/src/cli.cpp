@@ -630,6 +630,661 @@ std::variant<SportsCommand, AppError> ParseSports(
   return command;
 }
 
+std::variant<ScheduleCommand, AppError> ParseSchedule(
+    const std::vector<std::string_view>& args) {
+  ScheduleCommand command;
+
+  for (std::size_t index = 0; index < args.size();) {
+    const auto arg = args[index];
+    if (arg == "--source") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --source.");
+      }
+      const auto value = args[index + 1];
+      if (value == "mock") {
+        command.source = ScheduleCommand::Source::kMock;
+      } else if (value == "ics-url") {
+        command.source = ScheduleCommand::Source::kIcsUrl;
+      } else if (value == "ics-file") {
+        command.source = ScheduleCommand::Source::kIcsFile;
+      } else {
+        return InvalidArguments(
+            "Unsupported schedule source.",
+            "Use --source mock, --source ics-url, or --source ics-file.");
+      }
+      index += 2;
+      continue;
+    }
+    if (arg == "--ics-url") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --ics-url.");
+      }
+      command.ics_url = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--ics-file") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --ics-file.");
+      }
+      command.ics_file = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--days") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --days.");
+      }
+      int days = 0;
+      if (!ParseInt(args[index + 1], &days) || days < 1 || days > 30) {
+        return InvalidArguments("Days must be an integer between 1 and 30.");
+      }
+      command.days = days;
+      index += 2;
+      continue;
+    }
+    if (arg == "--max-events") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --max-events.");
+      }
+      int max_events = 0;
+      if (!ParseInt(args[index + 1], &max_events) || max_events < 1 ||
+          max_events > 20) {
+        return InvalidArguments(
+            "Max events must be an integer between 1 and 20.");
+      }
+      command.max_events = max_events;
+      index += 2;
+      continue;
+    }
+    if (arg == "--now") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --now.");
+      }
+      command.now = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--format") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --format.");
+      }
+      const auto parsed = ParseOutputFormat(args[index + 1]);
+      if (std::holds_alternative<AppError>(parsed)) {
+        return std::get<AppError>(parsed);
+      }
+      command.format = std::get<OutputFormat>(parsed);
+      index += 2;
+      continue;
+    }
+    if (arg == "--dry-run") {
+      command.dry_run = true;
+      ++index;
+      continue;
+    }
+    return InvalidArguments(
+        "Unsupported schedule option.",
+        "Use tv_fetch schedule [--source mock|ics-url|ics-file] [--ics-url ...] [--ics-file ...] [--days 1-30] [--max-events 1-20] [--now ...] [--dry-run] [--format json|pretty].");
+  }
+
+  return command;
+}
+
+std::variant<TravelCommand, AppError> ParseTravel(
+    const std::vector<std::string_view>& args) {
+  TravelCommand command;
+
+  for (std::size_t index = 0; index < args.size();) {
+    const auto arg = args[index];
+    if (arg == "--source") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --source.");
+      }
+      const auto value = args[index + 1];
+      if (value == "mock") {
+        command.source = TravelCommand::Source::kMock;
+      } else if (value == "airport-kr") {
+        command.source = TravelCommand::Source::kAirportKr;
+      } else {
+        return InvalidArguments(
+            "Unsupported travel source.",
+            "Use --source mock or --source airport-kr.");
+      }
+      index += 2;
+      continue;
+    }
+    if (arg == "--now") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --now.");
+      }
+      command.now = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--date") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --date.");
+      }
+      command.date = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--window-hours") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --window-hours.");
+      }
+      int hours = 0;
+      if (!ParseInt(args[index + 1], &hours) || hours < 1 || hours > 24) {
+        return InvalidArguments(
+            "Window hours must be an integer between 1 and 24.");
+      }
+      command.window_hours = hours;
+      index += 2;
+      continue;
+    }
+    if (arg == "--from-time") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --from-time.");
+      }
+      command.from_time = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--to-time") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --to-time.");
+      }
+      command.to_time = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--flight-number") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --flight-number.");
+      }
+      command.flight_number = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--destination-code") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --destination-code.");
+      }
+      command.destination_code = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--terminal") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --terminal.");
+      }
+      const auto value = args[index + 1];
+      if (value != "T1" && value != "T2") {
+        return InvalidArguments("Terminal must be T1 or T2.");
+      }
+      command.terminal = std::string(value);
+      index += 2;
+      continue;
+    }
+    if (arg == "--airline") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --airline.");
+      }
+      command.airline = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--include-codeshare") {
+      command.include_codeshare = true;
+      ++index;
+      continue;
+    }
+    if (arg == "--format") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --format.");
+      }
+      const auto parsed = ParseOutputFormat(args[index + 1]);
+      if (std::holds_alternative<AppError>(parsed)) {
+        return std::get<AppError>(parsed);
+      }
+      command.format = std::get<OutputFormat>(parsed);
+      index += 2;
+      continue;
+    }
+    if (arg == "--dry-run") {
+      command.dry_run = true;
+      ++index;
+      continue;
+    }
+    return InvalidArguments(
+        "Unsupported travel option.",
+        "Use tv_fetch travel [--source mock|airport-kr] [--date ...] [--window-hours 1-24] [--from-time ...] [--to-time ...] [--flight-number ...] [--destination-code ...] [--terminal T1|T2] [--airline ...] [--include-codeshare] [--now ...] [--dry-run] [--format json|pretty].");
+  }
+
+  return command;
+}
+
+std::variant<EmergencyCommand, AppError> ParseEmergency(
+    const std::vector<std::string_view>& args) {
+  EmergencyCommand command;
+
+  for (std::size_t index = 0; index < args.size();) {
+    const auto arg = args[index];
+    if (arg == "--source") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --source.");
+      }
+      const auto value = args[index + 1];
+      if (value == "mock") {
+        command.source = EmergencyCommand::Source::kMock;
+      } else if (value == "kma-special-report") {
+        command.source = EmergencyCommand::Source::kKmaSpecialReport;
+      } else if (value == "kma-earthquake") {
+        command.source = EmergencyCommand::Source::kKmaEarthquake;
+      } else if (value == "kma-combined") {
+        command.source = EmergencyCommand::Source::kKmaCombined;
+      } else {
+        return InvalidArguments(
+            "Unsupported emergency source.",
+            "Use --source mock, --source kma-special-report, --source kma-earthquake, or --source kma-combined.");
+      }
+      index += 2;
+      continue;
+    }
+    if (arg == "--min-magnitude") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --min-magnitude.");
+      }
+      double magnitude = 0.0;
+      if (!ParseDouble(args[index + 1], &magnitude) || magnitude < 0.0 ||
+          magnitude > 10.0) {
+        return InvalidArguments(
+            "Min magnitude must be a number between 0 and 10.");
+      }
+      command.min_magnitude = magnitude;
+      index += 2;
+      continue;
+    }
+    if (arg == "--max-age-days") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --max-age-days.");
+      }
+      int days = 0;
+      if (!ParseInt(args[index + 1], &days) || days < 1 || days > 30) {
+        return InvalidArguments(
+            "Max age days must be an integer between 1 and 30.");
+      }
+      command.max_age_days = days;
+      index += 2;
+      continue;
+    }
+    if (arg == "--now") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --now.");
+      }
+      command.now = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--format") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --format.");
+      }
+      const auto parsed = ParseOutputFormat(args[index + 1]);
+      if (std::holds_alternative<AppError>(parsed)) {
+        return std::get<AppError>(parsed);
+      }
+      command.format = std::get<OutputFormat>(parsed);
+      index += 2;
+      continue;
+    }
+    if (arg == "--dry-run") {
+      command.dry_run = true;
+      ++index;
+      continue;
+    }
+    return InvalidArguments(
+        "Unsupported emergency option.",
+        "Use tv_fetch emergency [--source mock|kma-special-report|kma-earthquake|kma-combined] [--min-magnitude ...] [--max-age-days 1-30] [--now ...] [--dry-run] [--format json|pretty].");
+  }
+
+  return command;
+}
+
+std::variant<DailyCommand, AppError> ParseDaily(
+    const std::vector<std::string_view>& args) {
+  DailyCommand command;
+
+  for (std::size_t index = 0; index < args.size();) {
+    const auto arg = args[index];
+    if (arg == "--source") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --source.");
+      }
+      const auto value = args[index + 1];
+      if (value == "mock") {
+        command.source = DailyCommand::Source::kMock;
+      } else if (value == "compose-live") {
+        command.source = DailyCommand::Source::kComposeLive;
+      } else {
+        return InvalidArguments(
+            "Unsupported daily source.",
+            "Use --source mock or --source compose-live.");
+      }
+      index += 2;
+      continue;
+    }
+    if (arg == "--weather-source") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --weather-source.");
+      }
+      const auto value = args[index + 1];
+      if (value == "open-meteo") {
+        command.weather_source = DailyCommand::WeatherSource::kOpenMeteo;
+      } else if (value == "mock") {
+        command.weather_source = DailyCommand::WeatherSource::kMock;
+      } else if (value == "skip") {
+        command.weather_source = DailyCommand::WeatherSource::kSkip;
+      } else {
+        return InvalidArguments(
+            "Unsupported weather source for daily.",
+            "Use --weather-source open-meteo, mock, or skip.");
+      }
+      index += 2;
+      continue;
+    }
+    if (arg == "--news-source") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --news-source.");
+      }
+      const auto value = args[index + 1];
+      if (value == "yonhap-rss") {
+        command.news_source = DailyCommand::NewsSource::kYonhapRss;
+      } else if (value == "mock") {
+        command.news_source = DailyCommand::NewsSource::kMock;
+      } else if (value == "skip") {
+        command.news_source = DailyCommand::NewsSource::kSkip;
+      } else {
+        return InvalidArguments(
+            "Unsupported news source for daily.",
+            "Use --news-source yonhap-rss, mock, or skip.");
+      }
+      index += 2;
+      continue;
+    }
+    if (arg == "--schedule-source") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --schedule-source.");
+      }
+      const auto value = args[index + 1];
+      if (value == "ics-url") {
+        command.schedule_source = DailyCommand::ScheduleSource::kIcsUrl;
+      } else if (value == "ics-file") {
+        command.schedule_source = DailyCommand::ScheduleSource::kIcsFile;
+      } else if (value == "mock") {
+        command.schedule_source = DailyCommand::ScheduleSource::kMock;
+      } else if (value == "skip") {
+        command.schedule_source = DailyCommand::ScheduleSource::kSkip;
+      } else {
+        return InvalidArguments(
+            "Unsupported schedule source for daily.",
+            "Use --schedule-source ics-url, ics-file, mock, or skip.");
+      }
+      index += 2;
+      continue;
+    }
+    if (arg == "--commute-source") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --commute-source.");
+      }
+      const auto value = args[index + 1];
+      if (value == "osrm") {
+        command.commute_source = DailyCommand::CommuteSource::kOsrm;
+      } else if (value == "mock") {
+        command.commute_source = DailyCommand::CommuteSource::kMock;
+      } else if (value == "skip") {
+        command.commute_source = DailyCommand::CommuteSource::kSkip;
+      } else {
+        return InvalidArguments(
+            "Unsupported commute source for daily.",
+            "Use --commute-source osrm, mock, or skip.");
+      }
+      index += 2;
+      continue;
+    }
+    if (arg == "--latitude") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --latitude.");
+      }
+      double latitude = 0.0;
+      if (!ParseDouble(args[index + 1], &latitude) || latitude < -90.0 ||
+          latitude > 90.0) {
+        return InvalidArguments(
+            "Latitude must be a number between -90 and 90.");
+      }
+      command.latitude = latitude;
+      index += 2;
+      continue;
+    }
+    if (arg == "--longitude") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --longitude.");
+      }
+      double longitude = 0.0;
+      if (!ParseDouble(args[index + 1], &longitude) || longitude < -180.0 ||
+          longitude > 180.0) {
+        return InvalidArguments(
+            "Longitude must be a number between -180 and 180.");
+      }
+      command.longitude = longitude;
+      index += 2;
+      continue;
+    }
+    if (arg == "--city") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --city.");
+      }
+      command.city = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--district") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --district.");
+      }
+      command.district = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--weather-hours") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --weather-hours.");
+      }
+      int hours = 0;
+      if (!ParseInt(args[index + 1], &hours) || hours < 1 || hours > 12) {
+        return InvalidArguments(
+            "Weather hours must be an integer between 1 and 12.");
+      }
+      command.weather_hours = hours;
+      index += 2;
+      continue;
+    }
+    if (arg == "--rss-url") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --rss-url.");
+      }
+      command.rss_url = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--news-count") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --news-count.");
+      }
+      int count = 0;
+      if (!ParseInt(args[index + 1], &count) || count < 1 || count > 12) {
+        return InvalidArguments(
+            "News count must be an integer between 1 and 12.");
+      }
+      command.news_count = count;
+      index += 2;
+      continue;
+    }
+    if (arg == "--ics-url") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --ics-url.");
+      }
+      command.ics_url = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--ics-file") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --ics-file.");
+      }
+      command.ics_file = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--schedule-days") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --schedule-days.");
+      }
+      int days = 0;
+      if (!ParseInt(args[index + 1], &days) || days < 1 || days > 30) {
+        return InvalidArguments(
+            "Schedule days must be an integer between 1 and 30.");
+      }
+      command.schedule_days = days;
+      index += 2;
+      continue;
+    }
+    if (arg == "--schedule-max-events") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --schedule-max-events.");
+      }
+      int max_events = 0;
+      if (!ParseInt(args[index + 1], &max_events) || max_events < 1 ||
+          max_events > 20) {
+        return InvalidArguments(
+            "Schedule max events must be an integer between 1 and 20.");
+      }
+      command.schedule_max_events = max_events;
+      index += 2;
+      continue;
+    }
+    if (arg == "--schedule-now") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --schedule-now.");
+      }
+      command.schedule_now = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--commute-origin") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --commute-origin.");
+      }
+      command.commute_origin = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--commute-destination") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --commute-destination.");
+      }
+      command.commute_destination = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--commute-origin-label") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --commute-origin-label.");
+      }
+      command.commute_origin_label = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--commute-destination-label") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --commute-destination-label.");
+      }
+      command.commute_destination_label = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--commute-profile") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --commute-profile.");
+      }
+      const auto value = args[index + 1];
+      if (value == "driving") {
+        command.commute_profile = CommuteCommand::Profile::kDriving;
+      } else if (value == "walking") {
+        command.commute_profile = CommuteCommand::Profile::kWalking;
+      } else {
+        return InvalidArguments(
+            "Unsupported commute profile for daily.",
+            "Use --commute-profile driving or --commute-profile walking.");
+      }
+      index += 2;
+      continue;
+    }
+    if (arg == "--commute-arrive-by") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --commute-arrive-by.");
+      }
+      command.commute_arrive_by = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--commute-now") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --commute-now.");
+      }
+      command.commute_now = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--commute-buffer-minutes") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --commute-buffer-minutes.");
+      }
+      int minutes = 0;
+      if (!ParseInt(args[index + 1], &minutes) || minutes < 0 ||
+          minutes > 180) {
+        return InvalidArguments(
+            "Commute buffer minutes must be an integer between 0 and 180.");
+      }
+      command.commute_buffer_minutes = minutes;
+      index += 2;
+      continue;
+    }
+    if (arg == "--format") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --format.");
+      }
+      const auto parsed = ParseOutputFormat(args[index + 1]);
+      if (std::holds_alternative<AppError>(parsed)) {
+        return std::get<AppError>(parsed);
+      }
+      command.format = std::get<OutputFormat>(parsed);
+      index += 2;
+      continue;
+    }
+    if (arg == "--dry-run") {
+      command.dry_run = true;
+      ++index;
+      continue;
+    }
+    return InvalidArguments(
+        "Unsupported daily option.",
+        "Use tv_fetch daily [--source mock|compose-live] [--weather-source ...] [--news-source ...] [--schedule-source ...] [--commute-source ...] [--city ...] [--district ...] [--rss-url ...] [--ics-url ...] [--commute-origin ...] [--dry-run] [--format json|pretty].");
+  }
+
+  return command;
+}
+
 std::variant<ScenarioCommand, AppError> ParseScenario(
     ScenarioCommand::Kind kind, const std::vector<std::string_view>& args) {
   ScenarioCommand command;
@@ -1024,6 +1679,339 @@ JsonValue SportsDescribeDocument() {
       }));
 }
 
+JsonValue ScheduleDescribeDocument() {
+  return DomainDescribeBase(
+      "schedule",
+      "Fetch schedule briefing context from mock or live ICS feeds.",
+      true,
+      "mock",
+      MakeArray({JsonValue::String("mock"),
+                 JsonValue::String("ics-url"),
+                 JsonValue::String("ics-file")}),
+      MakeArray({
+          MakeObject({
+              {"name", JsonValue::String("--source")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray({JsonValue::String("mock"),
+                          JsonValue::String("ics-url"),
+                          JsonValue::String("ics-file")})},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--ics-url")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"default", JsonValue::String("https://holidays.hyunbin.page/basic.ics")},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--ics-file")},
+              {"type", JsonValue::String("path")},
+              {"required", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--days")},
+              {"type", JsonValue::String("integer")},
+              {"required", JsonValue::Boolean(false)},
+              {"range", MakeArray({JsonValue::Integer(1), JsonValue::Integer(30)})},
+              {"default", JsonValue::Integer(2)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--max-events")},
+              {"type", JsonValue::String("integer")},
+              {"required", JsonValue::Boolean(false)},
+              {"range", MakeArray({JsonValue::Integer(1), JsonValue::Integer(20)})},
+              {"default", JsonValue::Integer(6)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--now")},
+              {"type", JsonValue::String("ISO-8601 string")},
+              {"required", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--dry-run")},
+              {"type", JsonValue::String("boolean")},
+              {"required", JsonValue::Boolean(false)},
+              {"default", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--format")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray(
+                   {JsonValue::String("json"), JsonValue::String("pretty")})},
+              {"default", JsonValue::String("json")},
+          }),
+      }),
+      MakeObject({
+          {"domain", JsonValue::String("schedule")},
+          {"source", JsonValue::String("mock|ics-url|ics-file")},
+          {"title", JsonValue::String("string")},
+          {"headline", JsonValue::String("string")},
+          {"primaryMetrics", JsonValue::String("array")},
+          {"sections", JsonValue::String("array")},
+          {"alert", JsonValue::String("object")},
+          {"footer", JsonValue::String("string")},
+      }));
+}
+
+JsonValue TravelDescribeDocument() {
+  return DomainDescribeBase(
+      "travel",
+      "Fetch airport departure helper context from bundled mock data or live airport.kr feeds.",
+      true,
+      "mock",
+      MakeArray({JsonValue::String("mock"), JsonValue::String("airport-kr")}),
+      MakeArray({
+          MakeObject({
+              {"name", JsonValue::String("--source")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray({JsonValue::String("mock"), JsonValue::String("airport-kr")})},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--date")},
+              {"type", JsonValue::String("YYYYMMDD or ISO-8601")},
+              {"required", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--window-hours")},
+              {"type", JsonValue::String("integer")},
+              {"required", JsonValue::Boolean(false)},
+              {"range", MakeArray({JsonValue::Integer(1), JsonValue::Integer(24)})},
+              {"default", JsonValue::Integer(4)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--from-time")},
+              {"type", JsonValue::String("HHMM or HH:MM")},
+              {"required", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--to-time")},
+              {"type", JsonValue::String("HHMM or HH:MM")},
+              {"required", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--flight-number")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--destination-code")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--terminal")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values", MakeArray({JsonValue::String("T1"), JsonValue::String("T2")})},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--airline")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--include-codeshare")},
+              {"type", JsonValue::String("boolean")},
+              {"required", JsonValue::Boolean(false)},
+              {"default", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--now")},
+              {"type", JsonValue::String("ISO-8601 string")},
+              {"required", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--dry-run")},
+              {"type", JsonValue::String("boolean")},
+              {"required", JsonValue::Boolean(false)},
+              {"default", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--format")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray(
+                   {JsonValue::String("json"), JsonValue::String("pretty")})},
+              {"default", JsonValue::String("json")},
+          }),
+      }),
+      MakeObject({
+          {"domain", JsonValue::String("travel")},
+          {"source", JsonValue::String("mock|airport-kr")},
+          {"title", JsonValue::String("string")},
+          {"headline", JsonValue::String("string")},
+          {"primaryMetrics", JsonValue::String("array")},
+          {"sections", JsonValue::String("array")},
+          {"alert", JsonValue::String("object")},
+          {"footer", JsonValue::String("string")},
+      }));
+}
+
+JsonValue EmergencyDescribeDocument() {
+  return DomainDescribeBase(
+      "emergency",
+      "Fetch high-priority emergency context from bundled mock data or official KMA sources.",
+      true,
+      "mock",
+      MakeArray({JsonValue::String("mock"),
+                 JsonValue::String("kma-special-report"),
+                 JsonValue::String("kma-earthquake"),
+                 JsonValue::String("kma-combined")}),
+      MakeArray({
+          MakeObject({
+              {"name", JsonValue::String("--source")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray({JsonValue::String("mock"),
+                          JsonValue::String("kma-special-report"),
+                          JsonValue::String("kma-earthquake"),
+                          JsonValue::String("kma-combined")})},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--min-magnitude")},
+              {"type", JsonValue::String("number")},
+              {"required", JsonValue::Boolean(false)},
+              {"default", JsonValue::Double(3.0)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--max-age-days")},
+              {"type", JsonValue::String("integer")},
+              {"required", JsonValue::Boolean(false)},
+              {"range", MakeArray({JsonValue::Integer(1), JsonValue::Integer(30)})},
+              {"default", JsonValue::Integer(7)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--now")},
+              {"type", JsonValue::String("ISO-8601 string")},
+              {"required", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--dry-run")},
+              {"type", JsonValue::String("boolean")},
+              {"required", JsonValue::Boolean(false)},
+              {"default", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--format")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray(
+                   {JsonValue::String("json"), JsonValue::String("pretty")})},
+              {"default", JsonValue::String("json")},
+          }),
+      }),
+      MakeObject({
+          {"domain", JsonValue::String("emergency")},
+          {"source", JsonValue::String("mock|kma-special-report|kma-earthquake|kma-combined")},
+          {"title", JsonValue::String("string")},
+          {"headline", JsonValue::String("string")},
+          {"primaryMetrics", JsonValue::String("array")},
+          {"sections", JsonValue::String("array")},
+          {"alert", JsonValue::String("object")},
+          {"footer", JsonValue::String("string")},
+      }));
+}
+
+JsonValue DailyDescribeDocument() {
+  return DomainDescribeBase(
+      "daily",
+      "Fetch a morning digest from bundled mock data or compose-live weather, news, schedule, and commute sources.",
+      true,
+      "mock",
+      MakeArray({JsonValue::String("mock"), JsonValue::String("compose-live")}),
+      MakeArray({
+          MakeObject({
+              {"name", JsonValue::String("--source")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray({JsonValue::String("mock"), JsonValue::String("compose-live")})},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--weather-source")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray({JsonValue::String("open-meteo"),
+                          JsonValue::String("mock"),
+                          JsonValue::String("skip")})},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--news-source")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray({JsonValue::String("yonhap-rss"),
+                          JsonValue::String("mock"),
+                          JsonValue::String("skip")})},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--schedule-source")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray({JsonValue::String("ics-url"),
+                          JsonValue::String("ics-file"),
+                          JsonValue::String("mock"),
+                          JsonValue::String("skip")})},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--commute-source")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray({JsonValue::String("osrm"),
+                          JsonValue::String("mock"),
+                          JsonValue::String("skip")})},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--city")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"default", JsonValue::String("서울")},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--district")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"default", JsonValue::String("중구")},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--dry-run")},
+              {"type", JsonValue::String("boolean")},
+              {"required", JsonValue::Boolean(false)},
+              {"default", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--format")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray(
+                   {JsonValue::String("json"), JsonValue::String("pretty")})},
+              {"default", JsonValue::String("json")},
+          }),
+      }),
+      MakeObject({
+          {"domain", JsonValue::String("daily")},
+          {"source", JsonValue::String("mock|compose-live")},
+          {"title", JsonValue::String("string")},
+          {"headline", JsonValue::String("string")},
+          {"primaryMetrics", JsonValue::String("array")},
+          {"sections", JsonValue::String("array")},
+          {"alert", JsonValue::String("object")},
+          {"footer", JsonValue::String("string")},
+      }));
+}
+
 JsonValue SupportedTargetsArray() {
   JsonValue targets = JsonValue::Array();
   for (const auto target : kDescribeTargets) {
@@ -1090,6 +2078,34 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
     }
     return Command{std::get<SportsCommand>(parsed)};
   }
+  if (command_name == "schedule") {
+    const auto parsed = ParseSchedule(args);
+    if (std::holds_alternative<AppError>(parsed)) {
+      return std::get<AppError>(parsed);
+    }
+    return Command{std::get<ScheduleCommand>(parsed)};
+  }
+  if (command_name == "travel") {
+    const auto parsed = ParseTravel(args);
+    if (std::holds_alternative<AppError>(parsed)) {
+      return std::get<AppError>(parsed);
+    }
+    return Command{std::get<TravelCommand>(parsed)};
+  }
+  if (command_name == "emergency") {
+    const auto parsed = ParseEmergency(args);
+    if (std::holds_alternative<AppError>(parsed)) {
+      return std::get<AppError>(parsed);
+    }
+    return Command{std::get<EmergencyCommand>(parsed)};
+  }
+  if (command_name == "daily") {
+    const auto parsed = ParseDaily(args);
+    if (std::holds_alternative<AppError>(parsed)) {
+      return std::get<AppError>(parsed);
+    }
+    return Command{std::get<DailyCommand>(parsed)};
+  }
   if (const auto kind = scenario::ParseKind(command_name); kind.has_value()) {
     const auto parsed = ParseScenario(*kind, args);
     if (std::holds_alternative<AppError>(parsed)) {
@@ -1122,8 +2138,20 @@ std::string RenderHelp() {
          << "          [--buffer-minutes 0-180] [--dry-run] [--format json|pretty]\n"
          << "  sports [--source mock|thesportsdb] [--league ...] [--league-id ...]\n"
          << "         [--league-name ...] [--dry-run] [--format json|pretty]\n"
-         << "  daily|emergency|family|meal-delivery|media|schedule|\n"
-         << "  shopping|smart-home|travel|wellness\n"
+         << "  schedule [--source mock|ics-url|ics-file] [--ics-url ...] [--ics-file ...]\n"
+         << "           [--days 1-30] [--max-events 1-20] [--now ...]\n"
+         << "           [--dry-run] [--format json|pretty]\n"
+         << "  travel [--source mock|airport-kr] [--date ...] [--window-hours 1-24]\n"
+         << "         [--from-time ...] [--to-time ...] [--flight-number ...]\n"
+         << "         [--destination-code ...] [--terminal T1|T2] [--airline ...]\n"
+         << "         [--include-codeshare] [--now ...] [--dry-run] [--format json|pretty]\n"
+         << "  emergency [--source mock|kma-special-report|kma-earthquake|kma-combined]\n"
+         << "            [--min-magnitude ...] [--max-age-days 1-30] [--now ...]\n"
+         << "            [--dry-run] [--format json|pretty]\n"
+         << "  daily [--source mock|compose-live] [--weather-source ...]\n"
+         << "        [--news-source ...] [--schedule-source ...] [--commute-source ...]\n"
+         << "        [--city ...] [--district ...] [--dry-run] [--format json|pretty]\n"
+         << "  family|meal-delivery|media|shopping|smart-home|wellness\n"
          << "         [--source mock] [--dry-run] [--format json|pretty]\n";
   return stream.str();
 }
@@ -1146,15 +2174,15 @@ JsonValue BuildDescribeDocument(const std::optional<std::string>& target) {
              FinanceDescribeDocument(),
              CommuteDescribeDocument(),
              SportsDescribeDocument(),
-             scenario::Describe(ScenarioCommand::Kind::kDaily),
-             scenario::Describe(ScenarioCommand::Kind::kEmergency),
+             ScheduleDescribeDocument(),
+             TravelDescribeDocument(),
+             EmergencyDescribeDocument(),
+             DailyDescribeDocument(),
              scenario::Describe(ScenarioCommand::Kind::kFamily),
              scenario::Describe(ScenarioCommand::Kind::kMealDelivery),
              scenario::Describe(ScenarioCommand::Kind::kMedia),
-             scenario::Describe(ScenarioCommand::Kind::kSchedule),
              scenario::Describe(ScenarioCommand::Kind::kShopping),
              scenario::Describe(ScenarioCommand::Kind::kSmartHome),
-             scenario::Describe(ScenarioCommand::Kind::kTravel),
              scenario::Describe(ScenarioCommand::Kind::kWellness),
          })},
     });
@@ -1174,6 +2202,18 @@ JsonValue BuildDescribeDocument(const std::optional<std::string>& target) {
   }
   if (*target == "sports") {
     return SportsDescribeDocument();
+  }
+  if (*target == "schedule") {
+    return ScheduleDescribeDocument();
+  }
+  if (*target == "travel") {
+    return TravelDescribeDocument();
+  }
+  if (*target == "emergency") {
+    return EmergencyDescribeDocument();
+  }
+  if (*target == "daily") {
+    return DailyDescribeDocument();
   }
   if (const auto kind = scenario::ParseKind(*target); kind.has_value()) {
     return scenario::Describe(*kind);

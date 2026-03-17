@@ -4,12 +4,16 @@
 
 #include "tv_fetch/cli.hpp"
 #include "tv_fetch/commute/commute_fetcher.hpp"
+#include "tv_fetch/daily/daily_fetcher.hpp"
+#include "tv_fetch/emergency/emergency_fetcher.hpp"
 #include "tv_fetch/error.hpp"
 #include "tv_fetch/finance/finance_fetcher.hpp"
 #include "tv_fetch/json.hpp"
 #include "tv_fetch/news/news_fetcher.hpp"
 #include "tv_fetch/scenario/scenario_fetcher.hpp"
+#include "tv_fetch/schedule/schedule_fetcher.hpp"
 #include "tv_fetch/sports/sports_fetcher.hpp"
+#include "tv_fetch/travel/travel_fetcher.hpp"
 #include "tv_fetch/weather/weather_fetcher.hpp"
 
 namespace {
@@ -18,13 +22,17 @@ using tv_fetch::AppError;
 using tv_fetch::Command;
 using tv_fetch::CommuteCommand;
 using tv_fetch::DescribeCommand;
+using tv_fetch::DailyCommand;
+using tv_fetch::EmergencyCommand;
 using tv_fetch::FinanceCommand;
 using tv_fetch::JsonValue;
 using tv_fetch::NewsCommand;
 using tv_fetch::ObjectSet;
 using tv_fetch::OutputFormat;
+using tv_fetch::ScheduleCommand;
 using tv_fetch::ScenarioCommand;
 using tv_fetch::SportsCommand;
+using tv_fetch::TravelCommand;
 using tv_fetch::WeatherCommand;
 
 JsonValue ErrorToJson(const AppError& error) {
@@ -64,6 +72,14 @@ tv_fetch::JsonResult ExecuteCommand(const Command& command) {
           return tv_fetch::commute::Execute(typed_command);
         } else if constexpr (std::is_same_v<CommandType, SportsCommand>) {
           return tv_fetch::sports::Execute(typed_command);
+        } else if constexpr (std::is_same_v<CommandType, ScheduleCommand>) {
+          return tv_fetch::schedule::Execute(typed_command);
+        } else if constexpr (std::is_same_v<CommandType, TravelCommand>) {
+          return tv_fetch::travel::Execute(typed_command);
+        } else if constexpr (std::is_same_v<CommandType, EmergencyCommand>) {
+          return tv_fetch::emergency::Execute(typed_command);
+        } else if constexpr (std::is_same_v<CommandType, DailyCommand>) {
+          return tv_fetch::daily::Execute(typed_command);
         } else if constexpr (std::is_same_v<CommandType, ScenarioCommand>) {
           return tv_fetch::scenario::Execute(typed_command);
         }
