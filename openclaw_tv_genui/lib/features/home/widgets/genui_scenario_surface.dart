@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/a2ui/a2ui_payload_source.dart';
 import '../../../core/a2ui/file_payload_source.dart';
@@ -532,36 +531,28 @@ ThemeData _buildWeatherTheme(ThemeData baseTheme) {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
     ),
     textTheme: baseTextTheme.copyWith(
-      headlineLarge: GoogleFonts.nanumMyeongjo(
-        textStyle: baseTextTheme.headlineLarge?.copyWith(
-          color: colorScheme.onSurface,
-          fontWeight: FontWeight.w700,
-          height: 1.15,
-          letterSpacing: -1.2,
-        ),
+      headlineLarge: baseTextTheme.headlineLarge?.copyWith(
+        color: colorScheme.onSurface,
+        fontWeight: FontWeight.w700,
+        height: 1.15,
+        letterSpacing: -1.2,
       ),
-      headlineMedium: GoogleFonts.nanumMyeongjo(
-        textStyle: baseTextTheme.headlineMedium?.copyWith(
-          color: colorScheme.onSurface,
-          fontWeight: FontWeight.w700,
-          height: 1.2,
-          letterSpacing: -0.8,
-        ),
+      headlineMedium: baseTextTheme.headlineMedium?.copyWith(
+        color: colorScheme.onSurface,
+        fontWeight: FontWeight.w700,
+        height: 1.2,
+        letterSpacing: -0.8,
       ),
-      headlineSmall: GoogleFonts.nanumMyeongjo(
-        textStyle: baseTextTheme.headlineSmall?.copyWith(
-          color: colorScheme.onSurface,
-          fontWeight: FontWeight.w700,
-          height: 1.22,
-          letterSpacing: -0.5,
-        ),
+      headlineSmall: baseTextTheme.headlineSmall?.copyWith(
+        color: colorScheme.onSurface,
+        fontWeight: FontWeight.w700,
+        height: 1.22,
+        letterSpacing: -0.5,
       ),
-      titleLarge: GoogleFonts.nanumMyeongjo(
-        textStyle: baseTextTheme.titleLarge?.copyWith(
-          color: colorScheme.onSurface,
-          fontWeight: FontWeight.w700,
-          height: 1.28,
-        ),
+      titleLarge: baseTextTheme.titleLarge?.copyWith(
+        color: colorScheme.onSurface,
+        fontWeight: FontWeight.w700,
+        height: 1.28,
       ),
       titleMedium: baseTextTheme.titleMedium?.copyWith(
         color: const Color(0xFFE1E7ED),
@@ -599,13 +590,11 @@ ThemeData _buildNewsTheme(ThemeData baseTheme) {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
     ),
     textTheme: baseTextTheme.copyWith(
-      headlineMedium: GoogleFonts.nanumMyeongjo(
-        textStyle: baseTextTheme.headlineMedium?.copyWith(
-          color: colorScheme.onSurface,
-          fontWeight: FontWeight.w700,
-          height: 1.18,
-          letterSpacing: -0.8,
-        ),
+      headlineMedium: baseTextTheme.headlineMedium?.copyWith(
+        color: colorScheme.onSurface,
+        fontWeight: FontWeight.w700,
+        height: 1.18,
+        letterSpacing: -0.8,
       ),
       headlineSmall: baseTextTheme.headlineSmall?.copyWith(
         color: colorScheme.onSurface,
