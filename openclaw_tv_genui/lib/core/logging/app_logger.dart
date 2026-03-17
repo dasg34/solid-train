@@ -1,4 +1,6 @@
-import 'package:tizen_log/tizen_log.dart';
+import 'app_logger_sink_stub.dart'
+    if (dart.library.io) 'app_logger_sink_io.dart'
+    as sink;
 
 class AppLogger {
   AppLogger._();
@@ -56,23 +58,6 @@ class AppLogger {
       buffer.write('\n$stackTrace');
     }
 
-    final messageText = buffer.toString();
-    switch (level) {
-      case 'DEBUG':
-        Log.debug(_tag, messageText);
-        return;
-      case 'INFO':
-        Log.info(_tag, messageText);
-        return;
-      case 'WARN':
-        Log.warn(_tag, messageText);
-        return;
-      case 'ERROR':
-        Log.error(_tag, messageText);
-        return;
-      default:
-        Log.verbose(_tag, messageText);
-        return;
-    }
+    sink.logToPlatform(tag: _tag, level: level, message: buffer.toString());
   }
 }
