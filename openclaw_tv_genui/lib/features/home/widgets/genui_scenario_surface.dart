@@ -272,60 +272,56 @@ class _OverlaySurfaceFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final spec = _OverlayLayoutSpec.resolve(
-          size: constraints.biggest,
-          pattern: pattern,
-        );
+    final spec = _OverlayLayoutSpec.resolve(
+      size: MediaQuery.sizeOf(context),
+      pattern: pattern,
+    );
 
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withValues(alpha: 0.04),
-                      Colors.black.withValues(alpha: 0.10),
-                      Colors.black.withValues(alpha: 0.22),
-                    ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                ),
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.black.withValues(alpha: 0.04),
+                  Colors.black.withValues(alpha: 0.10),
+                  Colors.black.withValues(alpha: 0.22),
+                ],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
               ),
             ),
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: spec.alignment,
-                    radius: 1.18,
-                    colors: [
-                      Colors.white.withValues(alpha: 0.04),
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
+          ),
+        ),
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: spec.alignment,
+                radius: 1.18,
+                colors: [
+                  Colors.white.withValues(alpha: 0.04),
+                  Colors.transparent,
+                ],
               ),
             ),
-            SafeArea(
-              child: Padding(
-                padding: spec.margin,
-                child: Align(
-                  alignment: spec.alignment,
-                  child: SizedBox(
-                    width: spec.width,
-                    height: spec.height,
-                    child: _GlassOverlayPanel(child: child),
-                  ),
-                ),
+          ),
+        ),
+        SafeArea(
+          child: Padding(
+            padding: spec.margin,
+            child: Align(
+              alignment: spec.alignment,
+              child: SizedBox(
+                width: spec.width,
+                height: spec.height,
+                child: _GlassOverlayPanel(child: child),
               ),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -347,10 +343,12 @@ class _OverlayLayoutSpec {
     required Size size,
     required TvSurfacePattern pattern,
   }) {
-    final compact = size.width < 900;
+    final smallScreen = size.width < 900;
+    final compactTv =
+        !smallScreen && (size.width <= 1280 || size.height <= 720);
     final margin = EdgeInsets.symmetric(
-      horizontal: compact ? 16 : 28,
-      vertical: compact ? 16 : 24,
+      horizontal: smallScreen ? 16 : (compactTv ? 20 : 28),
+      vertical: smallScreen ? 16 : (compactTv ? 18 : 24),
     );
     final availableWidth = (size.width - margin.horizontal).clamp(
       320.0,
@@ -368,20 +366,20 @@ class _OverlayLayoutSpec {
 
     switch (pattern) {
       case TvSurfacePattern.immersive:
-        alignment = compact ? Alignment.center : Alignment.centerRight;
-        widthFactor = compact ? 0.94 : 0.56;
-        maxWidth = 920;
-        heightFactor = compact ? 0.88 : 0.84;
+        alignment = smallScreen ? Alignment.center : Alignment.centerRight;
+        widthFactor = smallScreen ? 0.92 : (compactTv ? 0.52 : 0.56);
+        maxWidth = compactTv ? 620 : 920;
+        heightFactor = smallScreen ? 0.84 : (compactTv ? 0.80 : 0.84);
       case TvSurfacePattern.sidePanel:
-        alignment = compact ? Alignment.center : Alignment.centerRight;
-        widthFactor = compact ? 0.90 : 0.42;
-        maxWidth = 700;
-        heightFactor = compact ? 0.86 : 0.88;
+        alignment = smallScreen ? Alignment.center : Alignment.centerRight;
+        widthFactor = smallScreen ? 0.88 : (compactTv ? 0.38 : 0.42);
+        maxWidth = compactTv ? 440 : 700;
+        heightFactor = smallScreen ? 0.82 : (compactTv ? 0.84 : 0.88);
       case TvSurfacePattern.centerCard:
         alignment = Alignment.center;
-        widthFactor = compact ? 0.88 : 0.48;
-        maxWidth = 780;
-        heightFactor = compact ? 0.78 : 0.72;
+        widthFactor = smallScreen ? 0.86 : (compactTv ? 0.44 : 0.48);
+        maxWidth = compactTv ? 520 : 780;
+        heightFactor = smallScreen ? 0.74 : (compactTv ? 0.68 : 0.72);
     }
 
     final width = (availableWidth * widthFactor).clamp(360.0, maxWidth);
