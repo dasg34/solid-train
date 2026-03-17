@@ -252,16 +252,16 @@ This renders one `itemRow` component per entry in the `/items` array.
 
 ## Surface Patterns
 
-Choose `theme.pattern` autonomously from the request and presentation goal, not
-from a fixed domain-to-pattern mapping.
+Choose `theme.pattern` based on how much screen space the content needs and
+whether the user is actively watching TV content alongside it.
 
-| Pattern | General use | theme.pattern |
+| Pattern | When to use | theme.pattern |
 |---------|-------------|---------------|
-| Immersive (풀 캔버스) | full-screen focus, rich detail | `immersive` |
-| Side Panel (사이드 패널) | supporting context beside current viewing | `sidePanel` |
-| Center Card (센터 카드) | compact default summary | `centerCard` |
-| Top Banner (상단 배너) | urgent short alert | `topBanner` |
-| Bottom Ribbon (하단 리본) | ambient ongoing status | `bottomRibbon` |
+| Immersive (풀 캔버스) | rich multi-section content that deserves full attention — weather detail, sports scores, travel plans | `immersive` |
+| Side Panel (사이드 패널) | supplementary info while TV content stays visible — news headlines, smart home status | `sidePanel` |
+| Center Card (센터 카드) | one key metric or brief summary — quick stock check, delivery ETA, calendar next-up | `centerCard` |
+| Top Banner (상단 배너) | urgent one-line alert that should not block viewing — severe weather warning, breaking news flash | `topBanner` |
+| Bottom Ribbon (하단 리본) | ambient persistent status — commute ETA, air quality index, live score ticker | `bottomRibbon` |
 
 The TV app applies a themed background based on `theme.domain`:
 - `weather` → warm atmospheric gradient
@@ -287,9 +287,9 @@ The TV app applies a themed background based on `theme.domain`:
 A simple card with a title and a value:
 
 ```
-{"version": "v0.9", "createSurface": {"surfaceId": "weather_brief", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {"domain": "weather", "pattern": "centerCard"}}}
-{"version": "v0.9", "updateDataModel": {"surfaceId": "weather_brief", "value": {"title": "서울 날씨", "temp": "18°", "condition": "맑음"}}}
-{"version": "v0.9", "updateComponents": {"surfaceId": "weather_brief", "components": [{"id": "root", "component": "Column", "justify": "center", "children": ["heroCard"]}, {"id": "heroCard", "component": "Card", "child": "cardContent"}, {"id": "cardContent", "component": "Column", "children": ["titleText", "tempRow"]}, {"id": "titleText", "component": "Text", "text": {"path": "/title"}, "variant": "h3"}, {"id": "tempRow", "component": "Row", "justify": "spaceBetween", "children": ["tempText", "conditionText"]}, {"id": "tempText", "component": "Text", "text": {"path": "/temp"}, "variant": "h1"}, {"id": "conditionText", "component": "Text", "text": {"path": "/condition"}, "variant": "body"}]}}
+{"version": "v0.9", "createSurface": {"surfaceId": "weather", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {"domain": "weather", "pattern": "centerCard"}}}
+{"version": "v0.9", "updateDataModel": {"surfaceId": "weather", "value": {"title": "서울 날씨", "temp": "18°", "condition": "맑음"}}}
+{"version": "v0.9", "updateComponents": {"surfaceId": "weather", "components": [{"id": "root", "component": "Column", "justify": "center", "children": ["heroCard"]}, {"id": "heroCard", "component": "Card", "child": "cardContent"}, {"id": "cardContent", "component": "Column", "children": ["titleText", "tempRow"]}, {"id": "titleText", "component": "Text", "text": {"path": "/title"}, "variant": "h3"}, {"id": "tempRow", "component": "Row", "justify": "spaceBetween", "children": ["tempText", "conditionText"]}, {"id": "tempText", "component": "Text", "text": {"path": "/temp"}, "variant": "h1"}, {"id": "conditionText", "component": "Text", "text": {"path": "/condition"}, "variant": "body"}]}}
 ```
 
 ## Full Examples

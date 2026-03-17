@@ -158,6 +158,68 @@ What this implies:
 - `smart home`, `media companion`, and `meal delivery` are critical if the TV
   should feel like a real living-room agent.
 
+## "Wait, It Can Do That?" Questions
+
+These are the prompts that make the demo feel less like a menu and more like a
+real agent.
+
+### Good Surprise Questions For The Current Stack
+
+These are especially useful because they sound smarter than the underlying
+domain fetchers.
+
+- `오늘 우산 챙겨야 해?`
+- `오후에 비 오면 한 줄로만 알려줘`
+- `반도체 뉴스만 3개 보여줘`
+- `삼성전자 관련 뉴스로 바로 바꿔줘`
+- `지금 출발하면 늦어?`
+- `8시까지 도착하려면 몇 시에 나가야 해?`
+- `운전 말고 걸어가면 얼마나 걸려?`
+- `시장 상황 한눈에 보여줘`
+- `환율이랑 내 watchlist 같이 보여줘`
+- `오늘 스포츠 중에 지금 볼 만한 거 있어?`
+
+Why these work:
+
+- They feel intent-first, not feature-first.
+- They imply reasoning, filtering, or summarization.
+- They are still close enough to current live coverage to be believable.
+
+### Questions A Boss Will Try If They Want To Break The Demo
+
+These are the more dangerous, agent-flavored prompts that sound natural in
+front of a TV but go beyond the current tool surface.
+
+- `오늘 중요한 거 다 한 번에 보여줘`
+- `내 일정이랑 출근길 같이 보여줘`
+- `회의 30분 전에 이 화면 자동으로 띄워줘`
+- `중요한 뉴스가 내 관심종목이랑 관련 있으면 같이 보여줘`
+- `지금 가장 긴급한 것부터 보여줘`
+- `아까 본 뉴스 다시 보여줘`
+- `지금 보는 화면 안 가리고 오른쪽에만 띄워줘`
+- `내 비행기 상태도 같이 보여줘`
+- `집 상태 이상한 것만 보여줘`
+- `아이들이 볼 거니까 덜 자극적인 뉴스만 보여줘`
+
+Why these matter:
+
+- They test orchestration across tools.
+- They test memory and follow-up handling.
+- They test TV-native behavior such as overlay mode, priority, and automation.
+
+### Questions Worth Rehearsing For A Boss Demo
+
+If we want prompts that sound impressive without being reckless, rehearse these
+first:
+
+1. `오늘 우산 챙겨야 해?`
+2. `반도체 뉴스만 3개 보여줘`
+3. `삼성전자 관련으로 바꿔줘`
+4. `지금 출발하면 늦어?`
+5. `8시까지 도착하려면 몇 시에 나가야 해?`
+6. `환율이랑 내 관심종목 같이 보여줘`
+7. `오늘 스포츠 중에 지금 볼 만한 거 있어?`
+
 ## Boss Questions Most Likely To Expose Gaps
 
 These are the questions most likely to make the current system feel incomplete.
@@ -207,14 +269,17 @@ These make the TV feel like an actual living-room assistant.
 If we need a short scripted boss demo, these prompts provide a good arc:
 
 1. `오늘 우산 챙겨야 해?`
-2. `반도체 뉴스 검색해줘`
-3. `지금 나가면 서초구청까지 얼마나 걸려?`
-4. `코스피랑 환율 보여줘`
-5. `K리그 결과 보여줘`
-6. `오늘 중요한 거 다 한 번에 보여줘`
+2. `반도체 뉴스만 3개 보여줘`
+3. `삼성전자 관련으로 바꿔줘`
+4. `지금 출발하면 서초구청까지 얼마나 걸려?`
+5. `8시까지 도착하려면 몇 시에 나가야 해?`
+6. `환율이랑 내 관심종목 같이 보여줘`
+7. `K리그 결과 보여줘`
+8. `오늘 중요한 거 다 한 번에 보여줘`
 
-The first five show breadth. The sixth reveals whether the system behaves like
-an orchestrating TV agent or just a collection of domain commands.
+The early prompts show filtering, follow-up, and actionability. The last prompt
+reveals whether the system behaves like an orchestrating TV agent or just a
+collection of domain commands.
 
 ## Summary
 
