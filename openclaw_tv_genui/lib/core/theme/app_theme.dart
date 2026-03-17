@@ -24,10 +24,12 @@ ThemeData buildAppTheme() {
     colorScheme: colorScheme,
   );
 
-  final textTheme = GoogleFonts.notoSansKrTextTheme(baseTheme.textTheme).apply(
-    bodyColor: colorScheme.onSurface,
-    displayColor: colorScheme.onSurface,
-    fontSizeFactor: _tvTextScaleFactor,
+  final textTheme = _scaleTextTheme(
+    GoogleFonts.notoSansKrTextTheme(baseTheme.textTheme).apply(
+      bodyColor: colorScheme.onSurface,
+      displayColor: colorScheme.onSurface,
+    ),
+    _tvTextScaleFactor,
   );
 
   return baseTheme.copyWith(
@@ -53,5 +55,31 @@ ThemeData buildAppTheme() {
         side: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
       ),
     ),
+  );
+}
+
+TextTheme _scaleTextTheme(TextTheme textTheme, double factor) {
+  TextStyle? scale(TextStyle? style) {
+    final size = style?.fontSize;
+    if (size == null) return style;
+    return style?.copyWith(fontSize: size * factor);
+  }
+
+  return textTheme.copyWith(
+    displayLarge: scale(textTheme.displayLarge),
+    displayMedium: scale(textTheme.displayMedium),
+    displaySmall: scale(textTheme.displaySmall),
+    headlineLarge: scale(textTheme.headlineLarge),
+    headlineMedium: scale(textTheme.headlineMedium),
+    headlineSmall: scale(textTheme.headlineSmall),
+    titleLarge: scale(textTheme.titleLarge),
+    titleMedium: scale(textTheme.titleMedium),
+    titleSmall: scale(textTheme.titleSmall),
+    bodyLarge: scale(textTheme.bodyLarge),
+    bodyMedium: scale(textTheme.bodyMedium),
+    bodySmall: scale(textTheme.bodySmall),
+    labelLarge: scale(textTheme.labelLarge),
+    labelMedium: scale(textTheme.labelMedium),
+    labelSmall: scale(textTheme.labelSmall),
   );
 }
