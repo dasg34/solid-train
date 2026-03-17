@@ -516,12 +516,7 @@ class _StandardSurfaceShell extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: Stack(
-              children: [
-                const Positioned.fill(child: _StandardBackdrop()),
-                Positioned.fill(child: child),
-              ],
-            ),
+            child: child,
           ),
         ),
       ),
@@ -1022,74 +1017,6 @@ class _WeatherBackdrop extends StatelessWidget {
                     colors: [
                       Colors.white.withValues(alpha: 0.02),
                       Colors.white.withValues(alpha: 0.005),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StandardBackdrop extends StatelessWidget {
-  const _StandardBackdrop();
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Stack(
-        children: [
-          Positioned(
-            top: -28,
-            right: 68,
-            child: _WeatherGlow(
-              size: 180,
-              color: const Color(0xFF6CB7D6),
-              opacity: 0.11,
-            ),
-          ),
-          Positioned(
-            left: -52,
-            bottom: 36,
-            child: _WeatherGlow(
-              size: 260,
-              color: const Color(0xFFF1C67B),
-              opacity: 0.09,
-            ),
-          ),
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF203446).withValues(alpha: 0.04),
-                    Colors.transparent,
-                    const Color(0xFFE3C388).withValues(alpha: 0.04),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(26),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.04),
-                  ),
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0.02),
-                      Colors.white.withValues(alpha: 0.004),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
