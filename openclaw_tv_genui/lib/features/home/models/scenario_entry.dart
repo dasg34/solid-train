@@ -1,4 +1,10 @@
-enum TvSurfacePattern { immersive, sidePanel, centerCard }
+enum TvSurfacePattern {
+  immersive,
+  sidePanel,
+  centerCard,
+  topBanner,
+  bottomRibbon,
+}
 
 extension TvSurfacePatternView on TvSurfacePattern {
   String get label {
@@ -6,17 +12,18 @@ extension TvSurfacePatternView on TvSurfacePattern {
       TvSurfacePattern.immersive => '풀 캔버스',
       TvSurfacePattern.sidePanel => '사이드 패널',
       TvSurfacePattern.centerCard => '센터 카드',
+      TvSurfacePattern.topBanner => '상단 배너',
+      TvSurfacePattern.bottomRibbon => '하단 리본',
     };
   }
 
   String get detail {
     return switch (this) {
-      TvSurfacePattern.immersive =>
-        '큰 화면의 대부분을 활용하는 몰입형 surface',
-      TvSurfacePattern.sidePanel =>
-        '기존 화면을 남겨두고 정보만 덧붙이는 패널형 surface',
-      TvSurfacePattern.centerCard =>
-        '짧은 확인과 일정 요약에 맞는 집중형 카드',
+      TvSurfacePattern.immersive => '큰 화면의 대부분을 활용하는 몰입형 surface',
+      TvSurfacePattern.sidePanel => '기존 화면을 남겨두고 정보만 덧붙이는 패널형 surface',
+      TvSurfacePattern.centerCard => '짧은 확인과 일정 요약에 맞는 집중형 카드',
+      TvSurfacePattern.topBanner => '상단에 길게 붙어 빠르게 읽히는 배너형 surface',
+      TvSurfacePattern.bottomRibbon => '하단에 길게 깔리는 리본형 보조 surface',
     };
   }
 }
@@ -71,7 +78,7 @@ const scenarioCatalog = <ScenarioEntry>[
     title: '스포츠 브리핑',
     summary: '실시간 스코어, 다음 경기, 순위',
     surfaceId: 'sports_main',
-    pattern: TvSurfacePattern.immersive,
+    pattern: TvSurfacePattern.bottomRibbon,
   ),
   ScenarioEntry(
     id: 'finance',
@@ -99,7 +106,7 @@ const scenarioCatalog = <ScenarioEntry>[
     title: '긴급 알림',
     summary: '기상특보, 기기 경고, 보안 이벤트',
     surfaceId: 'emergency_main',
-    pattern: TvSurfacePattern.immersive,
+    pattern: TvSurfacePattern.topBanner,
   ),
   ScenarioEntry(
     id: 'family',

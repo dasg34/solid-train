@@ -254,6 +254,12 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
 }
 
 TvSurfacePattern _patternForSurfaceId(String surfaceId) {
+  if (surfaceId.startsWith('emergency')) {
+    return TvSurfacePattern.topBanner;
+  }
+  if (surfaceId.startsWith('sports')) {
+    return TvSurfacePattern.bottomRibbon;
+  }
   if (surfaceId.startsWith('news') ||
       surfaceId.startsWith('commute') ||
       surfaceId.startsWith('smart_home') ||
@@ -346,6 +352,7 @@ class _OverlayLayoutSpec {
     late final double widthFactor;
     late final double maxWidth;
     late final double heightFactor;
+    late final double minHeight;
 
     switch (pattern) {
       case TvSurfacePattern.immersive:
@@ -353,21 +360,36 @@ class _OverlayLayoutSpec {
         widthFactor = smallScreen ? 0.94 : (compactTv ? 0.62 : 0.68);
         maxWidth = compactTv ? 720 : 1040;
         heightFactor = smallScreen ? 0.90 : (compactTv ? 0.96 : 0.94);
+        minHeight = 320;
       case TvSurfacePattern.sidePanel:
         alignment = smallScreen ? Alignment.center : Alignment.centerRight;
         widthFactor = smallScreen ? 0.88 : (compactTv ? 0.38 : 0.42);
         maxWidth = compactTv ? 440 : 700;
         heightFactor = smallScreen ? 0.88 : (compactTv ? 0.94 : 0.94);
+        minHeight = 320;
       case TvSurfacePattern.centerCard:
         alignment = Alignment.center;
         widthFactor = smallScreen ? 0.82 : (compactTv ? 0.36 : 0.40);
         maxWidth = compactTv ? 440 : 640;
         heightFactor = smallScreen ? 0.76 : (compactTv ? 0.80 : 0.80);
+        minHeight = 320;
+      case TvSurfacePattern.topBanner:
+        alignment = Alignment.topCenter;
+        widthFactor = smallScreen ? 0.94 : (compactTv ? 0.90 : 0.92);
+        maxWidth = compactTv ? 1080 : 1400;
+        heightFactor = smallScreen ? 0.30 : (compactTv ? 0.26 : 0.24);
+        minHeight = 170;
+      case TvSurfacePattern.bottomRibbon:
+        alignment = Alignment.bottomCenter;
+        widthFactor = smallScreen ? 0.94 : (compactTv ? 0.90 : 0.92);
+        maxWidth = compactTv ? 1080 : 1440;
+        heightFactor = smallScreen ? 0.34 : (compactTv ? 0.34 : 0.32);
+        minHeight = 200;
     }
 
     final width = (availableWidth * widthFactor).clamp(360.0, maxWidth);
     final height = (availableHeight * heightFactor).clamp(
-      320.0,
+      minHeight,
       availableHeight,
     );
 

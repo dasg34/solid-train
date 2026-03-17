@@ -209,9 +209,11 @@ Choose a pattern based on content type:
 
 | Pattern | Use Case | surfaceId |
 |---------|----------|-----------|
-| Immersive (풀 캔버스) | weather, sports, travel, daily | `{domain}_main` |
+| Immersive (풀 캔버스) | weather, travel, daily | `{domain}_main` |
 | Side Panel (사이드 패널) | news, smart home, media, commute | `{domain}_main` |
 | Center Card (센터 카드) | schedule, finance, delivery, wellness | `{domain}_main` |
+| Top Banner (상단 배너) | emergency, urgent weather, short status | `{domain}_main` |
+| Bottom Ribbon (하단 리본) | sports ticker, media companion, reminders | `{domain}_main` |
 
 The TV app applies a themed background based on surfaceId prefix:
 - `weather_*` → warm atmospheric gradient
