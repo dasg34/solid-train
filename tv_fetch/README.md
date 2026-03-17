@@ -26,9 +26,15 @@ AI-agent CLI guidance in Justin Poehnelt's “Rewrite your CLI for AI agents”.
 
 ```bash
 cd /Users/yohoho/work/tv_fetch
-cmake -S . -B build
-cmake --build build
-ctest --test-dir build
+meson setup builddir
+meson compile -C builddir
+meson test -C builddir
+```
+
+If Meson and Ninja are not installed yet:
+
+```bash
+python3 -m pip install meson ninja
 ```
 
 ## Commands
@@ -36,8 +42,8 @@ ctest --test-dir build
 ### Describe the CLI
 
 ```bash
-./build/tv_fetch describe --format pretty
-./build/tv_fetch describe weather --format pretty
+./builddir/tv_fetch describe --format pretty
+./builddir/tv_fetch describe weather --format pretty
 ```
 
 ### Fetch weather context
@@ -45,13 +51,13 @@ ctest --test-dir build
 Mock payload:
 
 ```bash
-./build/tv_fetch weather --source mock --format pretty
+./builddir/tv_fetch weather --source mock --format pretty
 ```
 
 Live Open-Meteo payload:
 
 ```bash
-./build/tv_fetch weather \
+./builddir/tv_fetch weather \
   --source open-meteo \
   --city 서울 \
   --district 중구 \
@@ -64,7 +70,7 @@ Live Open-Meteo payload:
 Dry run without network:
 
 ```bash
-./build/tv_fetch weather --source open-meteo --dry-run --format pretty
+./builddir/tv_fetch weather --source open-meteo --dry-run --format pretty
 ```
 
 ## Output shape

@@ -9,14 +9,6 @@
 
 namespace {
 
-std::string ProjectRoot() {
-#ifdef TV_FETCH_PROJECT_ROOT
-  return TV_FETCH_PROJECT_ROOT;
-#else
-  return ".";
-#endif
-}
-
 void Assert(bool condition, const std::string& message) {
   if (!condition) {
     std::cerr << "Assertion failed: " << message << '\n';
