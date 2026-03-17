@@ -5,7 +5,8 @@
           version="1.0.0">
   <profile name="tv" />
   <ui-application appid="com.example.openclaw_tv_genui"
-                  exec="openclaw_tv_genui"
+                  exec="runner"
+                  hw-acceleration="on"
                   type="capp"
                   multiple="false"
                   taskmanage="true"
