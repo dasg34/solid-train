@@ -61,14 +61,12 @@ class _HomeScreenState extends State<HomeScreen> {
           );
 
     return Scaffold(
-      body: ColoredBox(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 240),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeInCubic,
-          child: activeSurface,
-        ),
+      backgroundColor: Colors.transparent,
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 240),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        child: activeSurface,
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -212,16 +214,25 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       ),
       child: Surface(surfaceContext: _controller.contextFor(_surfaceId)),
     );
+    final overlayContent = _OverlaySurfaceFrame(
+      pattern: _resolvedPattern(),
+      child: content,
+    );
 
     return switch (_style) {
-      SurfaceStyle.atmosphericWeather => _WeatherSurfaceShell(child: content),
-      SurfaceStyle.newsPanel => _NewsSurfaceShell(child: content),
-      SurfaceStyle.schedulePanel => _ScheduleSurfaceShell(child: content),
-      SurfaceStyle.standard => Material(
-        color: const Color(0xFF12212D),
-        child: content,
+      SurfaceStyle.atmosphericWeather => _WeatherSurfaceShell(
+        child: overlayContent,
       ),
+      SurfaceStyle.newsPanel => _NewsSurfaceShell(child: overlayContent),
+      SurfaceStyle.schedulePanel => _ScheduleSurfaceShell(
+        child: overlayContent,
+      ),
+      SurfaceStyle.standard => _StandardSurfaceShell(child: overlayContent),
     };
+  }
+
+  TvSurfacePattern _resolvedPattern() {
+    return widget._scenario?.pattern ?? _patternForSurfaceId(_surfaceId);
   }
 
   @override
@@ -232,6 +243,210 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
     );
     _controller.dispose();
     super.dispose();
+  }
+}
+
+TvSurfacePattern _patternForSurfaceId(String surfaceId) {
+  if (surfaceId.startsWith('news') ||
+      surfaceId.startsWith('commute') ||
+      surfaceId.startsWith('smart_home') ||
+      surfaceId.startsWith('media')) {
+    return TvSurfacePattern.sidePanel;
+  }
+  if (surfaceId.startsWith('schedule') ||
+      surfaceId.startsWith('finance') ||
+      surfaceId.startsWith('delivery') ||
+      surfaceId.startsWith('wellness') ||
+      surfaceId.startsWith('family') ||
+      surfaceId.startsWith('shopping')) {
+    return TvSurfacePattern.centerCard;
+  }
+  return TvSurfacePattern.immersive;
+}
+
+class _OverlaySurfaceFrame extends StatelessWidget {
+  const _OverlaySurfaceFrame({required this.pattern, required this.child});
+
+  final TvSurfacePattern pattern;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final spec = _OverlayLayoutSpec.resolve(
+          size: constraints.biggest,
+          pattern: pattern,
+        );
+
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.black.withValues(alpha: 0.04),
+                      Colors.black.withValues(alpha: 0.10),
+                      Colors.black.withValues(alpha: 0.22),
+                    ],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: spec.alignment,
+                    radius: 1.18,
+                    colors: [
+                      Colors.white.withValues(alpha: 0.04),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              child: Padding(
+                padding: spec.margin,
+                child: Align(
+                  alignment: spec.alignment,
+                  child: SizedBox(
+                    width: spec.width,
+                    height: spec.height,
+                    child: _GlassOverlayPanel(child: child),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _OverlayLayoutSpec {
+  const _OverlayLayoutSpec({
+    required this.alignment,
+    required this.width,
+    required this.height,
+    required this.margin,
+  });
+
+  final Alignment alignment;
+  final double width;
+  final double height;
+  final EdgeInsets margin;
+
+  static _OverlayLayoutSpec resolve({
+    required Size size,
+    required TvSurfacePattern pattern,
+  }) {
+    final compact = size.width < 900;
+    final margin = EdgeInsets.symmetric(
+      horizontal: compact ? 16 : 28,
+      vertical: compact ? 16 : 24,
+    );
+    final availableWidth = (size.width - margin.horizontal).clamp(
+      320.0,
+      4000.0,
+    );
+    final availableHeight = (size.height - margin.vertical).clamp(
+      280.0,
+      4000.0,
+    );
+
+    late final Alignment alignment;
+    late final double widthFactor;
+    late final double maxWidth;
+    late final double heightFactor;
+
+    switch (pattern) {
+      case TvSurfacePattern.immersive:
+        alignment = compact ? Alignment.center : Alignment.centerRight;
+        widthFactor = compact ? 0.94 : 0.56;
+        maxWidth = 920;
+        heightFactor = compact ? 0.88 : 0.84;
+      case TvSurfacePattern.sidePanel:
+        alignment = compact ? Alignment.center : Alignment.centerRight;
+        widthFactor = compact ? 0.90 : 0.42;
+        maxWidth = 700;
+        heightFactor = compact ? 0.86 : 0.88;
+      case TvSurfacePattern.centerCard:
+        alignment = Alignment.center;
+        widthFactor = compact ? 0.88 : 0.48;
+        maxWidth = 780;
+        heightFactor = compact ? 0.78 : 0.72;
+    }
+
+    final width = (availableWidth * widthFactor).clamp(360.0, maxWidth);
+    final height = (availableHeight * heightFactor).clamp(
+      320.0,
+      availableHeight,
+    );
+
+    return _OverlayLayoutSpec(
+      alignment: alignment,
+      width: width,
+      height: height,
+      margin: margin,
+    );
+  }
+}
+
+class _GlassOverlayPanel extends StatelessWidget {
+  const _GlassOverlayPanel({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(34),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(34),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+            gradient: LinearGradient(
+              colors: [
+                Colors.white.withValues(alpha: 0.10),
+                Colors.white.withValues(alpha: 0.04),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.34),
+                blurRadius: 34,
+                offset: const Offset(0, 18),
+              ),
+            ],
+          ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(34),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.black.withValues(alpha: 0.24),
+                  Colors.black.withValues(alpha: 0.36),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: child,
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -266,6 +481,46 @@ class _WeatherSurfaceShell extends StatelessWidget {
             child: Stack(
               children: [
                 const Positioned.fill(child: _WeatherBackdrop()),
+                Positioned.fill(child: child),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StandardSurfaceShell extends StatelessWidget {
+  const _StandardSurfaceShell({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final baseTheme = Theme.of(context);
+
+    return Theme(
+      data: baseTheme,
+      child: DefaultTextStyle(
+        style: baseTheme.textTheme.bodyMedium!,
+        child: Material(
+          color: Colors.transparent,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF0A141B),
+                  Color(0xFF101B24),
+                  Color(0xFF152330),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Stack(
+              children: [
+                const Positioned.fill(child: _StandardBackdrop()),
                 Positioned.fill(child: child),
               ],
             ),
@@ -769,6 +1024,74 @@ class _WeatherBackdrop extends StatelessWidget {
                     colors: [
                       Colors.white.withValues(alpha: 0.02),
                       Colors.white.withValues(alpha: 0.005),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StandardBackdrop extends StatelessWidget {
+  const _StandardBackdrop();
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        children: [
+          Positioned(
+            top: -28,
+            right: 68,
+            child: _WeatherGlow(
+              size: 180,
+              color: const Color(0xFF6CB7D6),
+              opacity: 0.11,
+            ),
+          ),
+          Positioned(
+            left: -52,
+            bottom: 36,
+            child: _WeatherGlow(
+              size: 260,
+              color: const Color(0xFFF1C67B),
+              opacity: 0.09,
+            ),
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF203446).withValues(alpha: 0.04),
+                    Colors.transparent,
+                    const Color(0xFFE3C388).withValues(alpha: 0.04),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(26),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.04),
+                  ),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white.withValues(alpha: 0.02),
+                      Colors.white.withValues(alpha: 0.004),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
