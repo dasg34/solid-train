@@ -1,6 +1,0 @@
-/Users/yohoho/work/tv_fetch/build/CMakeFiles/tv_fetch_lib.dir
-/Users/yohoho/work/tv_fetch/build/CMakeFiles/tv_fetch.dir
-/Users/yohoho/work/tv_fetch/build/CMakeFiles/tv_fetch_tests.dir
-/Users/yohoho/work/tv_fetch/build/CMakeFiles/test.dir
-/Users/yohoho/work/tv_fetch/build/CMakeFiles/edit_cache.dir
-/Users/yohoho/work/tv_fetch/build/CMakeFiles/rebuild_cache.dir

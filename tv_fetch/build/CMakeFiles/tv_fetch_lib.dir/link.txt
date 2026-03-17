@@ -1,2 +1,0 @@
-/usr/bin/ar qc libtv_fetch_lib.a CMakeFiles/tv_fetch_lib.dir/src/cli.cpp.o CMakeFiles/tv_fetch_lib.dir/src/http_client.cpp.o CMakeFiles/tv_fetch_lib.dir/src/weather/weather_fetcher.cpp.o
-/usr/bin/ranlib libtv_fetch_lib.a
