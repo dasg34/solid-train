@@ -19,16 +19,18 @@ Generate three NDJSON messages (one JSON object per line) in this order:
 ### 1. createSurface
 
 ```json
-{"version": "v0.9", "createSurface": {"surfaceId": "weather_main", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json"}}
+{"version": "v0.9", "createSurface": {"surfaceId": "weather", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {"domain": "weather", "pattern": "immersive"}}}
 ```
 
-- `surfaceId`: unique identifier for this surface (e.g., `weather_main`)
+- `surfaceId`: unique identifier for this surface. Treat it as an opaque ID, not as theme or layout metadata.
 - `catalogId`: always `https://a2ui.org/specification/v0_9/standard_catalog.json`
+- `theme.domain`: required. The scenario/domain such as `weather`, `news`, `finance`
+- `theme.pattern`: required. One of `immersive`, `sidePanel`, `centerCard`, `topBanner`, `bottomRibbon`
 
 ### 2. updateDataModel
 
 ```json
-{"version": "v0.9", "updateDataModel": {"surfaceId": "weather_main", "value": {"title": "서울 강남구", "currentTemp": "18°"}}}
+{"version": "v0.9", "updateDataModel": {"surfaceId": "weather", "value": {"title": "서울 강남구", "currentTemp": "18°"}}}
 ```
 
 - `surfaceId`: must match createSurface
@@ -38,7 +40,7 @@ Generate three NDJSON messages (one JSON object per line) in this order:
 ### 3. updateComponents
 
 ```json
-{"version": "v0.9", "updateComponents": {"surfaceId": "weather_main", "components": [...]}}
+{"version": "v0.9", "updateComponents": {"surfaceId": "weather", "components": [...]}}
 ```
 
 - `surfaceId`: must match createSurface
@@ -207,18 +209,18 @@ This renders one `itemRow` component per entry in the `/items` array.
 
 Choose a pattern based on content type:
 
-| Pattern | Use Case | surfaceId |
+| Pattern | Use Case | theme.pattern |
 |---------|----------|-----------|
-| Immersive (풀 캔버스) | weather, travel, daily | `{domain}_main` |
-| Side Panel (사이드 패널) | news, smart home, media, commute | `{domain}_main` |
-| Center Card (센터 카드) | schedule, finance, delivery, wellness | `{domain}_main` |
-| Top Banner (상단 배너) | emergency, urgent weather, short status | `{domain}_main` |
-| Bottom Ribbon (하단 리본) | sports ticker, media companion, reminders | `{domain}_main` |
+| Immersive (풀 캔버스) | weather, travel, daily | `immersive` |
+| Side Panel (사이드 패널) | news, smart home, media, commute | `sidePanel` |
+| Center Card (센터 카드) | schedule, finance, delivery, wellness | `centerCard` |
+| Top Banner (상단 배너) | emergency, urgent weather, short status | `topBanner` |
+| Bottom Ribbon (하단 리본) | sports ticker, media companion, reminders | `bottomRibbon` |
 
-The TV app applies a themed background based on surfaceId prefix:
-- `weather_*` → warm atmospheric gradient
-- `news_*` → muted news backdrop
-- `schedule_*` → cool schedule backdrop
+The TV app applies a themed background based on `theme.domain`:
+- `weather` → warm atmospheric gradient
+- `news` → muted news backdrop
+- `schedule` → cool schedule backdrop
 - everything else → standard dark theme (#12212D)
 
 ## Common Mistakes
@@ -237,9 +239,9 @@ The TV app applies a themed background based on surfaceId prefix:
 A simple card with a title and a value:
 
 ```
-{"version": "v0.9", "createSurface": {"surfaceId": "example_main", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json"}}
-{"version": "v0.9", "updateDataModel": {"surfaceId": "example_main", "value": {"title": "서울 날씨", "temp": "18°", "condition": "맑음"}}}
-{"version": "v0.9", "updateComponents": {"surfaceId": "example_main", "components": [{"id": "root", "component": "Column", "justify": "center", "children": ["heroCard"]}, {"id": "heroCard", "component": "Card", "child": "cardContent"}, {"id": "cardContent", "component": "Column", "children": ["titleText", "tempRow"]}, {"id": "titleText", "component": "Text", "text": {"path": "/title"}, "variant": "h3"}, {"id": "tempRow", "component": "Row", "justify": "spaceBetween", "children": ["tempText", "conditionText"]}, {"id": "tempText", "component": "Text", "text": {"path": "/temp"}, "variant": "h1"}, {"id": "conditionText", "component": "Text", "text": {"path": "/condition"}, "variant": "body"}]}}
+{"version": "v0.9", "createSurface": {"surfaceId": "weather_brief", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {"domain": "weather", "pattern": "centerCard"}}}
+{"version": "v0.9", "updateDataModel": {"surfaceId": "weather_brief", "value": {"title": "서울 날씨", "temp": "18°", "condition": "맑음"}}}
+{"version": "v0.9", "updateComponents": {"surfaceId": "weather_brief", "components": [{"id": "root", "component": "Column", "justify": "center", "children": ["heroCard"]}, {"id": "heroCard", "component": "Card", "child": "cardContent"}, {"id": "cardContent", "component": "Column", "children": ["titleText", "tempRow"]}, {"id": "titleText", "component": "Text", "text": {"path": "/title"}, "variant": "h3"}, {"id": "tempRow", "component": "Row", "justify": "spaceBetween", "children": ["tempText", "conditionText"]}, {"id": "tempText", "component": "Text", "text": {"path": "/temp"}, "variant": "h1"}, {"id": "conditionText", "component": "Text", "text": {"path": "/condition"}, "variant": "body"}]}}
 ```
 
 ## Full Examples

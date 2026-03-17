@@ -36,8 +36,9 @@ class GenUiScenarioSurface extends StatefulWidget {
 class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   late SurfaceController _controller;
   int _loadId = 0;
-  String _surfaceId = 'main';
+  String _surfaceId = 'surface';
   SurfaceStyle _style = SurfaceStyle.standard;
+  TvSurfacePattern _pattern = TvSurfacePattern.immersive;
   bool _hasError = false;
   String? _errorDetail;
 
@@ -105,21 +106,25 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
         return;
       }
 
-      // Resolve surfaceId and style from the CreateSurface message.
+      // Resolve surfaceId, domain, and pattern from the CreateSurface message.
       final createMsg = messages.whereType<CreateSurface>().firstOrNull;
       if (createMsg == null) {
         AppLogger.warn(
           'surface',
-          'No createSurface message found for $target. Falling back to surfaceId resolution.',
+          'No createSurface message found for $target. Falling back to scenario metadata.',
         );
       }
       final surfaceId =
-          createMsg?.surfaceId ?? widget._scenario?.surfaceId ?? 'main';
-      final newStyle = resolveSurfaceStyle(surfaceId);
+          createMsg?.surfaceId ??
+          widget._scenario?.surfaceId ??
+          widget._scenario?.id ??
+          'surface';
+      final presentation = _resolvePresentation(createMsg);
 
       setState(() {
         _surfaceId = surfaceId;
-        _style = newStyle;
+        _style = presentation.style;
+        _pattern = presentation.pattern;
         _hasError = false;
         _errorDetail = null;
       });
@@ -127,7 +132,9 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       AppLogger.info(
         'surface',
         'Applying ${messages.length} messages to surfaceId=$surfaceId '
-            'style=${newStyle.name} for $target',
+            'domain=${presentation.domain} '
+            'pattern=${presentation.pattern.name} '
+            'style=${presentation.style.name} for $target',
       );
       for (final message in messages) {
         _controller.handleMessage(message);
@@ -172,7 +179,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
 
   String _userFacingErrorDetail(Object error) {
     if (error is FormatException) {
-      return 'A2UI NDJSON 포맷이 아니거나 메시지 구조가 올바르지 않습니다.';
+      return error.message;
     }
     return '로그에서 상세 오류를 확인해 주세요.';
   }
@@ -221,7 +228,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       ),
     );
     final overlayContent = _OverlaySurfaceFrame(
-      pattern: _resolvedPattern(),
+      pattern: _pattern,
       style: _style,
       child: content,
     );
@@ -238,8 +245,25 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
     };
   }
 
-  TvSurfacePattern _resolvedPattern() {
-    return widget._scenario?.pattern ?? _patternForSurfaceId(_surfaceId);
+  _SurfacePresentation _resolvePresentation(CreateSurface? createMsg) {
+    final JsonMap? theme = createMsg?.theme;
+    final String? domain =
+        _themeString(theme, 'domain') ?? widget._scenario?.domain;
+    final TvSurfacePattern? pattern =
+        _themePattern(theme?['pattern']) ?? widget._scenario?.pattern;
+
+    if (domain == null || domain.isEmpty) {
+      throw const FormatException('createSurface.theme.domain 이 필요합니다.');
+    }
+    if (pattern == null) {
+      throw const FormatException('createSurface.theme.pattern 이 필요합니다.');
+    }
+
+    return _SurfacePresentation(
+      domain: domain,
+      pattern: pattern,
+      style: resolveSurfaceStyle(domain),
+    );
   }
 
   @override
@@ -253,28 +277,39 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   }
 }
 
-TvSurfacePattern _patternForSurfaceId(String surfaceId) {
-  if (surfaceId.startsWith('emergency')) {
-    return TvSurfacePattern.topBanner;
+String? _themeString(JsonMap? theme, String key) {
+  final value = theme?[key];
+  if (value is String && value.trim().isNotEmpty) {
+    return value.trim();
   }
-  if (surfaceId.startsWith('sports')) {
-    return TvSurfacePattern.bottomRibbon;
-  }
-  if (surfaceId.startsWith('news') ||
-      surfaceId.startsWith('commute') ||
-      surfaceId.startsWith('smart_home') ||
-      surfaceId.startsWith('media')) {
-    return TvSurfacePattern.sidePanel;
-  }
-  if (surfaceId.startsWith('schedule') ||
-      surfaceId.startsWith('finance') ||
-      surfaceId.startsWith('delivery') ||
-      surfaceId.startsWith('wellness') ||
-      surfaceId.startsWith('family') ||
-      surfaceId.startsWith('shopping')) {
-    return TvSurfacePattern.centerCard;
-  }
-  return TvSurfacePattern.immersive;
+  return null;
+}
+
+TvSurfacePattern? _themePattern(Object? rawPattern) {
+  return switch (rawPattern) {
+    'immersive' || 'full' || 'fullscreen' => TvSurfacePattern.immersive,
+    'sidePanel' || 'side_panel' || 'side-panel' => TvSurfacePattern.sidePanel,
+    'centerCard' ||
+    'center_card' ||
+    'center-card' => TvSurfacePattern.centerCard,
+    'topBanner' || 'top_banner' || 'top-banner' => TvSurfacePattern.topBanner,
+    'bottomRibbon' ||
+    'bottom_ribbon' ||
+    'bottom-ribbon' => TvSurfacePattern.bottomRibbon,
+    _ => null,
+  };
+}
+
+class _SurfacePresentation {
+  const _SurfacePresentation({
+    required this.domain,
+    required this.pattern,
+    required this.style,
+  });
+
+  final String domain;
+  final TvSurfacePattern pattern;
+  final SurfaceStyle style;
 }
 
 class _OverlaySurfaceFrame extends StatelessWidget {
