@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <string_view>
 #include <vector>
 
 #include "tv_fetch/http_client.hpp"
@@ -86,13 +87,77 @@ std::string OpenMeteoCondition(int code) {
 std::string BuildOpenMeteoUrl(const WeatherCommand& command) {
   std::ostringstream url;
   url << "https://api.open-meteo.com/v1/forecast?"
-      << "latitude=" << std::fixed << std::setprecision(4) << command.latitude
+      << "latitude=" << std::fixed << std::setprecision(4)
+      << command.latitude.value()
       << "&longitude=" << std::fixed << std::setprecision(4)
-      << command.longitude << "&timezone=Asia%2FSeoul"
+      << command.longitude.value() << "&timezone=Asia%2FSeoul"
       << "&current=temperature_2m,apparent_temperature,relative_humidity_2m,"
          "precipitation,weather_code"
       << "&hourly=temperature_2m,precipitation_probability,weather_code"
       << "&forecast_hours=" << command.hours;
+  return url.str();
+}
+
+std::string NormalizeToken(std::string_view value) {
+  std::string normalized;
+  normalized.reserve(value.size());
+  for (unsigned char ch : value) {
+    if (std::isspace(ch) != 0) {
+      continue;
+    }
+    normalized.push_back(static_cast<char>(std::tolower(ch)));
+  }
+  return normalized;
+}
+
+bool ContainsToken(std::string_view haystack, std::string_view needle) {
+  if (needle.empty()) {
+    return false;
+  }
+  const std::string normalized_haystack = NormalizeToken(haystack);
+  const std::string normalized_needle = NormalizeToken(needle);
+  return !normalized_needle.empty() &&
+         normalized_haystack.find(normalized_needle) != std::string::npos;
+}
+
+std::string UrlEncode(std::string_view value) {
+  constexpr char kHex[] = "0123456789ABCDEF";
+  std::string encoded;
+  encoded.reserve(value.size() * 3);
+  for (unsigned char ch : value) {
+    const bool unreserved =
+        (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') ||
+        (ch >= '0' && ch <= '9') || ch == '-' || ch == '_' || ch == '.' ||
+        ch == '~';
+    if (unreserved) {
+      encoded.push_back(static_cast<char>(ch));
+      continue;
+    }
+    encoded.push_back('%');
+    encoded.push_back(kHex[(ch >> 4) & 0x0F]);
+    encoded.push_back(kHex[ch & 0x0F]);
+  }
+  return encoded;
+}
+
+std::string BuildGeocodingQuery(const WeatherCommand& command) {
+  if (!command.city.empty() && !command.district.empty()) {
+    return command.city + " " + command.district;
+  }
+  if (!command.city.empty()) {
+    return command.city;
+  }
+  return command.district;
+}
+
+std::string BuildGeocodingUrl(const WeatherCommand& command) {
+  const std::string query = BuildGeocodingQuery(command);
+  std::ostringstream url;
+  url << "https://nominatim.openstreetmap.org/search?"
+      << "q=" << UrlEncode(query)
+      << "&format=jsonv2"
+      << "&limit=5"
+      << "&accept-language=ko";
   return url.str();
 }
 
@@ -165,6 +230,143 @@ JsonValue MakeObject(
 
 JsonValue CopyOrNull(const JsonValue& value) {
   return value.get() == nullptr ? JsonValue::Null() : value;
+}
+
+struct ResolvedLocation {
+  double latitude = 0.0;
+  double longitude = 0.0;
+  std::string city;
+  std::string district;
+  std::string geocoding_query;
+  std::string geocoding_url;
+};
+
+int ScoreGeocodingResult(const JsonValue& result, const WeatherCommand& command) {
+  int score = 0;
+  const std::vector<std::string> fields = {
+      result.At("name").AsString(""),
+      result.At("display_name").AsString(""),
+  };
+
+  if (!command.district.empty()) {
+    for (const auto& field : fields) {
+      if (NormalizeToken(field) == NormalizeToken(command.district)) {
+        score += 10;
+      } else if (ContainsToken(field, command.district)) {
+        score += 4;
+      }
+    }
+  }
+
+  if (!command.city.empty()) {
+    for (const auto& field : fields) {
+      if (NormalizeToken(field) == NormalizeToken(command.city)) {
+        score += 6;
+      } else if (ContainsToken(field, command.city)) {
+        score += 2;
+      }
+    }
+  }
+
+  return score;
+}
+
+std::variant<double, AppError> ParseCoordinate(std::string_view value,
+                                               std::string_view field,
+                                               const std::string& hint) {
+  try {
+    return std::stod(std::string(value));
+  } catch (...) {
+    return AppError{
+        .code = "geocode_invalid_response",
+        .message = "Geocoding response did not contain usable coordinates.",
+        .hint = std::string(field) + ": " + hint,
+        .exit_code = 7,
+    };
+  }
+}
+
+std::variant<ResolvedLocation, AppError> ResolveLocation(
+    const WeatherCommand& command) {
+  if (command.latitude.has_value() && command.longitude.has_value()) {
+    return ResolvedLocation{
+        .latitude = *command.latitude,
+        .longitude = *command.longitude,
+        .city = command.city,
+        .district = command.district,
+    };
+  }
+
+  const std::string geocoding_query = BuildGeocodingQuery(command);
+  const std::string geocoding_url = BuildGeocodingUrl(command);
+  const auto geocoding_response = HttpGet(geocoding_url);
+  if (std::holds_alternative<AppError>(geocoding_response)) {
+    AppError error = std::get<AppError>(geocoding_response);
+    error.code = "geocode_request_failed";
+    error.message = "Geocoding request failed.";
+    error.hint = geocoding_url + " | " + error.hint;
+    return error;
+  }
+
+  auto parsed = JsonValue::Parse(std::get<std::string>(geocoding_response),
+                                 "geocode_parse_failed",
+                                 "Geocoding response could not be parsed.", 7);
+  if (std::holds_alternative<AppError>(parsed)) {
+    return std::get<AppError>(parsed);
+  }
+
+  const JsonValue results = std::get<JsonValue>(parsed);
+  if (!results.IsArray() || results.Size() == 0) {
+    return AppError{
+        .code = "geocode_no_match",
+        .message = "No matching location was found for the requested city/district.",
+        .hint = geocoding_query,
+        .exit_code = 7,
+    };
+  }
+
+  JsonValue best = results.At(0);
+  int best_score = ScoreGeocodingResult(best, command);
+  for (std::size_t index = 1; index < results.Size(); ++index) {
+    const JsonValue candidate = results.At(index);
+    const int candidate_score = ScoreGeocodingResult(candidate, command);
+    if (candidate_score > best_score) {
+      best = candidate;
+      best_score = candidate_score;
+    }
+  }
+
+  const std::string latitude_text = best.At("lat").AsString("");
+  const std::string longitude_text = best.At("lon").AsString("");
+  if (latitude_text.empty() || longitude_text.empty()) {
+    return AppError{
+        .code = "geocode_invalid_response",
+        .message = "Geocoding response did not contain usable coordinates.",
+        .hint = geocoding_url,
+        .exit_code = 7,
+    };
+  }
+
+  const auto latitude = ParseCoordinate(latitude_text, "lat", geocoding_url);
+  if (std::holds_alternative<AppError>(latitude)) {
+    return std::get<AppError>(latitude);
+  }
+  const auto longitude =
+      ParseCoordinate(longitude_text, "lon", geocoding_url);
+  if (std::holds_alternative<AppError>(longitude)) {
+    return std::get<AppError>(longitude);
+  }
+
+  return ResolvedLocation{
+      .latitude = std::get<double>(latitude),
+      .longitude = std::get<double>(longitude),
+      .city = command.city.empty()
+                  ? best.At("name").AsString("")
+                  : command.city,
+      .district = command.district.empty() ? best.At("name").AsString("") : command.district,
+      .geocoding_query = geocoding_query,
+      .geocoding_url = geocoding_url,
+  };
 }
 
 }  // namespace
@@ -300,21 +502,47 @@ JsonResult Execute(const WeatherCommand& command) {
     return LoadMockWeatherPayload();
   }
 
-  const std::string url = BuildOpenMeteoUrl(command);
   if (command.dry_run) {
+    JsonValue request = MakeObject({
+        {"city", JsonValue::String(command.city)},
+        {"district", JsonValue::String(command.district)},
+        {"hours", JsonValue::Integer(command.hours)},
+    });
+    if (command.latitude.has_value() && command.longitude.has_value()) {
+      ObjectSet(request, "latitude", JsonValue::Double(*command.latitude));
+      ObjectSet(request, "longitude", JsonValue::Double(*command.longitude));
+
+      WeatherCommand resolved_command = command;
+      const std::string url = BuildOpenMeteoUrl(resolved_command);
+      ObjectSet(request, "url", JsonValue::String(url));
+    } else {
+      ObjectSet(
+          request, "geocoding",
+          MakeObject({
+              {"query", JsonValue::String(BuildGeocodingQuery(command))},
+              {"url", JsonValue::String(BuildGeocodingUrl(command))},
+          }));
+    }
+
     return MakeObject({
         {"command", JsonValue::String("weather")},
         {"mode", JsonValue::String("dry-run")},
         {"source", JsonValue::String("open-meteo")},
-        {"request",
-         MakeObject({
-             {"url", JsonValue::String(url)},
-             {"city", JsonValue::String(command.city)},
-             {"district", JsonValue::String(command.district)},
-             {"hours", JsonValue::Integer(command.hours)},
-         })},
+        {"request", std::move(request)},
     });
   }
+
+  const auto resolved_location = ResolveLocation(command);
+  if (std::holds_alternative<AppError>(resolved_location)) {
+    return std::get<AppError>(resolved_location);
+  }
+  const auto& location = std::get<ResolvedLocation>(resolved_location);
+
+  WeatherCommand resolved_command = command;
+  resolved_command.latitude = location.latitude;
+  resolved_command.longitude = location.longitude;
+
+  const std::string url = BuildOpenMeteoUrl(resolved_command);
 
   const auto response = HttpGet(url);
   if (std::holds_alternative<AppError>(response)) {
@@ -328,8 +556,8 @@ JsonResult Execute(const WeatherCommand& command) {
     return std::get<AppError>(parsed);
   }
 
-  return NormalizeOpenMeteoResponse(std::get<JsonValue>(parsed), command.city,
-                                    command.district, command.hours);
+  return NormalizeOpenMeteoResponse(std::get<JsonValue>(parsed), location.city,
+                                    location.district, command.hours);
 }
 
 }  // namespace tv_fetch::weather

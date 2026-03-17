@@ -205,6 +205,12 @@ std::variant<WeatherCommand, AppError> ParseWeather(
         "[--dry-run] [--format json|pretty].");
   }
 
+  if (command.latitude.has_value() != command.longitude.has_value()) {
+    return InvalidArguments(
+        "Latitude and longitude must be provided together.",
+        "Either provide both --latitude and --longitude, or omit both to use geocoding.");
+  }
+
   return command;
 }
 
@@ -261,13 +267,17 @@ JsonValue WeatherDescribeDocument() {
                {"name", JsonValue::String("--latitude")},
                {"type", JsonValue::String("number")},
                {"required", JsonValue::Boolean(false)},
-               {"default", JsonValue::Double(37.5665)},
+               {"description",
+                JsonValue::String(
+                    "Optional. If omitted with longitude, tv_fetch geocodes city/district.")},
            }),
            MakeObject({
                {"name", JsonValue::String("--longitude")},
                {"type", JsonValue::String("number")},
                {"required", JsonValue::Boolean(false)},
-               {"default", JsonValue::Double(126.9780)},
+               {"description",
+                JsonValue::String(
+                    "Optional. If omitted with latitude, tv_fetch geocodes city/district.")},
            }),
            MakeObject({
                {"name", JsonValue::String("--hours")},
@@ -368,7 +378,10 @@ std::string RenderHelp() {
          << "  describe [weather] [--format json|pretty]\n"
          << "  weather [--source mock|open-meteo] [--city ...] [--district ...]\n"
          << "          [--latitude ...] [--longitude ...] [--hours 1-24]\n"
-         << "          [--dry-run] [--format json|pretty]\n";
+         << "          [--dry-run] [--format json|pretty]\n"
+         << "\n"
+         << "If latitude/longitude are omitted for open-meteo, city/district are\n"
+         << "resolved through the configured geocoding API.\n";
   return stream.str();
 }
 

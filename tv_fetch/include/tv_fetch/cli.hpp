@@ -24,8 +24,8 @@ struct WeatherCommand {
   OutputFormat format = OutputFormat::kJson;
   std::string city = "서울";
   std::string district = "중구";
-  double latitude = 37.5665;
-  double longitude = 126.9780;
+  std::optional<double> latitude;
+  std::optional<double> longitude;
   int hours = 6;
   bool dry_run = false;
 };

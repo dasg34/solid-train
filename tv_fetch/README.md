@@ -46,6 +46,9 @@ System library dependencies:
 - `libjson` at runtime
 - `libjson-devel` for builds (`pkg-config json`, with `json-c` fallback for non-Tizen dev boxes)
 
+If `latitude/longitude` are omitted for `open-meteo`, `tv_fetch` now resolves
+the requested `city/district` through a geocoding API first.
+
 ## Tizen packaging
 
 The project includes a spec-only native packaging path for Tizen. It builds
