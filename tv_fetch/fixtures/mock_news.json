@@ -1,0 +1,80 @@
+{
+  "title": "오늘의 주요 뉴스",
+  "headline": "정치, 경제, 사회 이슈를 거실에서 한눈에 볼 수 있게 정리했습니다.",
+  "primaryMetrics": [
+    {
+      "label": "리드 스토리",
+      "value": "1건",
+      "detail": "오전 7:30 갱신"
+    },
+    {
+      "label": "주요 헤드라인",
+      "value": "6건",
+      "detail": "국내 중심"
+    },
+    {
+      "label": "속보",
+      "value": "1건",
+      "detail": "알림 대기 중"
+    }
+  ],
+  "sections": [
+    {
+      "title": "리드 스토리",
+      "items": [
+        {
+          "icon": "campaign",
+          "label": "경제",
+          "value": "금리 동결 전망 확대",
+          "detail": "한국은행 관련 주요 발언을 중심으로 시장 반응이 이어졌습니다."
+        },
+        {
+          "icon": "public",
+          "label": "정치",
+          "value": "총선 공약 검증 본격화",
+          "detail": "주요 정당별 핵심 공약 비교가 집중 보도되고 있습니다."
+        }
+      ]
+    },
+    {
+      "title": "카테고리별",
+      "items": [
+        {
+          "icon": "business",
+          "label": "경제",
+          "value": "코스피 반등 시도",
+          "detail": "외국인 순매수 전환 여부가 관전 포인트입니다."
+        },
+        {
+          "icon": "train",
+          "label": "사회",
+          "value": "출근길 교통 혼잡 예상",
+          "detail": "수도권 주요 노선에서 정체 구간이 늘어날 전망입니다."
+        },
+        {
+          "icon": "sportsSoccer",
+          "label": "스포츠",
+          "value": "대표팀 소집 명단 발표",
+          "detail": "해외파 포함 여부가 관심을 모으고 있습니다."
+        }
+      ]
+    }
+  ],
+  "alert": {
+    "icon": "info",
+    "title": "출처 확인 필요",
+    "summary": "라이브 뉴스에서는 기사 원문 출처와 발행 시각을 항상 함께 표시하는 편이 안전합니다.",
+    "meta": "뉴스 피드 정책"
+  },
+  "actions": [
+    {
+      "label": "새로고침",
+      "event": "refreshNews"
+    },
+    {
+      "label": "카테고리 변경",
+      "event": "changeNewsCategory"
+    }
+  ],
+  "footer": "요약 문장은 원문 의미를 바꾸지 않도록 짧고 보수적으로 유지합니다."
+}

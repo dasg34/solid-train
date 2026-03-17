@@ -34,6 +34,11 @@ tv_fetch_lib = static_library(
     'src/cli.cpp',
     'src/http_client.cpp',
     'src/json.cpp',
+    'src/support.cpp',
+    'src/news/news_fetcher.cpp',
+    'src/finance/finance_fetcher.cpp',
+    'src/commute/commute_fetcher.cpp',
+    'src/sports/sports_fetcher.cpp',
     'src/weather/weather_fetcher.cpp',
   ],
   include_directories: tv_fetch_includes,
@@ -59,6 +64,12 @@ tv_fetch_tests = executable(
 test('tv_fetch_tests', tv_fetch_tests)
 
 install_data(
-  'fixtures/mock_weather_seoul.json',
+  [
+    'fixtures/mock_weather_seoul.json',
+    'fixtures/mock_news.json',
+    'fixtures/mock_finance.json',
+    'fixtures/mock_commute.json',
+    'fixtures/mock_sports.json',
+  ],
   install_dir: join_paths(get_option('datadir'), 'tv_fetch', 'fixtures'),
 )

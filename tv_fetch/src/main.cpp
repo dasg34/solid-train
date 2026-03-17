@@ -3,18 +3,26 @@
 #include <variant>
 
 #include "tv_fetch/cli.hpp"
+#include "tv_fetch/commute/commute_fetcher.hpp"
 #include "tv_fetch/error.hpp"
+#include "tv_fetch/finance/finance_fetcher.hpp"
 #include "tv_fetch/json.hpp"
+#include "tv_fetch/news/news_fetcher.hpp"
+#include "tv_fetch/sports/sports_fetcher.hpp"
 #include "tv_fetch/weather/weather_fetcher.hpp"
 
 namespace {
 
 using tv_fetch::AppError;
 using tv_fetch::Command;
+using tv_fetch::CommuteCommand;
 using tv_fetch::DescribeCommand;
+using tv_fetch::FinanceCommand;
 using tv_fetch::JsonValue;
+using tv_fetch::NewsCommand;
 using tv_fetch::ObjectSet;
 using tv_fetch::OutputFormat;
+using tv_fetch::SportsCommand;
 using tv_fetch::WeatherCommand;
 
 JsonValue ErrorToJson(const AppError& error) {
@@ -46,6 +54,14 @@ tv_fetch::JsonResult ExecuteCommand(const Command& command) {
           return tv_fetch::BuildDescribeDocument(typed_command.target);
         } else if constexpr (std::is_same_v<CommandType, WeatherCommand>) {
           return tv_fetch::weather::Execute(typed_command);
+        } else if constexpr (std::is_same_v<CommandType, NewsCommand>) {
+          return tv_fetch::news::Execute(typed_command);
+        } else if constexpr (std::is_same_v<CommandType, FinanceCommand>) {
+          return tv_fetch::finance::Execute(typed_command);
+        } else if constexpr (std::is_same_v<CommandType, CommuteCommand>) {
+          return tv_fetch::commute::Execute(typed_command);
+        } else if constexpr (std::is_same_v<CommandType, SportsCommand>) {
+          return tv_fetch::sports::Execute(typed_command);
         }
       },
       command);

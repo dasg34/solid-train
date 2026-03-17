@@ -1,0 +1,74 @@
+{
+  "title": "출근길 브리핑",
+  "headline": "다음 일정까지 남은 시간과 추천 출발 시각을 먼저 보여줍니다.",
+  "primaryMetrics": [
+    {
+      "label": "추천 출발",
+      "value": "08:10",
+      "detail": "지금부터 12분 후"
+    },
+    {
+      "label": "예상 소요",
+      "value": "42분",
+      "detail": "평소보다 8분 증가"
+    },
+    {
+      "label": "교통 리스크",
+      "value": "보통",
+      "detail": "강변북로 정체"
+    }
+  ],
+  "sections": [
+    {
+      "title": "주요 경로",
+      "items": [
+        {
+          "icon": "directionsBus",
+          "label": "대중교통",
+          "value": "42분",
+          "detail": "2호선 환승 포함, 지연 위험 보통"
+        },
+        {
+          "icon": "directionsCar",
+          "label": "차량",
+          "value": "55분",
+          "detail": "강변북로 정체로 평균보다 느림"
+        }
+      ]
+    },
+    {
+      "title": "대안",
+      "items": [
+        {
+          "icon": "altRoute",
+          "label": "대체 경로",
+          "value": "43분",
+          "detail": "버스 환승 1회, 도보 증가"
+        },
+        {
+          "icon": "event",
+          "label": "도착 목표",
+          "value": "08:55",
+          "detail": "09:00 회의 전 5분 여유 확보"
+        }
+      ]
+    }
+  ],
+  "alert": {
+    "icon": "traffic",
+    "title": "실시간 변동 주의",
+    "summary": "경로 추천은 짧은 시간에도 바뀔 수 있으니 마지막 갱신 시각을 반드시 함께 표시하세요.",
+    "meta": "교통 데이터 정책"
+  },
+  "actions": [
+    {
+      "label": "새로고침",
+      "event": "refreshCommute"
+    },
+    {
+      "label": "대안 보기",
+      "event": "showAlternateRoute"
+    }
+  ],
+  "footer": "공용 TV에서는 집과 회사의 정확한 주소 대신 요약된 위치 표현을 사용하는 편이 안전합니다."
+}

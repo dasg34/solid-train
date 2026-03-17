@@ -46,8 +46,8 @@ System library dependencies:
 - `libjson` at runtime
 - `libjson-devel` for builds (`pkg-config json`, with `json-c` fallback for non-Tizen dev boxes)
 
-If `latitude/longitude` are omitted for `open-meteo`, `tv_fetch` now resolves
-the requested `city/district` through a geocoding API first.
+If `latitude/longitude` are omitted for `open-meteo`, `tv_fetch` resolves the
+requested `city/district` through a geocoding API first.
 
 ## Tizen packaging
 
@@ -76,6 +76,7 @@ lets the CLI load it correctly at runtime without a `tizen-manifest.xml`.
 ```bash
 ./builddir/tv_fetch describe --format pretty
 ./builddir/tv_fetch describe weather --format pretty
+./builddir/tv_fetch describe finance --format pretty
 ```
 
 ### Fetch weather context
@@ -105,10 +106,77 @@ Dry run without network:
 ./builddir/tv_fetch weather --source open-meteo --dry-run --format pretty
 ```
 
+### Fetch news context
+
+Mock payload:
+
+```bash
+./builddir/tv_fetch news --source mock --format pretty
+```
+
+Live Yonhap RSS payload:
+
+```bash
+./builddir/tv_fetch news --source yonhap-rss --count 6 --format pretty
+```
+
+### Fetch finance context
+
+Mock payload:
+
+```bash
+./builddir/tv_fetch finance --source mock --format pretty
+```
+
+Live KRW-first market payload:
+
+```bash
+./builddir/tv_fetch finance \
+  --source naver-public \
+  --watchlist '005930:삼성전자,000660:SK하이닉스,035420:NAVER' \
+  --format pretty
+```
+
+### Fetch commute context
+
+Mock payload:
+
+```bash
+./builddir/tv_fetch commute --source mock --format pretty
+```
+
+Live OSRM payload:
+
+```bash
+./builddir/tv_fetch commute \
+  --source osrm \
+  --origin '망포역' \
+  --destination '서초구청' \
+  --profile driving \
+  --format pretty
+```
+
+### Fetch sports context
+
+Mock payload:
+
+```bash
+./builddir/tv_fetch sports --source mock --format pretty
+```
+
+Live league payload:
+
+```bash
+./builddir/tv_fetch sports \
+  --source thesportsdb \
+  --league kleague1 \
+  --format pretty
+```
+
 ## Output shape
 
-The weather command emits normalized JSON matching the weather skill input
-contract closely:
+Each command emits normalized JSON that stays close to the corresponding TV
+skill contract. A few representative top-level shapes:
 
 ```json
 {
@@ -139,8 +207,22 @@ contract closely:
 }
 ```
 
+```json
+{
+  "domain": "news|finance|commute|sports",
+  "source": "mock|live-source",
+  "title": "string",
+  "headline": "string",
+  "primaryMetrics": [],
+  "sections": [],
+  "alert": {},
+  "actions": [],
+  "footer": "string"
+}
+```
+
 ## Roadmap
 
-- Add more fetchers: news, schedule, commute, finance
+- Add more fetchers: schedule, smart-home, travel
 - Add top-level `schema` command for output contracts
 - Add stable machine-readable error codes across all domains

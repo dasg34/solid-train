@@ -30,7 +30,59 @@ struct WeatherCommand {
   bool dry_run = false;
 };
 
-using Command = std::variant<DescribeCommand, WeatherCommand>;
+struct NewsCommand {
+  enum class Source { kMock, kYonhapRss };
+
+  Source source = Source::kMock;
+  OutputFormat format = OutputFormat::kJson;
+  std::string rss_url = "https://www.yonhapnewstv.co.kr/browse/feed/";
+  int count = 6;
+  bool dry_run = false;
+};
+
+struct FinanceCommand {
+  enum class Source { kMock, kNaverPublic };
+
+  Source source = Source::kMock;
+  OutputFormat format = OutputFormat::kJson;
+  std::string watchlist = "005930:삼성전자,000660:SK하이닉스,035420:NAVER";
+  bool dry_run = false;
+};
+
+struct CommuteCommand {
+  enum class Source { kMock, kOsrm };
+  enum class Profile { kDriving, kWalking };
+
+  Source source = Source::kMock;
+  OutputFormat format = OutputFormat::kJson;
+  std::string origin = "서울시청";
+  std::string destination = "강남역";
+  std::string origin_label;
+  std::string destination_label;
+  Profile profile = Profile::kDriving;
+  std::string arrive_by;
+  std::string now;
+  int buffer_minutes = 8;
+  bool dry_run = false;
+};
+
+struct SportsCommand {
+  enum class Source { kMock, kTheSportsDb };
+
+  Source source = Source::kMock;
+  OutputFormat format = OutputFormat::kJson;
+  std::string league = "kleague1";
+  std::string league_id;
+  std::string league_name;
+  bool dry_run = false;
+};
+
+using Command = std::variant<DescribeCommand,
+                             WeatherCommand,
+                             NewsCommand,
+                             FinanceCommand,
+                             CommuteCommand,
+                             SportsCommand>;
 
 std::variant<Command, AppError> ParseCommand(int argc, char** argv);
 std::string RenderHelp();
