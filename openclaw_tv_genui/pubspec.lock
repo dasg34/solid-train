@@ -489,6 +489,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.3"
+  tizen_log:
+    dependency: "direct main"
+    description:
+      name: tizen_log
+      sha256: "3db69a75ea951fb8e8c7c13b34149ee1324e5c72f0691473a13fe64529defd86"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   typed_data:
     dependency: transitive
     description:

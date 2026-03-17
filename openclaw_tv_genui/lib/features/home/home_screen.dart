@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../core/a2ui/a2ui_payload_source.dart';
+import '../../core/logging/app_logger.dart';
 import '../../core/platform/app_control_handler.dart';
 import 'models/scenario_entry.dart';
 import 'widgets/genui_scenario_surface.dart';
@@ -30,8 +31,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _selectedScenario = scenarioCatalog.first;
+    AppLogger.info(
+      'home',
+      'Home screen ready. Initial scenario=${_selectedScenario.id}',
+    );
 
     _appControlSub = widget.appControlHandler?.onFileReceived.listen((path) {
+      AppLogger.info('home', 'Switching to external file mode: $path');
       setState(() {
         _externalFilePath = path;
       });
@@ -109,6 +115,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _handleScenarioChanged(ScenarioEntry scenario) {
+    AppLogger.debug(
+      'home',
+      'Scenario changed from ${_selectedScenario.id} to ${scenario.id}',
+    );
     setState(() {
       _selectedScenario = scenario;
     });
@@ -116,6 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    AppLogger.debug('home', 'Disposing home screen state.');
     _appControlSub?.cancel();
     super.dispose();
   }

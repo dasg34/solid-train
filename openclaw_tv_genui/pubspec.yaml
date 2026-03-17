@@ -38,6 +38,7 @@ dependencies:
     path: ../genui/packages/genui
   google_fonts: ^8.0.2
   tizen_app_control: ^0.2.3
+  tizen_log: ^0.1.2
 
 dev_dependencies:
   flutter_test:

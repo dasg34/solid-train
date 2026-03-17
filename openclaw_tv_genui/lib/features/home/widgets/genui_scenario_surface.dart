@@ -5,26 +5,24 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/a2ui/a2ui_payload_source.dart';
 import '../../../core/a2ui/file_payload_source.dart';
 import '../../../core/a2ui/surface_style.dart';
+import '../../../core/logging/app_logger.dart';
 import '../models/scenario_entry.dart';
 
 // Skills emit this catalogId in their createSurface messages.
-const _catalogId =
-    'https://a2ui.org/specification/v0_9/standard_catalog.json';
+const _catalogId = 'https://a2ui.org/specification/v0_9/standard_catalog.json';
 
 class GenUiScenarioSurface extends StatefulWidget {
   const GenUiScenarioSurface.scenario({
     required A2uiPayloadSource payloadSource,
     required ScenarioEntry scenario,
     super.key,
-  })  : _payloadSource = payloadSource,
-        _scenario = scenario,
-        filePath = null;
+  }) : _payloadSource = payloadSource,
+       _scenario = scenario,
+       filePath = null;
 
-  const GenUiScenarioSurface.file({
-    required this.filePath,
-    super.key,
-  })  : _payloadSource = null,
-        _scenario = null;
+  const GenUiScenarioSurface.file({required this.filePath, super.key})
+    : _payloadSource = null,
+      _scenario = null;
 
   final A2uiPayloadSource? _payloadSource;
   final ScenarioEntry? _scenario;
@@ -45,34 +43,44 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   void initState() {
     super.initState();
     _controller = _createController();
+    AppLogger.debug(
+      'surface',
+      'Initializing surface for ${_activeTargetDescription()}',
+    );
     _loadScenario();
   }
 
   SurfaceController _createController() => SurfaceController(
-        catalogs: [
-          Catalog([
-            BasicCatalogItems.button,
-            BasicCatalogItems.card,
-            BasicCatalogItems.column,
-            BasicCatalogItems.divider,
-            BasicCatalogItems.icon,
-            BasicCatalogItems.row,
-            BasicCatalogItems.text,
-          ], catalogId: _catalogId),
-        ],
-      );
+    catalogs: [
+      Catalog([
+        BasicCatalogItems.button,
+        BasicCatalogItems.card,
+        BasicCatalogItems.column,
+        BasicCatalogItems.divider,
+        BasicCatalogItems.icon,
+        BasicCatalogItems.row,
+        BasicCatalogItems.text,
+      ], catalogId: _catalogId),
+    ],
+  );
 
   @override
   void didUpdateWidget(covariant GenUiScenarioSurface oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.filePath != widget.filePath ||
         oldWidget._scenario?.id != widget._scenario?.id) {
+      AppLogger.debug(
+        'surface',
+        'Surface target changed to ${_activeTargetDescription()}',
+      );
       _loadScenario();
     }
   }
 
   Future<void> _loadScenario() async {
     final loadId = ++_loadId;
+    final target = _activeTargetDescription();
+    AppLogger.debug('surface', 'Starting load #$loadId for $target');
 
     // Dispose old controller and create a fresh one to avoid accumulating
     // surfaces from previous scenarios.
@@ -88,13 +96,15 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
         messages = await widget._payloadSource!.load(widget._scenario!.id);
       }
 
-      if (!mounted || loadId != _loadId) return;
+      if (!mounted || loadId != _loadId) {
+        AppLogger.debug('surface', 'Ignoring stale load #$loadId for $target');
+        return;
+      }
 
       // Resolve surfaceId and style from the CreateSurface message.
       final createMsg = messages.whereType<CreateSurface>().firstOrNull;
-      final surfaceId = createMsg?.surfaceId
-          ?? widget._scenario?.surfaceId
-          ?? 'main';
+      final surfaceId =
+          createMsg?.surfaceId ?? widget._scenario?.surfaceId ?? 'main';
       final newStyle = resolveSurfaceStyle(surfaceId);
 
       setState(() {
@@ -103,21 +113,45 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
         _hasError = false;
       });
 
+      AppLogger.info(
+        'surface',
+        'Applying ${messages.length} messages to surfaceId=$surfaceId '
+            'style=${newStyle.name} for $target',
+      );
       for (final message in messages) {
         _controller.handleMessage(message);
       }
-    } catch (_) {
-      if (!mounted || loadId != _loadId) return;
+    } catch (error, stackTrace) {
+      if (!mounted || loadId != _loadId) {
+        AppLogger.debug(
+          'surface',
+          'Error arrived for stale load #$loadId for $target',
+          error: error,
+          stackTrace: stackTrace,
+        );
+        return;
+      }
+      AppLogger.error(
+        'surface',
+        'Failed to load surface content for $target',
+        error: error,
+        stackTrace: stackTrace,
+      );
       setState(() => _hasError = true);
     }
+  }
+
+  String _activeTargetDescription() {
+    if (widget.filePath != null) {
+      return 'file:${widget.filePath}';
+    }
+    return 'scenario:${widget._scenario?.id ?? "unknown"}';
   }
 
   @override
   Widget build(BuildContext context) {
     if (_hasError) {
-      return const Center(
-        child: Text('시나리오를 불러올 수 없습니다.'),
-      );
+      return const Center(child: Text('시나리오를 불러올 수 없습니다.'));
     }
 
     final content = SingleChildScrollView(
@@ -127,26 +161,27 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
         32,
         32,
       ),
-      child: Surface(
-        surfaceContext: _controller.contextFor(_surfaceId),
-      ),
+      child: Surface(surfaceContext: _controller.contextFor(_surfaceId)),
     );
 
     return switch (_style) {
-      SurfaceStyle.atmosphericWeather =>
-        _WeatherSurfaceShell(child: content),
+      SurfaceStyle.atmosphericWeather => _WeatherSurfaceShell(child: content),
       SurfaceStyle.newsPanel => _NewsSurfaceShell(child: content),
       SurfaceStyle.schedulePanel => _ScheduleSurfaceShell(child: content),
       SurfaceStyle.standard => Material(
-          color: const Color(0xFF12212D),
-          borderRadius: BorderRadius.circular(32),
-          child: content,
-        ),
+        color: const Color(0xFF12212D),
+        borderRadius: BorderRadius.circular(32),
+        child: content,
+      ),
     };
   }
 
   @override
   void dispose() {
+    AppLogger.debug(
+      'surface',
+      'Disposing surface controller for surfaceId=$_surfaceId',
+    );
     _controller.dispose();
     super.dispose();
   }
