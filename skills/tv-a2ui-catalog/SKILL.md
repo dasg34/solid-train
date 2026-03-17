@@ -46,7 +46,7 @@ Generate three NDJSON messages (one JSON object per line) in this order:
 
 ## Components
 
-The TV app supports these 7 components. Do NOT use any other component type.
+The TV app supports these 9 components. Do NOT use any other component type.
 
 Every component must have:
 - `id` — unique string identifier
@@ -125,6 +125,42 @@ Clickable action trigger.
 | `action` | yes | `{"event": {"name": "eventName"}}` |
 | `variant` | no | `primary`, `borderless` |
 
+### LineChart
+
+Compact trend chart for ordered numeric values.
+
+| Property | Required | Values |
+|----------|----------|--------|
+| `values` | yes | number array or `{"path": "/dataKey"}` |
+| `labels` | no | string array or `{"path": "/dataKey"}` |
+| `height` | no | number, usually `120`-`160` |
+| `strokeColor` | no | hex color string like `"#7DE8D5"` |
+| `fillStartColor` | no | hex color string |
+| `fillEndColor` | no | hex color string, `"#00000000"` allowed |
+| `showGrid` | no | boolean |
+| `showLabels` | no | boolean |
+
+Use for short time-series such as hourly weather, 5-day exchange trend, or
+weekly activity movement. Prefer 4-8 points for TV readability.
+
+### BarChart
+
+Compact comparison chart for category values.
+
+| Property | Required | Values |
+|----------|----------|--------|
+| `values` | yes | number array or `{"path": "/dataKey"}` |
+| `labels` | no | string array or `{"path": "/dataKey"}` |
+| `height` | no | number, usually `120`-`160` |
+| `positiveColor` | no | hex color string |
+| `negativeColor` | no | hex color string |
+| `baselineColor` | no | hex color string |
+| `showGrid` | no | boolean |
+| `showLabels` | no | boolean |
+
+Use for comparisons such as stock moves, category scores, spending buckets, or
+temperature/rain probability by slot. Keep label count low, usually 3-6.
+
 ## Data Binding
 
 Dynamic values reference the dataModel using path syntax:
@@ -138,6 +174,9 @@ Static values are literal strings:
 ```
 
 Every path must have a corresponding key in the `updateDataModel` value map.
+
+Number arrays for charts should be emitted as actual JSON numbers, not strings,
+unless the values are already formatted for display elsewhere.
 
 ## Dynamic-Length Lists
 
@@ -159,6 +198,7 @@ This renders one `itemRow` component per entry in the `/items` array.
 - **Large typography** — use `h1`-`h3` for primary info, `body`/`caption` for details
 - **Strong visual hierarchy** — generous spacing, clear grouping with Cards
 - **Glanceable** — keep under ~40 components per surface
+- **Chart restraint** — one chart per card is usually enough on TV
 - **No walls of text** — short labels, concise values
 - **Korean locale** — ko-KR, Asia/Seoul timezone
 - **Domain-specific** — prefer purpose-built surfaces over generic layouts
@@ -186,6 +226,8 @@ The TV app applies a themed background based on surfaceId prefix:
 - Do NOT use component IDs not defined in the components array
 - Do NOT forget the `"root"` component — nothing renders without it
 - Do NOT use icon names outside the valid list
+- Do NOT send chart arrays of mismatched lengths unless labels are optional
+- Do NOT cram dense dashboards with many tiny charts onto one TV surface
 - Do NOT create more than ~40 components per surface
 
 ## Minimal Example

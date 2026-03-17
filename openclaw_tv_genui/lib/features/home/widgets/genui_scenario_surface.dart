@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 
 import '../../../core/a2ui/a2ui_payload_source.dart';
+import '../../../core/a2ui/chart_catalog_items.dart';
 import '../../../core/a2ui/file_payload_source.dart';
 import '../../../core/a2ui/surface_style.dart';
 import '../../../core/logging/app_logger.dart';
@@ -61,6 +62,8 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
         BasicCatalogItems.icon,
         BasicCatalogItems.row,
         BasicCatalogItems.text,
+        lineChart,
+        barChart,
       ], catalogId: _catalogId),
     ],
   );

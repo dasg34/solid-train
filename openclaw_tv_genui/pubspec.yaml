@@ -37,6 +37,7 @@ dependencies:
   genui:
     path: ../genui/packages/genui
   google_fonts: ^8.0.2
+  json_schema_builder: ^0.1.3
   tizen_app_control: ^0.2.3
   tizen_log: ^0.1.2
 
