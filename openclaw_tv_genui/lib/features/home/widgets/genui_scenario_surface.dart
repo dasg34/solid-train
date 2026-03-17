@@ -10,6 +10,7 @@ import '../models/scenario_entry.dart';
 
 // Skills emit this catalogId in their createSurface messages.
 const _catalogId = 'https://a2ui.org/specification/v0_9/standard_catalog.json';
+const _tvSurfaceTextScale = 0.65;
 
 class GenUiScenarioSurface extends StatefulWidget {
   const GenUiScenarioSurface.scenario({
@@ -203,14 +204,19 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       );
     }
 
-    final content = SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(
-        32,
-        _style == SurfaceStyle.atmosphericWeather ? 36 : 28,
-        32,
-        32,
+    final content = MediaQuery(
+      data: MediaQuery.of(
+        context,
+      ).copyWith(textScaler: const TextScaler.linear(_tvSurfaceTextScale)),
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          32,
+          _style == SurfaceStyle.atmosphericWeather ? 36 : 28,
+          32,
+          32,
+        ),
+        child: Surface(surfaceContext: _controller.contextFor(_surfaceId)),
       ),
-      child: Surface(surfaceContext: _controller.contextFor(_surfaceId)),
     );
     final overlayContent = _OverlaySurfaceFrame(
       pattern: _resolvedPattern(),
