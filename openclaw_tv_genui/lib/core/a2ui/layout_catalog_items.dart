@@ -2,6 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
+final _insetSchema = S.object(
+  description: 'Adds extra inner padding around a single child widget.',
+  properties: {
+    'child': A2uiSchemas.componentReference(),
+    'all': S.number(
+      description: 'Uniform padding on all sides in logical pixels.',
+      minimum: 0,
+    ),
+    'horizontal': S.number(
+      description: 'Horizontal padding in logical pixels.',
+      minimum: 0,
+    ),
+    'vertical': S.number(
+      description: 'Vertical padding in logical pixels.',
+      minimum: 0,
+    ),
+  },
+  required: ['child'],
+);
+
 final _wrapSchema = S.object(
   description: 'A flowing layout that wraps cards onto new rows as needed.',
   properties: {
@@ -43,6 +63,13 @@ final _wrapSchema = S.object(
   required: ['children'],
 );
 
+extension type _InsetData.fromMap(JsonMap _json) {
+  String get child => _json['child'] as String;
+  double? get all => (_json['all'] as num?)?.toDouble();
+  double get horizontal => (_json['horizontal'] as num?)?.toDouble() ?? 0;
+  double get vertical => (_json['vertical'] as num?)?.toDouble() ?? 0;
+}
+
 extension type _WrapData.fromMap(JsonMap _json) {
   Object? get children => _json['children'];
   double get spacing => (_json['spacing'] as num?)?.toDouble() ?? 16;
@@ -67,6 +94,42 @@ WrapCrossAlignment _parseWrapCrossAlignment(String? alignment) =>
       'end' => WrapCrossAlignment.end,
       _ => WrapCrossAlignment.start,
     };
+
+final inset = CatalogItem(
+  name: 'Inset',
+  dataSchema: _insetSchema,
+  exampleData: [
+    () => '''
+      [
+        {
+          "id": "root",
+          "component": "Inset",
+          "horizontal": 16,
+          "vertical": 12,
+          "child": "text1"
+        },
+        {
+          "id": "text1",
+          "component": "Text",
+          "text": "Inset content"
+        }
+      ]
+    ''',
+  ],
+  widgetBuilder: (itemContext) {
+    final insetData = _InsetData.fromMap(itemContext.data as JsonMap);
+    final EdgeInsets padding = insetData.all != null
+        ? EdgeInsets.all(insetData.all!)
+        : EdgeInsets.symmetric(
+            horizontal: insetData.horizontal,
+            vertical: insetData.vertical,
+          );
+    return Padding(
+      padding: padding,
+      child: itemContext.buildChild(insetData.child, itemContext.dataContext),
+    );
+  },
+);
 
 final flowingWrap = CatalogItem(
   name: 'Wrap',
