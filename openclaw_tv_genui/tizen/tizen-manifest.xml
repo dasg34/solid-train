@@ -4,7 +4,7 @@
           package="com.example.openclaw_tv_genui"
           version="1.0.0">
   <profile name="tv" />
-  <ui-application appid="org.openclaw.tv.genui"
+  <ui-application appid="com.example.openclaw_tv_genui"
                   exec="Runner.dll"
                   type="dotnet"
                   multiple="false"
