@@ -1,9 +1,9 @@
-#include "tv_validate/cli.hpp"
+#include "tv_a2ui_validate/cli.hpp"
 
 #include <sstream>
 #include <vector>
 
-namespace tv_validate {
+namespace tv_a2ui_validate {
 
 namespace {
 
@@ -54,7 +54,7 @@ std::variant<ValidateCommand, AppError> ParseValidate(
     if (arg.starts_with("--")) {
       return InvalidArguments(
           "Unsupported option.",
-          "Use tv_validate <file> [--format json|pretty].");
+          "Use tv_a2ui_validate <file> [--format json|pretty].");
     }
     command.file = std::string(arg);
     ++index;
@@ -83,7 +83,7 @@ std::variant<DescribeCommand, AppError> ParseDescribe(
     }
     return InvalidArguments(
         "Unsupported describe option.",
-        "Use tv_validate describe [--format json|pretty].");
+        "Use tv_a2ui_validate describe [--format json|pretty].");
   }
 
   return command;
@@ -112,7 +112,7 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
   if (argc < 2) {
     return InvalidArguments(
         "Missing file path.",
-        "Use tv_validate <file> or tv_validate --stdin.");
+        "Use tv_a2ui_validate <file> or tv_a2ui_validate --stdin.");
   }
 
   const std::string_view first(argv[1]);
@@ -140,12 +140,12 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
 
 std::string RenderHelp() {
   std::ostringstream stream;
-  stream << "tv_validate\n"
+  stream << "tv_a2ui_validate\n"
          << "A2UI v0.9 NDJSON validator for Samsung Tizen TV.\n\n"
          << "Usage:\n"
-         << "  tv_validate <file>            Validate an A2UI NDJSON file\n"
-         << "  tv_validate --stdin           Read from stdin\n"
-         << "  tv_validate describe          Show validation rules\n\n"
+         << "  tv_a2ui_validate <file>            Validate an A2UI NDJSON file\n"
+         << "  tv_a2ui_validate --stdin           Read from stdin\n"
+         << "  tv_a2ui_validate describe          Show validation rules\n\n"
          << "Options:\n"
          << "  --format json|pretty          Output format (default: pretty)\n";
   return stream.str();
@@ -153,7 +153,7 @@ std::string RenderHelp() {
 
 JsonValue BuildDescribeDocument() {
   return MakeObject({
-      {"name", JsonValue::String("tv_validate")},
+      {"name", JsonValue::String("tv_a2ui_validate")},
       {"description",
        JsonValue::String(
            "Validates A2UI v0.9 NDJSON against the TV app component catalog.")},
@@ -224,4 +224,4 @@ JsonValue BuildDescribeDocument() {
   });
 }
 
-}  // namespace tv_validate
+}  // namespace tv_a2ui_validate

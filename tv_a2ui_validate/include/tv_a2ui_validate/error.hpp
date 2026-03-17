@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace tv_validate {
+namespace tv_a2ui_validate {
 
 struct AppError {
   std::string code;
@@ -11,4 +11,4 @@ struct AppError {
   int exit_code = 1;
 };
 
-}  // namespace tv_validate
+}  // namespace tv_a2ui_validate

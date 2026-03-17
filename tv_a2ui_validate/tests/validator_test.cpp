@@ -2,12 +2,12 @@
 #include <iostream>
 #include <string>
 
-#include "tv_validate/validator.hpp"
+#include "tv_a2ui_validate/validator.hpp"
 
 namespace {
 
-using tv_validate::Severity;
-using tv_validate::Validate;
+using tv_a2ui_validate::Severity;
+using tv_a2ui_validate::Validate;
 
 const std::string kValidMinimal =
     R"({"version":"v0.9","createSurface":{"surfaceId":"weather","catalogId":"https://a2ui.org/specification/v0_9/standard_catalog.json","theme":{"domain":"weather","pattern":"immersive"}}})"

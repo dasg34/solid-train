@@ -7,11 +7,11 @@
 #include <variant>
 #include <vector>
 
-#include "tv_validate/error.hpp"
+#include "tv_a2ui_validate/error.hpp"
 
 struct json_object;
 
-namespace tv_validate {
+namespace tv_a2ui_validate {
 
 class JsonValue {
  public:
@@ -64,4 +64,4 @@ void ArrayAppend(JsonValue& array, JsonValue value);
 bool ObjectHasKey(const JsonValue& object, std::string_view key);
 std::vector<std::string> ObjectKeys(const JsonValue& object);
 
-}  // namespace tv_validate
+}  // namespace tv_a2ui_validate

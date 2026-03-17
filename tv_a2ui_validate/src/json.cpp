@@ -1,17 +1,17 @@
-#include "tv_validate/json.hpp"
+#include "tv_a2ui_validate/json.hpp"
 
 #if __has_include(<json.h>)
 #include <json.h>
 #elif __has_include(<json-c/json.h>)
 #include <json-c/json.h>
 #else
-#error "json-c headers are required to build tv_validate."
+#error "json-c headers are required to build tv_a2ui_validate."
 #endif
 
 #include <string>
 #include <utility>
 
-namespace tv_validate {
+namespace tv_a2ui_validate {
 
 namespace {
 
@@ -274,4 +274,4 @@ std::vector<std::string> ObjectKeys(const JsonValue& object) {
   return keys;
 }
 
-}  // namespace tv_validate
+}  // namespace tv_a2ui_validate

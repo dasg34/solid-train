@@ -1,4 +1,4 @@
-Name:       tv_validate
+Name:       tv_a2ui_validate
 Version:    0.1.0
 Release:    0
 Summary:    A2UI v0.9 NDJSON validator for Tizen TV
@@ -10,7 +10,7 @@ BuildRequires: pkgconfig(json)
 Requires:    libjson
 
 %description
-tv_validate checks A2UI v0.9 NDJSON files against the TV app component catalog.
+tv_a2ui_validate checks A2UI v0.9 NDJSON files against the TV app component catalog.
 It validates structure, message ordering, theme, component types, icon names,
 referential integrity, data bindings, and component count limits.
 
@@ -27,4 +27,4 @@ DESTDIR=%{buildroot} meson install -C builddir --no-rebuild
 
 %files
 %defattr(-,root,root,-)
-%{_bindir}/tv_validate
+%{_bindir}/tv_a2ui_validate

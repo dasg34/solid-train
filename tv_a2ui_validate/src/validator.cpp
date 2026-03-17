@@ -1,4 +1,4 @@
-#include "tv_validate/validator.hpp"
+#include "tv_a2ui_validate/validator.hpp"
 
 #include <algorithm>
 #include <array>
@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace tv_validate {
+namespace tv_a2ui_validate {
 
 namespace {
 
@@ -519,4 +519,4 @@ std::string RenderPrettyReport(const ValidationReport& report) {
   return stream.str();
 }
 
-}  // namespace tv_validate
+}  // namespace tv_a2ui_validate

@@ -4,20 +4,20 @@
 #include <type_traits>
 #include <variant>
 
-#include "tv_validate/cli.hpp"
-#include "tv_validate/error.hpp"
-#include "tv_validate/json.hpp"
-#include "tv_validate/validator.hpp"
+#include "tv_a2ui_validate/cli.hpp"
+#include "tv_a2ui_validate/error.hpp"
+#include "tv_a2ui_validate/json.hpp"
+#include "tv_a2ui_validate/validator.hpp"
 
 namespace {
 
-using tv_validate::AppError;
-using tv_validate::Command;
-using tv_validate::DescribeCommand;
-using tv_validate::JsonValue;
-using tv_validate::ObjectSet;
-using tv_validate::OutputFormat;
-using tv_validate::ValidateCommand;
+using tv_a2ui_validate::AppError;
+using tv_a2ui_validate::Command;
+using tv_a2ui_validate::DescribeCommand;
+using tv_a2ui_validate::JsonValue;
+using tv_a2ui_validate::ObjectSet;
+using tv_a2ui_validate::OutputFormat;
+using tv_a2ui_validate::ValidateCommand;
 
 void PrintJson(const JsonValue& document, OutputFormat format) {
   std::cout << document.Dump(format == OutputFormat::kPretty) << '\n';
@@ -63,11 +63,11 @@ std::string ReadStdin() {
 int main(int argc, char** argv) {
   if (argc == 1 || (argc > 1 && std::string_view(argv[1]) == "--help") ||
       (argc > 1 && std::string_view(argv[1]) == "-h")) {
-    std::cout << tv_validate::RenderHelp();
+    std::cout << tv_a2ui_validate::RenderHelp();
     return 0;
   }
 
-  const auto parsed = tv_validate::ParseCommand(argc, argv);
+  const auto parsed = tv_a2ui_validate::ParseCommand(argc, argv);
   if (std::holds_alternative<AppError>(parsed)) {
     PrintError(std::get<AppError>(parsed), OutputFormat::kJson);
     return std::get<AppError>(parsed).exit_code;
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
         using CommandType = std::decay_t<decltype(typed_command)>;
 
         if constexpr (std::is_same_v<CommandType, DescribeCommand>) {
-          PrintJson(tv_validate::BuildDescribeDocument(),
+          PrintJson(tv_a2ui_validate::BuildDescribeDocument(),
                     typed_command.format);
           return 0;
         } else if constexpr (std::is_same_v<CommandType, ValidateCommand>) {
@@ -102,13 +102,13 @@ int main(int argc, char** argv) {
           }
 
           const auto report =
-              tv_validate::Validate(content, file_name);
+              tv_a2ui_validate::Validate(content, file_name);
 
           if (typed_command.format == OutputFormat::kJson) {
-            PrintJson(tv_validate::ReportToJson(report),
+            PrintJson(tv_a2ui_validate::ReportToJson(report),
                       typed_command.format);
           } else {
-            std::cout << tv_validate::RenderPrettyReport(report);
+            std::cout << tv_a2ui_validate::RenderPrettyReport(report);
           }
           return report.passed ? 0 : 1;
         }

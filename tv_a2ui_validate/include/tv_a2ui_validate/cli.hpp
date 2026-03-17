@@ -3,10 +3,10 @@
 #include <string>
 #include <variant>
 
-#include "tv_validate/error.hpp"
-#include "tv_validate/json.hpp"
+#include "tv_a2ui_validate/error.hpp"
+#include "tv_a2ui_validate/json.hpp"
 
-namespace tv_validate {
+namespace tv_a2ui_validate {
 
 enum class OutputFormat { kJson, kPretty };
 
@@ -25,4 +25,4 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv);
 std::string RenderHelp();
 JsonValue BuildDescribeDocument();
 
-}  // namespace tv_validate
+}  // namespace tv_a2ui_validate

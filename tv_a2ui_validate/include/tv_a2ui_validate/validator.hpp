@@ -4,9 +4,9 @@
 #include <string_view>
 #include <vector>
 
-#include "tv_validate/json.hpp"
+#include "tv_a2ui_validate/json.hpp"
 
-namespace tv_validate {
+namespace tv_a2ui_validate {
 
 enum class Severity { kError, kWarning };
 
@@ -33,4 +33,4 @@ ValidationReport Validate(std::string_view content,
 JsonValue ReportToJson(const ValidationReport& report);
 std::string RenderPrettyReport(const ValidationReport& report);
 
-}  // namespace tv_validate
+}  // namespace tv_a2ui_validate
