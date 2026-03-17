@@ -49,6 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final viewport = _OverlayViewportSpec.resolve(MediaQuery.sizeOf(context));
     final activeSurface = _externalFilePath != null
         ? GenUiScenarioSurface.file(
             key: ValueKey(_externalFilePath),
@@ -62,11 +63,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 240),
-        switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeInCubic,
-        child: activeSurface,
+      body: SafeArea(
+        child: Padding(
+          padding: viewport.margin,
+          child: Align(
+            alignment: viewport.alignment,
+            child: SizedBox(
+              width: viewport.width,
+              height: viewport.height,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 240),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                child: activeSurface,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -76,5 +89,44 @@ class _HomeScreenState extends State<HomeScreen> {
     AppLogger.debug('home', 'Disposing home screen state.');
     _appControlSub?.cancel();
     super.dispose();
+  }
+}
+
+class _OverlayViewportSpec {
+  const _OverlayViewportSpec({
+    required this.alignment,
+    required this.width,
+    required this.height,
+    required this.margin,
+  });
+
+  final Alignment alignment;
+  final double width;
+  final double height;
+  final EdgeInsets margin;
+
+  static _OverlayViewportSpec resolve(Size size) {
+    final phoneLike = size.width < 900;
+    final compactTv = !phoneLike && (size.width <= 1280 || size.height <= 720);
+
+    final margin = EdgeInsets.symmetric(
+      horizontal: phoneLike ? 16 : (compactTv ? 28 : 40),
+      vertical: phoneLike ? 16 : (compactTv ? 24 : 32),
+    );
+
+    final width = (size.width * (phoneLike ? 0.90 : (compactTv ? 0.54 : 0.60)))
+        .clamp(phoneLike ? 360.0 : 480.0, compactTv ? 620.0 : 920.0);
+    final height =
+        (size.height * (phoneLike ? 0.82 : (compactTv ? 0.86 : 0.88))).clamp(
+          phoneLike ? 320.0 : 420.0,
+          compactTv ? 580.0 : 820.0,
+        );
+
+    return _OverlayViewportSpec(
+      alignment: phoneLike ? Alignment.center : Alignment.centerRight,
+      width: width,
+      height: height,
+      margin: margin,
+    );
   }
 }
