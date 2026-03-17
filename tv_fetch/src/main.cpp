@@ -8,6 +8,7 @@
 #include "tv_fetch/finance/finance_fetcher.hpp"
 #include "tv_fetch/json.hpp"
 #include "tv_fetch/news/news_fetcher.hpp"
+#include "tv_fetch/scenario/scenario_fetcher.hpp"
 #include "tv_fetch/sports/sports_fetcher.hpp"
 #include "tv_fetch/weather/weather_fetcher.hpp"
 
@@ -22,6 +23,7 @@ using tv_fetch::JsonValue;
 using tv_fetch::NewsCommand;
 using tv_fetch::ObjectSet;
 using tv_fetch::OutputFormat;
+using tv_fetch::ScenarioCommand;
 using tv_fetch::SportsCommand;
 using tv_fetch::WeatherCommand;
 
@@ -62,6 +64,8 @@ tv_fetch::JsonResult ExecuteCommand(const Command& command) {
           return tv_fetch::commute::Execute(typed_command);
         } else if constexpr (std::is_same_v<CommandType, SportsCommand>) {
           return tv_fetch::sports::Execute(typed_command);
+        } else if constexpr (std::is_same_v<CommandType, ScenarioCommand>) {
+          return tv_fetch::scenario::Execute(typed_command);
         }
       },
       command);

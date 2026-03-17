@@ -78,12 +78,33 @@ struct SportsCommand {
   bool dry_run = false;
 };
 
+struct ScenarioCommand {
+  enum class Kind {
+    kDaily,
+    kEmergency,
+    kFamily,
+    kMealDelivery,
+    kMedia,
+    kSchedule,
+    kShopping,
+    kSmartHome,
+    kTravel,
+    kWellness,
+  };
+
+  Kind kind = Kind::kDaily;
+  OutputFormat format = OutputFormat::kJson;
+  std::string source = "mock";
+  bool dry_run = false;
+};
+
 using Command = std::variant<DescribeCommand,
                              WeatherCommand,
                              NewsCommand,
                              FinanceCommand,
                              CommuteCommand,
-                             SportsCommand>;
+                             SportsCommand,
+                             ScenarioCommand>;
 
 std::variant<Command, AppError> ParseCommand(int argc, char** argv);
 std::string RenderHelp();

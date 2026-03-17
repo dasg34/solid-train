@@ -1,0 +1,74 @@
+{
+  "title": "긴급 알림 모드",
+  "headline": "영향 지역, 즉시 행동, 갱신 시각을 우선으로 보여줍니다.",
+  "primaryMetrics": [
+    {
+      "label": "경보 수준",
+      "value": "주의",
+      "detail": "강풍 예비특보"
+    },
+    {
+      "label": "영향 지역",
+      "value": "서울 · 경기 서부",
+      "detail": "오전 시간대"
+    },
+    {
+      "label": "최종 갱신",
+      "value": "07:10",
+      "detail": "공식 소스 기준"
+    }
+  ],
+  "sections": [
+    {
+      "title": "즉시 행동",
+      "items": [
+        {
+          "icon": "warning",
+          "label": "실외 이동",
+          "value": "주의",
+          "detail": "간판, 시설물 주변 통행 주의"
+        },
+        {
+          "icon": "home",
+          "label": "실내 안전",
+          "value": "창문 점검",
+          "detail": "강풍 대비 창문과 베란다 물건 고정"
+        }
+      ]
+    },
+    {
+      "title": "추가 안내",
+      "items": [
+        {
+          "icon": "place",
+          "label": "영향 시간",
+          "value": "오전 ~ 낮",
+          "detail": "기상 변화에 따라 확대 가능"
+        },
+        {
+          "icon": "sms",
+          "label": "공식 확인",
+          "value": "재난문자·기상청",
+          "detail": "TV 화면은 참고용 표시 전용 모드"
+        }
+      ]
+    }
+  ],
+  "alert": {
+    "icon": "report",
+    "title": "공식 소스 우선",
+    "summary": "긴급 알림 화면은 공식 경보를 보조적으로 시각화하는 용도로만 사용하고, 불확실한 안내를 생성하지 않는 편이 안전합니다.",
+    "meta": "재난 정보 정책"
+  },
+  "actions": [
+    {
+      "label": "새로고침",
+      "event": "refreshEmergencyAlert"
+    },
+    {
+      "label": "상세 확인",
+      "event": "openEmergencyDetail"
+    }
+  ],
+  "footer": "무경보 상태, 경보 상태, 소스 오류 상태 모두 시각적으로 구분되도록 설계하는 편이 좋습니다."
+}

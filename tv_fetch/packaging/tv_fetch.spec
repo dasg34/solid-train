@@ -13,7 +13,9 @@ Requires:    libjson
 %description
 tv_fetch is a data-only CLI for Tizen TV workflows. It fetches and normalizes
 weather, news, finance, commute, and sports context into machine-friendly JSON
-for downstream A2UI composition.
+for downstream A2UI composition. It also bundles mock-ready scenario payloads
+for daily, emergency, family, meal-delivery, media, schedule, shopping,
+smart-home, travel, and wellness surfaces.
 
 %prep
 %autosetup
@@ -32,8 +34,4 @@ DESTDIR=%{buildroot} meson install -C builddir --no-rebuild
 %{_bindir}/tv_fetch
 %dir %{_datadir}/tv_fetch
 %dir %{_datadir}/tv_fetch/fixtures
-%{_datadir}/tv_fetch/fixtures/mock_weather_seoul.json
-%{_datadir}/tv_fetch/fixtures/mock_news.json
-%{_datadir}/tv_fetch/fixtures/mock_finance.json
-%{_datadir}/tv_fetch/fixtures/mock_commute.json
-%{_datadir}/tv_fetch/fixtures/mock_sports.json
+%{_datadir}/tv_fetch/fixtures/*.json

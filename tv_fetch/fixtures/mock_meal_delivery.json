@@ -1,0 +1,80 @@
+{
+  "title": "배달 상태",
+  "headline": "현재 단계와 예상 도착 시간을 중심으로 주문 상태를 크게 보여줍니다.",
+  "primaryMetrics": [
+    {
+      "label": "예상 도착",
+      "value": "18분",
+      "detail": "평균 범위 15~20분"
+    },
+    {
+      "label": "현재 단계",
+      "value": "배달원 이동 중",
+      "detail": "가게 출발 완료"
+    },
+    {
+      "label": "주문 번호",
+      "value": "#240315",
+      "detail": "표시 범위 축약"
+    }
+  ],
+  "sections": [
+    {
+      "title": "주문 진행",
+      "items": [
+        {
+          "icon": "receiptLong",
+          "label": "결제 완료",
+          "value": "18:02",
+          "detail": "주문 접수 완료"
+        },
+        {
+          "icon": "restaurant",
+          "label": "조리 완료",
+          "value": "18:14",
+          "detail": "픽업 대기 종료"
+        },
+        {
+          "icon": "deliveryDining",
+          "label": "이동 중",
+          "value": "현재",
+          "detail": "도착까지 약 18분 예상"
+        }
+      ]
+    },
+    {
+      "title": "다음 액션",
+      "items": [
+        {
+          "icon": "call",
+          "label": "연락 필요 시",
+          "value": "앱에서 진행",
+          "detail": "TV에서는 번호 노출 없이 버튼만 제공 권장"
+        },
+        {
+          "icon": "replay",
+          "label": "재주문",
+          "value": "가능",
+          "detail": "자주 주문한 메뉴로 빠른 재선택 지원"
+        }
+      ]
+    }
+  ],
+  "alert": {
+    "icon": "privacyTip",
+    "title": "PII 주의",
+    "summary": "주소, 상세 연락처, 문 앞 요청사항은 거실 TV에 직접 노출하지 않는 편이 안전합니다.",
+    "meta": "배송 정보 정책"
+  },
+  "actions": [
+    {
+      "label": "새로고침",
+      "event": "refreshDelivery"
+    },
+    {
+      "label": "재주문",
+      "event": "reorderMeal"
+    }
+  ],
+  "footer": "실제 플랫폼 연동 전에는 mock 상태 머신으로 ETA와 단계 전환을 먼저 검증하는 것이 좋습니다."
+}

@@ -1,0 +1,85 @@
+{
+  "title": "여행 어시스턴트",
+  "headline": "다음 이동과 예약 정보를 공항 출발 관점으로 정리했습니다.",
+  "primaryMetrics": [
+    {
+      "label": "탑승까지",
+      "value": "2시간 10분",
+      "detail": "인천공항 T2"
+    },
+    {
+      "label": "게이트",
+      "value": "121",
+      "detail": "변경 여부 확인 필요"
+    },
+    {
+      "label": "공항 출발",
+      "value": "40분 후",
+      "detail": "교통 원활"
+    }
+  ],
+  "sections": [
+    {
+      "title": "항공편",
+      "items": [
+        {
+          "icon": "flightTakeoff",
+          "label": "KE123",
+          "value": "11:20 출발",
+          "detail": "체크인 완료 · 탑승 시작 10:40"
+        },
+        {
+          "icon": "luggage",
+          "label": "수하물",
+          "value": "1개 접수",
+          "detail": "추가 수하물 없음"
+        }
+      ]
+    },
+    {
+      "title": "체크포인트",
+      "items": [
+        {
+          "icon": "security",
+          "label": "보안검색",
+          "value": "예상 12분",
+          "detail": "현재 비교적 원활"
+        },
+        {
+          "icon": "badge",
+          "label": "예약 코드",
+          "value": "A1B2**",
+          "detail": "전체 코드는 별도 기기에서 확인 권장"
+        }
+      ]
+    },
+    {
+      "title": "숙소",
+      "items": [
+        {
+          "icon": "hotel",
+          "label": "체크인",
+          "value": "15:00",
+          "detail": "도착 후 셀프 체크인 가능"
+        }
+      ]
+    }
+  ],
+  "alert": {
+    "icon": "update",
+    "title": "운영 정보 변동 가능",
+    "summary": "게이트, 탑승 시각, 공항 이동 시간은 짧은 시간에도 바뀔 수 있으니 마지막 갱신 시각을 함께 보여주는 편이 안전합니다.",
+    "meta": "여정 운영 정보 정책"
+  },
+  "actions": [
+    {
+      "label": "새로고침",
+      "event": "refreshTravel"
+    },
+    {
+      "label": "체크포인트 보기",
+      "event": "showTravelCheckpoint"
+    }
+  ],
+  "footer": "travel_app 레퍼런스를 재사용하기 좋은 시나리오지만, 예약 연동 전에는 mock itinerary로 화면 완성도를 먼저 검증하는 것이 좋습니다."
+}

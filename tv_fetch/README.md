@@ -11,6 +11,13 @@ user request -> domain fetch -> normalized JSON -> A2UI composition -> viewer ap
 This project intentionally stops at **normalized domain JSON**. It does not
 generate A2UI and it does not launch the viewer.
 
+Current command coverage is split in two layers:
+
+- Live-ready domains: `weather`, `news`, `finance`, `commute`, `sports`
+- Mock-ready scenario parity with the TV skills: `daily`, `emergency`, `family`,
+  `meal-delivery`, `media`, `schedule`, `shopping`, `smart-home`, `travel`,
+  `wellness`
+
 For Tizen packaging, the repository includes the RPM spec at
 [packaging/tv_fetch.spec](/Users/yohoho/work/tv_fetch/packaging/tv_fetch.spec).
 
@@ -77,6 +84,7 @@ lets the CLI load it correctly at runtime without a `tizen-manifest.xml`.
 ./builddir/tv_fetch describe --format pretty
 ./builddir/tv_fetch describe weather --format pretty
 ./builddir/tv_fetch describe finance --format pretty
+./builddir/tv_fetch describe schedule --format pretty
 ```
 
 ### Fetch weather context
@@ -179,6 +187,31 @@ Live league payload:
   --format pretty
 ```
 
+### Fetch additional mock-ready scenario context
+
+These commands mirror the remaining TV scenario skills so downstream agents can
+always ask `tv_fetch` for a normalized payload, even when a live adapter is not
+implemented yet.
+
+```bash
+./builddir/tv_fetch daily --source mock --format pretty
+./builddir/tv_fetch emergency --source mock --format pretty
+./builddir/tv_fetch family --source mock --format pretty
+./builddir/tv_fetch meal-delivery --source mock --format pretty
+./builddir/tv_fetch media --source mock --format pretty
+./builddir/tv_fetch schedule --source mock --format pretty
+./builddir/tv_fetch shopping --source mock --format pretty
+./builddir/tv_fetch smart-home --source mock --format pretty
+./builddir/tv_fetch travel --source mock --format pretty
+./builddir/tv_fetch wellness --source mock --format pretty
+```
+
+Dry run works the same way for these scenario commands:
+
+```bash
+./builddir/tv_fetch daily --dry-run --format pretty
+```
+
 ## Output shape
 
 Each command emits normalized JSON that stays close to the corresponding TV
@@ -215,7 +248,7 @@ skill contract. A few representative top-level shapes:
 
 ```json
 {
-  "domain": "news|finance|commute|sports",
+  "domain": "news|finance|commute|sports|daily|emergency|family|meal-delivery|media|schedule|shopping|smart-home|travel|wellness",
   "source": "mock|live-source",
   "title": "string",
   "headline": "string",
@@ -229,6 +262,6 @@ skill contract. A few representative top-level shapes:
 
 ## Roadmap
 
-- Add more fetchers: schedule, smart-home, travel
+- Add live adapters for daily, emergency, schedule, and travel
 - Add top-level `schema` command for output contracts
 - Add stable machine-readable error codes across all domains

@@ -1,3 +1,4 @@
+#include <array>
 #include <cstdlib>
 #include <iostream>
 #include <optional>
@@ -8,6 +9,7 @@
 #include "tv_fetch/finance/finance_fetcher.hpp"
 #include "tv_fetch/json.hpp"
 #include "tv_fetch/news/news_fetcher.hpp"
+#include "tv_fetch/scenario/scenario_fetcher.hpp"
 #include "tv_fetch/sports/sports_fetcher.hpp"
 #include "tv_fetch/weather/weather_fetcher.hpp"
 
@@ -29,7 +31,7 @@ void TestDescribeWeather() {
 void TestDescribeAdditionalDomains() {
   const auto root = tv_fetch::BuildDescribeDocument(std::nullopt);
   Assert(root.At("commands").IsArray(), "describe root commands");
-  Assert(root.At("commands").Size() == 5, "describe root command count");
+  Assert(root.At("commands").Size() == 15, "describe root command count");
 
   const auto news = tv_fetch::BuildDescribeDocument(std::string("news"));
   Assert(news.At("name").AsString() == "news", "describe news name");
@@ -39,6 +41,10 @@ void TestDescribeAdditionalDomains() {
   Assert(commute.At("name").AsString() == "commute", "describe commute name");
   const auto sports = tv_fetch::BuildDescribeDocument(std::string("sports"));
   Assert(sports.At("name").AsString() == "sports", "describe sports name");
+  const auto schedule =
+      tv_fetch::BuildDescribeDocument(std::string("schedule"));
+  Assert(schedule.At("name").AsString() == "schedule",
+         "describe schedule name");
 }
 
 void TestParseNewsQueryCommand() {
@@ -52,6 +58,23 @@ void TestParseNewsQueryCommand() {
   const auto& news = std::get<tv_fetch::NewsCommand>(command);
   Assert(news.query == "반도체", "news query should be preserved");
   Assert(news.count == 4, "news count should be preserved");
+}
+
+void TestParseScenarioCommand() {
+  const char* argv[] = {
+      "tv_fetch", "schedule", "--source", "mock", "--format", "pretty"};
+  const auto parsed = tv_fetch::ParseCommand(6, const_cast<char**>(argv));
+  Assert(std::holds_alternative<tv_fetch::Command>(parsed),
+         "scenario command should parse");
+  const auto& command = std::get<tv_fetch::Command>(parsed);
+  Assert(std::holds_alternative<tv_fetch::ScenarioCommand>(command),
+         "parsed command should be a scenario command");
+  const auto& scenario = std::get<tv_fetch::ScenarioCommand>(command);
+  Assert(scenario.kind == tv_fetch::ScenarioCommand::Kind::kSchedule,
+         "scenario kind should be preserved");
+  Assert(scenario.source == "mock", "scenario source should be preserved");
+  Assert(scenario.format == tv_fetch::OutputFormat::kPretty,
+         "scenario format should be preserved");
 }
 
 void TestNormalizeOpenMeteoResponse() {
@@ -124,15 +147,50 @@ void TestAdditionalMockFixturesLoad() {
          "sports mock domain");
 }
 
+void TestScenarioMockFixturesLoad() {
+  constexpr std::array<std::pair<tv_fetch::ScenarioCommand::Kind,
+                                 std::string_view>,
+                       10>
+      kScenarios = {{
+          {tv_fetch::ScenarioCommand::Kind::kDaily, "daily"},
+          {tv_fetch::ScenarioCommand::Kind::kEmergency, "emergency"},
+          {tv_fetch::ScenarioCommand::Kind::kFamily, "family"},
+          {tv_fetch::ScenarioCommand::Kind::kMealDelivery, "meal-delivery"},
+          {tv_fetch::ScenarioCommand::Kind::kMedia, "media"},
+          {tv_fetch::ScenarioCommand::Kind::kSchedule, "schedule"},
+          {tv_fetch::ScenarioCommand::Kind::kShopping, "shopping"},
+          {tv_fetch::ScenarioCommand::Kind::kSmartHome, "smart-home"},
+          {tv_fetch::ScenarioCommand::Kind::kTravel, "travel"},
+          {tv_fetch::ScenarioCommand::Kind::kWellness, "wellness"},
+      }};
+
+  for (const auto& [kind, domain] : kScenarios) {
+    tv_fetch::ScenarioCommand command;
+    command.kind = kind;
+
+    const auto result = tv_fetch::scenario::Execute(command);
+    Assert(std::holds_alternative<tv_fetch::JsonValue>(result),
+           std::string(domain) + " mock fixture should load");
+
+    const auto& payload = std::get<tv_fetch::JsonValue>(result);
+    Assert(payload.At("domain").AsString() == domain,
+           std::string(domain) + " mock domain");
+    Assert(payload.At("source").AsString() == "mock",
+           std::string(domain) + " mock source");
+  }
+}
+
 }  // namespace
 
 int main() {
   TestDescribeWeather();
   TestDescribeAdditionalDomains();
   TestParseNewsQueryCommand();
+  TestParseScenarioCommand();
   TestNormalizeOpenMeteoResponse();
   TestMockFixtureLoads();
   TestAdditionalMockFixturesLoad();
+  TestScenarioMockFixturesLoad();
   std::cout << "tv_fetch_tests passed\n";
   return 0;
 }

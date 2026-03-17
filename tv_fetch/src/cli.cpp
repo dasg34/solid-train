@@ -7,18 +7,29 @@
 #include <utility>
 #include <vector>
 
+#include "tv_fetch/scenario/scenario_fetcher.hpp"
 #include "tv_fetch/support.hpp"
 
 namespace tv_fetch {
 
 namespace {
 
-constexpr std::array<std::string_view, 5> kDescribeTargets = {
+constexpr std::array<std::string_view, 15> kDescribeTargets = {
     "weather",
     "news",
     "finance",
     "commute",
     "sports",
+    "daily",
+    "emergency",
+    "family",
+    "meal-delivery",
+    "media",
+    "schedule",
+    "shopping",
+    "smart-home",
+    "travel",
+    "wellness",
 };
 
 bool ContainsControlChars(std::string_view value) {
@@ -101,7 +112,7 @@ std::variant<DescribeCommand, AppError> ParseDescribe(
     }
     return InvalidArguments(
         "Unsupported describe option.",
-        "Use tv_fetch describe [weather|news|finance|commute|sports] [--format json|pretty].");
+        "Use tv_fetch describe [weather|news|finance|commute|sports|daily|emergency|family|meal-delivery|media|schedule|shopping|smart-home|travel|wellness] [--format json|pretty].");
   }
 
   return command;
@@ -619,6 +630,50 @@ std::variant<SportsCommand, AppError> ParseSports(
   return command;
 }
 
+std::variant<ScenarioCommand, AppError> ParseScenario(
+    ScenarioCommand::Kind kind, const std::vector<std::string_view>& args) {
+  ScenarioCommand command;
+  command.kind = kind;
+
+  for (std::size_t index = 0; index < args.size();) {
+    const auto arg = args[index];
+    if (arg == "--source") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --source.");
+      }
+      if (ContainsControlChars(args[index + 1])) {
+        return InvalidArguments("Source contains control characters.");
+      }
+      command.source = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--format") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --format.");
+      }
+      const auto parsed = ParseOutputFormat(args[index + 1]);
+      if (std::holds_alternative<AppError>(parsed)) {
+        return std::get<AppError>(parsed);
+      }
+      command.format = std::get<OutputFormat>(parsed);
+      index += 2;
+      continue;
+    }
+    if (arg == "--dry-run") {
+      command.dry_run = true;
+      ++index;
+      continue;
+    }
+    return InvalidArguments(
+        "Unsupported scenario option.",
+        "Use tv_fetch " + std::string(scenario::CommandName(kind)) +
+            " [--source mock] [--dry-run] [--format json|pretty].");
+  }
+
+  return command;
+}
+
 JsonValue DomainDescribeBase(std::string_view name,
                              std::string_view description,
                              bool supports_live,
@@ -983,7 +1038,7 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
   if (argc < 2) {
     return InvalidArguments(
         "Missing command.",
-        "Use tv_fetch describe, weather, news, finance, commute, or sports.");
+        "Use tv_fetch describe, weather, news, finance, commute, sports, daily, emergency, family, meal-delivery, media, schedule, shopping, smart-home, travel, or wellness.");
   }
 
   const std::string_view command_name(argv[1]);
@@ -1035,10 +1090,17 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
     }
     return Command{std::get<SportsCommand>(parsed)};
   }
+  if (const auto kind = scenario::ParseKind(command_name); kind.has_value()) {
+    const auto parsed = ParseScenario(*kind, args);
+    if (std::holds_alternative<AppError>(parsed)) {
+      return std::get<AppError>(parsed);
+    }
+    return Command{std::get<ScenarioCommand>(parsed)};
+  }
 
   return InvalidArguments(
       "Unknown command.",
-      "Use tv_fetch describe, weather, news, finance, commute, or sports.");
+      "Use tv_fetch describe, weather, news, finance, commute, sports, daily, emergency, family, meal-delivery, media, schedule, shopping, smart-home, travel, or wellness.");
 }
 
 std::string RenderHelp() {
@@ -1059,7 +1121,10 @@ std::string RenderHelp() {
          << "          [--profile driving|walking] [--arrive-by ...]\n"
          << "          [--buffer-minutes 0-180] [--dry-run] [--format json|pretty]\n"
          << "  sports [--source mock|thesportsdb] [--league ...] [--league-id ...]\n"
-         << "         [--league-name ...] [--dry-run] [--format json|pretty]\n";
+         << "         [--league-name ...] [--dry-run] [--format json|pretty]\n"
+         << "  daily|emergency|family|meal-delivery|media|schedule|\n"
+         << "  shopping|smart-home|travel|wellness\n"
+         << "         [--source mock] [--dry-run] [--format json|pretty]\n";
   return stream.str();
 }
 
@@ -1081,6 +1146,16 @@ JsonValue BuildDescribeDocument(const std::optional<std::string>& target) {
              FinanceDescribeDocument(),
              CommuteDescribeDocument(),
              SportsDescribeDocument(),
+             scenario::Describe(ScenarioCommand::Kind::kDaily),
+             scenario::Describe(ScenarioCommand::Kind::kEmergency),
+             scenario::Describe(ScenarioCommand::Kind::kFamily),
+             scenario::Describe(ScenarioCommand::Kind::kMealDelivery),
+             scenario::Describe(ScenarioCommand::Kind::kMedia),
+             scenario::Describe(ScenarioCommand::Kind::kSchedule),
+             scenario::Describe(ScenarioCommand::Kind::kShopping),
+             scenario::Describe(ScenarioCommand::Kind::kSmartHome),
+             scenario::Describe(ScenarioCommand::Kind::kTravel),
+             scenario::Describe(ScenarioCommand::Kind::kWellness),
          })},
     });
   }
@@ -1099,6 +1174,9 @@ JsonValue BuildDescribeDocument(const std::optional<std::string>& target) {
   }
   if (*target == "sports") {
     return SportsDescribeDocument();
+  }
+  if (const auto kind = scenario::ParseKind(*target); kind.has_value()) {
+    return scenario::Describe(*kind);
   }
 
   return MakeObject({
