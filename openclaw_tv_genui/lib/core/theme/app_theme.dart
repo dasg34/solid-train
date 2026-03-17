@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+const _tvTextScaleFactor = 0.65;
+
 ThemeData buildAppTheme() {
   final colorScheme =
       ColorScheme.fromSeed(
@@ -25,6 +27,7 @@ ThemeData buildAppTheme() {
   final textTheme = GoogleFonts.notoSansKrTextTheme(baseTheme.textTheme).apply(
     bodyColor: colorScheme.onSurface,
     displayColor: colorScheme.onSurface,
+    fontSizeFactor: _tvTextScaleFactor,
   );
 
   return baseTheme.copyWith(
