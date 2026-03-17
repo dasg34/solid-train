@@ -41,6 +41,19 @@ void TestDescribeAdditionalDomains() {
   Assert(sports.At("name").AsString() == "sports", "describe sports name");
 }
 
+void TestParseNewsQueryCommand() {
+  const char* argv[] = {"tv_fetch", "news", "--query", "반도체", "--count", "4"};
+  const auto parsed = tv_fetch::ParseCommand(6, const_cast<char**>(argv));
+  Assert(std::holds_alternative<tv_fetch::Command>(parsed),
+         "news query command should parse");
+  const auto& command = std::get<tv_fetch::Command>(parsed);
+  Assert(std::holds_alternative<tv_fetch::NewsCommand>(command),
+         "parsed command should be news");
+  const auto& news = std::get<tv_fetch::NewsCommand>(command);
+  Assert(news.query == "반도체", "news query should be preserved");
+  Assert(news.count == 4, "news count should be preserved");
+}
+
 void TestNormalizeOpenMeteoResponse() {
   const auto sample = tv_fetch::JsonValue::Parse(
       R"({
@@ -116,6 +129,7 @@ void TestAdditionalMockFixturesLoad() {
 int main() {
   TestDescribeWeather();
   TestDescribeAdditionalDomains();
+  TestParseNewsQueryCommand();
   TestNormalizeOpenMeteoResponse();
   TestMockFixtureLoads();
   TestAdditionalMockFixturesLoad();

@@ -228,6 +228,7 @@ std::variant<WeatherCommand, AppError> ParseWeather(
 std::variant<NewsCommand, AppError> ParseNews(
     const std::vector<std::string_view>& args) {
   NewsCommand command;
+  bool source_explicit = false;
 
   for (std::size_t index = 0; index < args.size();) {
     const auto arg = args[index];
@@ -240,11 +241,14 @@ std::variant<NewsCommand, AppError> ParseNews(
         command.source = NewsCommand::Source::kMock;
       } else if (value == "yonhap-rss") {
         command.source = NewsCommand::Source::kYonhapRss;
+      } else if (value == "google-news-rss") {
+        command.source = NewsCommand::Source::kGoogleNewsRss;
       } else {
         return InvalidArguments(
             "Unsupported news source.",
-            "Use --source mock or --source yonhap-rss.");
+            "Use --source mock, --source yonhap-rss, or --source google-news-rss.");
       }
+      source_explicit = true;
       index += 2;
       continue;
     }
@@ -256,6 +260,25 @@ std::variant<NewsCommand, AppError> ParseNews(
         return InvalidArguments("RSS URL contains control characters.");
       }
       command.rss_url = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--query") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --query.");
+      }
+      if (ContainsControlChars(args[index + 1])) {
+        return InvalidArguments("Query contains control characters.");
+      }
+      command.query = std::string(args[index + 1]);
+      if (!source_explicit && command.source == NewsCommand::Source::kMock) {
+        command.source = NewsCommand::Source::kGoogleNewsRss;
+      } else if (source_explicit &&
+                 command.source != NewsCommand::Source::kGoogleNewsRss) {
+        return InvalidArguments(
+            "News search requires the google-news-rss source.",
+            "Use tv_fetch news --query ... or explicitly set --source google-news-rss.");
+      }
       index += 2;
       continue;
     }
@@ -290,8 +313,16 @@ std::variant<NewsCommand, AppError> ParseNews(
     }
     return InvalidArguments(
         "Unsupported news option.",
-        "Use tv_fetch news [--source mock|yonhap-rss] [--rss-url ...] "
-        "[--count 1-12] [--dry-run] [--format json|pretty].");
+        "Use tv_fetch news [--source mock|yonhap-rss|google-news-rss] "
+        "[--rss-url ...] [--query ...] [--count 1-12] [--dry-run] "
+        "[--format json|pretty].");
+  }
+
+  if (command.source == NewsCommand::Source::kGoogleNewsRss &&
+      command.query.empty()) {
+    return InvalidArguments(
+        "Google News search requires a query.",
+        "Use tv_fetch news --query 반도체 [--count ...] [--format pretty].");
   }
 
   return command;
@@ -686,20 +717,32 @@ JsonValue NewsDescribeDocument() {
       "Fetch headline-first news context for TV composition.",
       true,
       "mock",
-      MakeArray({JsonValue::String("mock"), JsonValue::String("yonhap-rss")}),
+      MakeArray({JsonValue::String("mock"),
+                 JsonValue::String("yonhap-rss"),
+                 JsonValue::String("google-news-rss")}),
       MakeArray({
           MakeObject({
               {"name", JsonValue::String("--source")},
               {"type", JsonValue::String("string")},
               {"required", JsonValue::Boolean(false)},
-              {"values",
-               MakeArray(
-                   {JsonValue::String("mock"), JsonValue::String("yonhap-rss")})},
+               {"values",
+                MakeArray(
+                   {JsonValue::String("mock"),
+                    JsonValue::String("yonhap-rss"),
+                    JsonValue::String("google-news-rss")})},
           }),
           MakeObject({
               {"name", JsonValue::String("--rss-url")},
               {"type", JsonValue::String("string")},
               {"required", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--query")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"description",
+               JsonValue::String(
+                   "Enables Google News RSS search when provided.")},
           }),
           MakeObject({
               {"name", JsonValue::String("--count")},
@@ -726,7 +769,7 @@ JsonValue NewsDescribeDocument() {
       }),
       MakeObject({
           {"domain", JsonValue::String("news")},
-          {"source", JsonValue::String("mock|yonhap-rss")},
+          {"source", JsonValue::String("mock|yonhap-rss|google-news-rss")},
           {"title", JsonValue::String("string")},
           {"headline", JsonValue::String("string")},
           {"primaryMetrics", JsonValue::String("array")},
@@ -1007,7 +1050,8 @@ std::string RenderHelp() {
          << "  weather [--source mock|open-meteo] [--city ...] [--district ...]\n"
          << "          [--latitude ...] [--longitude ...] [--hours 1-24]\n"
          << "          [--dry-run] [--format json|pretty]\n"
-         << "  news [--source mock|yonhap-rss] [--rss-url ...] [--count 1-12]\n"
+         << "  news [--source mock|yonhap-rss|google-news-rss] [--rss-url ...]\n"
+         << "       [--query ...] [--count 1-12]\n"
          << "       [--dry-run] [--format json|pretty]\n"
          << "  finance [--source mock|naver-public] [--watchlist ...]\n"
          << "          [--dry-run] [--format json|pretty]\n"

@@ -120,6 +120,12 @@ Live Yonhap RSS payload:
 ./builddir/tv_fetch news --source yonhap-rss --count 6 --format pretty
 ```
 
+Search by keyword:
+
+```bash
+./builddir/tv_fetch news --query 반도체 --count 6 --format pretty
+```
+
 ### Fetch finance context
 
 Mock payload:

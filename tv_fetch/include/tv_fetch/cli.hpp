@@ -31,11 +31,12 @@ struct WeatherCommand {
 };
 
 struct NewsCommand {
-  enum class Source { kMock, kYonhapRss };
+  enum class Source { kMock, kYonhapRss, kGoogleNewsRss };
 
   Source source = Source::kMock;
   OutputFormat format = OutputFormat::kJson;
   std::string rss_url = "https://www.yonhapnewstv.co.kr/browse/feed/";
+  std::string query;
   int count = 6;
   bool dry_run = false;
 };
