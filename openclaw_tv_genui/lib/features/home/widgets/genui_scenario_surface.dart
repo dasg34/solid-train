@@ -216,6 +216,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
     );
     final overlayContent = _OverlaySurfaceFrame(
       pattern: _resolvedPattern(),
+      style: _style,
       child: content,
     );
 
@@ -265,9 +266,14 @@ TvSurfacePattern _patternForSurfaceId(String surfaceId) {
 }
 
 class _OverlaySurfaceFrame extends StatelessWidget {
-  const _OverlaySurfaceFrame({required this.pattern, required this.child});
+  const _OverlaySurfaceFrame({
+    required this.pattern,
+    required this.style,
+    required this.child,
+  });
 
   final TvSurfacePattern pattern;
+  final SurfaceStyle style;
   final Widget child;
 
   @override
@@ -279,35 +285,6 @@ class _OverlaySurfaceFrame extends StatelessWidget {
 
     return Stack(
       children: [
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.black.withValues(alpha: 0.04),
-                  Colors.black.withValues(alpha: 0.10),
-                  Colors.black.withValues(alpha: 0.22),
-                ],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ),
-            ),
-          ),
-        ),
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: spec.alignment,
-                radius: 1.18,
-                colors: [
-                  Colors.white.withValues(alpha: 0.04),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-        ),
         SafeArea(
           child: Padding(
             padding: spec.margin,
@@ -316,7 +293,7 @@ class _OverlaySurfaceFrame extends StatelessWidget {
               child: SizedBox(
                 width: spec.width,
                 height: spec.height,
-                child: _GlassOverlayPanel(child: child),
+                child: _GlassOverlayPanel(style: style, child: child),
               ),
             ),
           ),
@@ -398,8 +375,9 @@ class _OverlayLayoutSpec {
 }
 
 class _GlassOverlayPanel extends StatelessWidget {
-  const _GlassOverlayPanel({required this.child});
+  const _GlassOverlayPanel({required this.style, required this.child});
 
+  final SurfaceStyle style;
   final Widget child;
 
   @override
@@ -428,19 +406,11 @@ class _GlassOverlayPanel extends StatelessWidget {
               ),
             ],
           ),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(34),
-              gradient: LinearGradient(
-                colors: [
-                  Colors.black.withValues(alpha: 0.24),
-                  Colors.black.withValues(alpha: 0.36),
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-            child: child,
+          child: Stack(
+            children: [
+              Positioned.fill(child: _PanelBackdrop(style: style)),
+              Positioned.fill(child: child),
+            ],
           ),
         ),
       ),
@@ -462,28 +432,7 @@ class _WeatherSurfaceShell extends StatelessWidget {
       data: weatherTheme,
       child: DefaultTextStyle(
         style: weatherTheme.textTheme.bodyMedium!,
-        child: Material(
-          color: Colors.transparent,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF0D1621),
-                  Color(0xFF132231),
-                  Color(0xFF1A2938),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Stack(
-              children: [
-                const Positioned.fill(child: _WeatherBackdrop()),
-                Positioned.fill(child: child),
-              ],
-            ),
-          ),
-        ),
+        child: Material(color: Colors.transparent, child: child),
       ),
     );
   }
@@ -502,23 +451,7 @@ class _StandardSurfaceShell extends StatelessWidget {
       data: baseTheme,
       child: DefaultTextStyle(
         style: baseTheme.textTheme.bodyMedium!,
-        child: Material(
-          color: Colors.transparent,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF0A141B),
-                  Color(0xFF101B24),
-                  Color(0xFF152330),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: child,
-          ),
-        ),
+        child: Material(color: Colors.transparent, child: child),
       ),
     );
   }
@@ -538,28 +471,7 @@ class _NewsSurfaceShell extends StatelessWidget {
       data: newsTheme,
       child: DefaultTextStyle(
         style: newsTheme.textTheme.bodyMedium!,
-        child: Material(
-          color: Colors.transparent,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF0C1620),
-                  Color(0xFF12202E),
-                  Color(0xFF172635),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Stack(
-              children: [
-                const Positioned.fill(child: _NewsBackdrop()),
-                Positioned.fill(child: child),
-              ],
-            ),
-          ),
-        ),
+        child: Material(color: Colors.transparent, child: child),
       ),
     );
   }
@@ -579,28 +491,7 @@ class _ScheduleSurfaceShell extends StatelessWidget {
       data: scheduleTheme,
       child: DefaultTextStyle(
         style: scheduleTheme.textTheme.bodyMedium!,
-        child: Material(
-          color: Colors.transparent,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFF0D1620),
-                  Color(0xFF13202C),
-                  Color(0xFF1A2934),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Stack(
-              children: [
-                const Positioned.fill(child: _ScheduleBackdrop()),
-                Positioned.fill(child: child),
-              ],
-            ),
-          ),
-        ),
+        child: Material(color: Colors.transparent, child: child),
       ),
     );
   }
@@ -776,11 +667,68 @@ ThemeData _buildScheduleTheme(ThemeData baseTheme) {
   );
 }
 
-class _NewsBackdrop extends StatelessWidget {
-  const _NewsBackdrop();
+class _PanelBackdrop extends StatelessWidget {
+  const _PanelBackdrop({required this.style});
+
+  final SurfaceStyle style;
 
   @override
   Widget build(BuildContext context) {
+    final config = switch (style) {
+      SurfaceStyle.atmosphericWeather => const _PanelBackdropConfig(
+        topGlowColor: Color(0xFFF1C67B),
+        topGlowOpacity: 0.18,
+        topGlowSize: 220,
+        bottomGlowColor: Color(0xFF4A98B9),
+        bottomGlowOpacity: 0.14,
+        bottomGlowSize: 280,
+        washStart: Color(0x0DF3C980),
+        washEnd: Color(0x1285B6D7),
+        lineOpacity: 0.20,
+        innerStartOpacity: 0.02,
+        innerEndOpacity: 0.005,
+      ),
+      SurfaceStyle.newsPanel => const _PanelBackdropConfig(
+        topGlowColor: Color(0xFFE0BE83),
+        topGlowOpacity: 0.10,
+        topGlowSize: 180,
+        bottomGlowColor: Color(0xFF4F93B2),
+        bottomGlowOpacity: 0.08,
+        bottomGlowSize: 220,
+        washStart: Color(0x08D9B884),
+        washEnd: Color(0x0D7CA0BD),
+        lineOpacity: 0.18,
+        innerStartOpacity: 0.02,
+        innerEndOpacity: 0.004,
+      ),
+      SurfaceStyle.schedulePanel => const _PanelBackdropConfig(
+        topGlowColor: Color(0xFFDFC189),
+        topGlowOpacity: 0.08,
+        topGlowSize: 170,
+        bottomGlowColor: Color(0xFF4E8DAA),
+        bottomGlowOpacity: 0.07,
+        bottomGlowSize: 220,
+        washStart: Color(0x08E0BE85),
+        washEnd: Color(0x0A7CA0B9),
+        lineOpacity: 0.16,
+        innerStartOpacity: 0.015,
+        innerEndOpacity: 0.004,
+      ),
+      SurfaceStyle.standard => const _PanelBackdropConfig(
+        topGlowColor: Color(0xFF6CB7D6),
+        topGlowOpacity: 0.08,
+        topGlowSize: 170,
+        bottomGlowColor: Color(0xFFE3C388),
+        bottomGlowOpacity: 0.07,
+        bottomGlowSize: 220,
+        washStart: Color(0x08203446),
+        washEnd: Color(0x08E3C388),
+        lineOpacity: 0.14,
+        innerStartOpacity: 0.012,
+        innerEndOpacity: 0.004,
+      ),
+    };
+
     return IgnorePointer(
       child: Stack(
         children: [
@@ -789,9 +737,9 @@ class _NewsBackdrop extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    const Color(0xFFD9B884).withValues(alpha: 0.02),
+                    config.washStart,
                     Colors.transparent,
-                    const Color(0xFF7CA0BD).withValues(alpha: 0.05),
+                    config.washEnd,
                   ],
                   begin: Alignment.topRight,
                   end: Alignment.bottomLeft,
@@ -800,25 +748,25 @@ class _NewsBackdrop extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: -22,
-            right: 80,
+            top: -28,
+            right: 68,
             child: _WeatherGlow(
-              size: 180,
-              color: const Color(0xFFE0BE83),
-              opacity: 0.10,
+              size: config.topGlowSize,
+              color: config.topGlowColor,
+              opacity: config.topGlowOpacity,
             ),
           ),
           Positioned(
-            left: -48,
-            bottom: 18,
+            left: -52,
+            bottom: 24,
             child: _WeatherGlow(
-              size: 220,
-              color: const Color(0xFF4F93B2),
-              opacity: 0.08,
+              size: config.bottomGlowSize,
+              color: config.bottomGlowColor,
+              opacity: config.bottomGlowOpacity,
             ),
           ),
           Positioned(
-            top: 22,
+            top: 24,
             left: 28,
             right: 28,
             child: Container(
@@ -827,7 +775,7 @@ class _NewsBackdrop extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: [
                     Colors.transparent,
-                    Colors.white.withValues(alpha: 0.18),
+                    Colors.white.withValues(alpha: config.lineOpacity),
                     Colors.transparent,
                   ],
                 ),
@@ -845,8 +793,8 @@ class _NewsBackdrop extends StatelessWidget {
                   ),
                   gradient: LinearGradient(
                     colors: [
-                      Colors.white.withValues(alpha: 0.02),
-                      Colors.white.withValues(alpha: 0.004),
+                      Colors.white.withValues(alpha: config.innerStartOpacity),
+                      Colors.white.withValues(alpha: config.innerEndOpacity),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -861,174 +809,32 @@ class _NewsBackdrop extends StatelessWidget {
   }
 }
 
-class _ScheduleBackdrop extends StatelessWidget {
-  const _ScheduleBackdrop();
+class _PanelBackdropConfig {
+  const _PanelBackdropConfig({
+    required this.topGlowColor,
+    required this.topGlowOpacity,
+    required this.topGlowSize,
+    required this.bottomGlowColor,
+    required this.bottomGlowOpacity,
+    required this.bottomGlowSize,
+    required this.washStart,
+    required this.washEnd,
+    required this.lineOpacity,
+    required this.innerStartOpacity,
+    required this.innerEndOpacity,
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFFE0BE85).withValues(alpha: 0.02),
-                    Colors.transparent,
-                    const Color(0xFF7CA0B9).withValues(alpha: 0.04),
-                  ],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: -18,
-            right: 76,
-            child: _WeatherGlow(
-              size: 170,
-              color: const Color(0xFFDFC189),
-              opacity: 0.08,
-            ),
-          ),
-          Positioned(
-            left: -44,
-            bottom: 22,
-            child: _WeatherGlow(
-              size: 220,
-              color: const Color(0xFF4E8DAA),
-              opacity: 0.07,
-            ),
-          ),
-          Positioned(
-            left: 56,
-            right: 56,
-            top: 28,
-            child: Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    Colors.white.withValues(alpha: 0.16),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(26),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.04),
-                  ),
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0.015),
-                      Colors.white.withValues(alpha: 0.004),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _WeatherBackdrop extends StatelessWidget {
-  const _WeatherBackdrop();
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFFF3C980).withValues(alpha: 0.05),
-                    Colors.transparent,
-                    const Color(0xFF85B6D7).withValues(alpha: 0.07),
-                  ],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: -40,
-            right: 72,
-            child: _WeatherGlow(
-              size: 220,
-              color: const Color(0xFFF1C67B),
-              opacity: 0.18,
-            ),
-          ),
-          Positioned(
-            left: -60,
-            bottom: 26,
-            child: _WeatherGlow(
-              size: 280,
-              color: const Color(0xFF4A98B9),
-              opacity: 0.14,
-            ),
-          ),
-          Positioned(
-            left: 56,
-            right: 56,
-            top: 28,
-            child: Container(
-              height: 1,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    Colors.white.withValues(alpha: 0.20),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(26),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.04),
-                  ),
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0.02),
-                      Colors.white.withValues(alpha: 0.005),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  final Color topGlowColor;
+  final double topGlowOpacity;
+  final double topGlowSize;
+  final Color bottomGlowColor;
+  final double bottomGlowOpacity;
+  final double bottomGlowSize;
+  final Color washStart;
+  final Color washEnd;
+  final double lineOpacity;
+  final double innerStartOpacity;
+  final double innerEndOpacity;
 }
 
 class _WeatherGlow extends StatelessWidget {
