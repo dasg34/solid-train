@@ -1,8 +1,13 @@
 #include "tv_fetch/weather/weather_fetcher.hpp"
 
+#include <cmath>
+#include <cctype>
+#include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <vector>
 
 #include <nlohmann/json.hpp>
 
@@ -101,16 +106,76 @@ std::string ProjectRoot() {
 #endif
 }
 
+std::vector<std::filesystem::path> CandidateFixturePaths(
+    std::string_view file_name) {
+  std::vector<std::filesystem::path> candidates;
+
+  if (const char* env_root = std::getenv("TV_FETCH_FIXTURE_ROOT");
+      env_root != nullptr && env_root[0] != '\0') {
+    const std::filesystem::path root(env_root);
+    candidates.push_back(root / file_name);
+    candidates.push_back(root / "fixtures" / file_name);
+  }
+
+#ifdef TV_FETCH_DEFAULT_FIXTURE_ROOT
+  {
+    const std::filesystem::path root(TV_FETCH_DEFAULT_FIXTURE_ROOT);
+    candidates.push_back(root / file_name);
+    candidates.push_back(root / "fixtures" / file_name);
+  }
+#endif
+
+  const std::filesystem::path source_root(ProjectRoot());
+  candidates.push_back(source_root / file_name);
+  candidates.push_back(source_root / "fixtures" / file_name);
+
+  return candidates;
+}
+
+std::filesystem::path ResolveFixturePath(std::string_view file_name) {
+  std::error_code error;
+  for (const auto& candidate : CandidateFixturePaths(file_name)) {
+    if (std::filesystem::exists(candidate, error) && !error) {
+      return candidate;
+    }
+    error.clear();
+  }
+  return {};
+}
+
+std::string RenderMissingFixtureHint(std::string_view file_name) {
+  std::ostringstream hint;
+  hint << "Searched: ";
+  const auto candidates = CandidateFixturePaths(file_name);
+  for (std::size_t index = 0; index < candidates.size(); ++index) {
+    if (index > 0) {
+      hint << ", ";
+    }
+    hint << candidates[index].string();
+  }
+  return hint.str();
+}
+
 }  // namespace
 
 std::variant<nlohmann::json, AppError> LoadMockWeatherPayload() {
-  const std::string path = ProjectRoot() + "/fixtures/mock_weather_seoul.json";
+  const std::filesystem::path path =
+      ResolveFixturePath("mock_weather_seoul.json");
+  if (path.empty()) {
+    return AppError{
+        .code = "mock_fixture_missing",
+        .message = "Failed to locate bundled mock weather fixture.",
+        .hint = RenderMissingFixtureHint("mock_weather_seoul.json"),
+        .exit_code = 5,
+    };
+  }
+
   std::ifstream handle(path);
   if (!handle.is_open()) {
     return AppError{
         .code = "mock_fixture_missing",
         .message = "Failed to open bundled mock weather fixture.",
-        .hint = path,
+        .hint = path.string(),
         .exit_code = 5,
     };
   }
@@ -210,7 +275,11 @@ std::variant<nlohmann::json, AppError> Execute(const WeatherCommand& command) {
           {"command", "weather"},
           {"mode", "dry-run"},
           {"source", "mock"},
-          {"fixture_path", ProjectRoot() + "/fixtures/mock_weather_seoul.json"},
+          {"fixture_path",
+           ResolveFixturePath("mock_weather_seoul.json").empty()
+               ? nlohmann::json(nullptr)
+               : nlohmann::json(
+                     ResolveFixturePath("mock_weather_seoul.json").string())},
       };
     }
     return LoadMockWeatherPayload();

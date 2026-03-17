@@ -11,6 +11,9 @@ user request -> domain fetch -> normalized JSON -> A2UI composition -> viewer ap
 This project intentionally stops at **normalized domain JSON**. It does not
 generate A2UI and it does not launch the viewer.
 
+For Tizen packaging, the repository includes the RPM spec at
+[packaging/tv_fetch.spec](/Users/yohoho/work/tv_fetch/packaging/tv_fetch.spec).
+
 ## Design goals
 
 - JSON-first output for humans and AI agents
@@ -36,6 +39,26 @@ If Meson and Ninja are not installed yet:
 ```bash
 python3 -m pip install meson ninja
 ```
+
+## Tizen packaging
+
+The project includes a spec-only native packaging path for Tizen. It builds
+`tv_fetch` as a regular native binary package instead of a manifest-based app.
+
+Typical GBS build entry point:
+
+```bash
+cd /Users/yohoho/work/tv_fetch
+gbs build -A aarch64 --include-all
+```
+
+The RPM spec configures Meson with:
+
+- `--prefix=/usr`
+- `-Dfixture_root=/usr/share/tv_fetch`
+
+That keeps the bundled mock fixture under `/usr/share/tv_fetch/fixtures/` and
+lets the CLI load it correctly at runtime without a `tizen-manifest.xml`.
 
 ## Commands
 

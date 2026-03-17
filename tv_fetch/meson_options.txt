@@ -1,0 +1,6 @@
+option(
+  'fixture_root',
+  type: 'string',
+  value: '',
+  description: 'Absolute root directory used to resolve packaged fixture files.',
+)

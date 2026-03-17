@@ -10,10 +10,17 @@ project(
 )
 
 curl_dep = dependency('libcurl', required: true)
+fixture_root = get_option('fixture_root')
 
-project_root_define = '-DTV_FETCH_PROJECT_ROOT="@0@"'.format(
+tv_fetch_cpp_args = ['-DTV_FETCH_PROJECT_ROOT="@0@"'.format(
   meson.project_source_root(),
-)
+)]
+
+if fixture_root != ''
+  tv_fetch_cpp_args += [
+    '-DTV_FETCH_DEFAULT_FIXTURE_ROOT="@0@"'.format(fixture_root),
+  ]
+endif
 
 tv_fetch_includes = include_directories('include', 'third_party')
 
@@ -26,7 +33,7 @@ tv_fetch_lib = static_library(
   ],
   include_directories: tv_fetch_includes,
   dependencies: curl_dep,
-  cpp_args: [project_root_define],
+  cpp_args: tv_fetch_cpp_args,
 )
 
 executable(
@@ -34,6 +41,7 @@ executable(
   'src/main.cpp',
   include_directories: tv_fetch_includes,
   link_with: tv_fetch_lib,
+  install: true,
 )
 
 tv_fetch_tests = executable(
@@ -44,3 +52,8 @@ tv_fetch_tests = executable(
 )
 
 test('tv_fetch_tests', tv_fetch_tests)
+
+install_data(
+  'fixtures/mock_weather_seoul.json',
+  install_dir: join_paths(get_option('datadir'), 'tv_fetch', 'fixtures'),
+)
