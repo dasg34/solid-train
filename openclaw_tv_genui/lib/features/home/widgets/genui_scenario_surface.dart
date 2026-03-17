@@ -393,8 +393,8 @@ class _GlassOverlayPanel extends StatelessWidget {
           border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
           gradient: LinearGradient(
             colors: [
-              Colors.black.withValues(alpha: 0.58),
-              Colors.black.withValues(alpha: 0.74),
+              Colors.black.withValues(alpha: 0.88),
+              Colors.black.withValues(alpha: 0.94),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
