@@ -48,7 +48,14 @@ Generate three NDJSON messages (one JSON object per line) in this order:
 
 ## Components
 
-The TV app supports these 9 components. Do NOT use any other component type.
+The TV app supports these 11 components. Do NOT use any other component type.
+
+The base layout and text items come from genui's standard catalog. The TV app
+also registers these custom TV items:
+- `Inset`
+- `Wrap`
+- `LineChart`
+- `BarChart`
 
 Every component must have:
 - `id` — unique string identifier
@@ -79,6 +86,36 @@ Vertical layout container.
 ### Row
 
 Horizontal layout container. Same properties as Column.
+
+### Inset
+
+Padding container for a single child.
+
+| Property | Required | Values |
+|----------|----------|--------|
+| `child` | yes | single component ID |
+| `all` | no | number, uniform padding on every side |
+| `horizontal` | no | number, horizontal padding in logical pixels |
+| `vertical` | no | number, vertical padding in logical pixels |
+
+Use `all` for one-value padding, or `horizontal` and `vertical` together for
+TV-safe spacing around a child card or text block.
+
+### Wrap
+
+Flow layout for multiple children that should wrap onto new rows.
+
+| Property | Required | Values |
+|----------|----------|--------|
+| `children` | yes | array of component IDs |
+| `spacing` | no | number, horizontal gap between children |
+| `runSpacing` | no | number, vertical gap between rows |
+| `alignment` | no | `start`, `center`, `end`, `spaceBetween`, `spaceAround`, `spaceEvenly` |
+| `runAlignment` | no | `start`, `center`, `end`, `spaceBetween`, `spaceAround`, `spaceEvenly` |
+| `crossAlign` | no | `start`, `center`, `end` |
+
+Use this for chip-like summaries or small card groups that should reflow
+without forcing a strict `Row`.
 
 ### Card
 
@@ -180,6 +217,10 @@ Every path must have a corresponding key in the `updateDataModel` value map.
 Number arrays for charts should be emitted as actual JSON numbers, not strings,
 unless the values are already formatted for display elsewhere.
 
+You do not need to render every available data field. Select the subset that
+best supports the surface. It is acceptable to omit low-value or secondary
+data when it would reduce clarity.
+
 ## Dynamic-Length Lists
 
 Column and Row support template children for variable-length data:
@@ -194,6 +235,8 @@ Column and Row support template children for variable-length data:
 
 This renders one `itemRow` component per entry in the `/items` array.
 
+`Wrap` currently expects an explicit `children` array of component IDs.
+
 ## TV UX Principles
 
 - **10-foot experience** — understandable from across the room in seconds
@@ -202,20 +245,23 @@ This renders one `itemRow` component per entry in the `/items` array.
 - **Glanceable** — keep under ~40 components per surface
 - **Chart restraint** — one chart per card is usually enough on TV
 - **No walls of text** — short labels, concise values
+- **Selective data use** — show only the data that strengthens the current
+  surface; not every fetched field must be displayed
 - **Korean locale** — ko-KR, Asia/Seoul timezone
 - **Domain-specific** — prefer purpose-built surfaces over generic layouts
 
 ## Surface Patterns
 
-Choose a pattern based on content type:
+Choose `theme.pattern` autonomously from the request and presentation goal, not
+from a fixed domain-to-pattern mapping.
 
-| Pattern | Use Case | theme.pattern |
-|---------|----------|-----------|
-| Immersive (풀 캔버스) | weather, travel, daily | `immersive` |
-| Side Panel (사이드 패널) | news, smart home, media, commute | `sidePanel` |
-| Center Card (센터 카드) | schedule, finance, delivery, wellness | `centerCard` |
-| Top Banner (상단 배너) | emergency, urgent weather, short status | `topBanner` |
-| Bottom Ribbon (하단 리본) | sports ticker, media companion, reminders | `bottomRibbon` |
+| Pattern | General use | theme.pattern |
+|---------|-------------|---------------|
+| Immersive (풀 캔버스) | full-screen focus, rich detail | `immersive` |
+| Side Panel (사이드 패널) | supporting context beside current viewing | `sidePanel` |
+| Center Card (센터 카드) | compact default summary | `centerCard` |
+| Top Banner (상단 배너) | urgent short alert | `topBanner` |
+| Bottom Ribbon (하단 리본) | ambient ongoing status | `bottomRibbon` |
 
 The TV app applies a themed background based on `theme.domain`:
 - `weather` → warm atmospheric gradient
@@ -232,7 +278,9 @@ The TV app applies a themed background based on `theme.domain`:
 - Do NOT use icon names outside the valid list
 - Do NOT send chart arrays of mismatched lengths unless labels are optional
 - Do NOT cram dense dashboards with many tiny charts onto one TV surface
+- Do NOT try to display every available field if it weakens clarity
 - Do NOT create more than ~40 components per surface
+- Do NOT force one fixed `theme.pattern` for a domain
 
 ## Minimal Example
 

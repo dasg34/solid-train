@@ -17,7 +17,7 @@ A2UI JSON (NDJSON) → A2uiPayloadSource → SurfaceController → Surface → T
 
 ## Registered Components
 
-TV 앱이 렌더링할 수 있는 7개 컴포넌트:
+TV 앱이 렌더링할 수 있는 11개 컴포넌트:
 
 | Component | Description |
 |-----------|-------------|
@@ -28,6 +28,10 @@ TV 앱이 렌더링할 수 있는 7개 컴포넌트:
 | Icon | Material Design 아이콘 |
 | Divider | 구분선 |
 | Button | 액션 버튼 |
+| Inset | 단일 자식에 내부 패딩 적용 |
+| Wrap | 여러 자식을 자동 줄바꿈 배치 |
+| LineChart | 짧은 추세 시각화 |
+| BarChart | 간단 비교 시각화 |
 
 ## Theme Shells
 
