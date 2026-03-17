@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns="http://tizen.org/ns/packages"
-          api-version="6.5"
-          package="org.openclaw.tv.genui"
+          api-version="10.0"
+          package="com.example.openclaw_tv_genui"
           version="1.0.0">
   <profile name="tv" />
   <ui-application appid="org.openclaw.tv.genui"
@@ -14,6 +14,10 @@
     <app-control>
       <operation name="http://tizen.org/appcontrol/operation/default" />
     </app-control>
+    <metadata key="http://tizen.org/metadata/prefer_dotnet_aot"
+              value="true" />
+    <metadata key="http://tizen.org/metadata/prefer_nuget_cache"
+              value="true" />
   </ui-application>
   <privileges>
     <privilege>http://tizen.org/privilege/mediastorage</privilege>

@@ -219,7 +219,6 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       SurfaceStyle.schedulePanel => _ScheduleSurfaceShell(child: content),
       SurfaceStyle.standard => Material(
         color: const Color(0xFF12212D),
-        borderRadius: BorderRadius.circular(32),
         child: content,
       ),
     };
@@ -252,28 +251,23 @@ class _WeatherSurfaceShell extends StatelessWidget {
         style: weatherTheme.textTheme.bodyMedium!,
         child: Material(
           color: Colors.transparent,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(32),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF0D1621),
-                    Color(0xFF132231),
-                    Color(0xFF1A2938),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  const Positioned.fill(child: _WeatherBackdrop()),
-                  Positioned.fill(child: child),
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF0D1621),
+                  Color(0xFF132231),
+                  Color(0xFF1A2938),
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+            ),
+            child: Stack(
+              children: [
+                const Positioned.fill(child: _WeatherBackdrop()),
+                Positioned.fill(child: child),
+              ],
             ),
           ),
         ),
@@ -298,28 +292,23 @@ class _NewsSurfaceShell extends StatelessWidget {
         style: newsTheme.textTheme.bodyMedium!,
         child: Material(
           color: Colors.transparent,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(32),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF0C1620),
-                    Color(0xFF12202E),
-                    Color(0xFF172635),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  const Positioned.fill(child: _NewsBackdrop()),
-                  Positioned.fill(child: child),
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF0C1620),
+                  Color(0xFF12202E),
+                  Color(0xFF172635),
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+            ),
+            child: Stack(
+              children: [
+                const Positioned.fill(child: _NewsBackdrop()),
+                Positioned.fill(child: child),
+              ],
             ),
           ),
         ),
@@ -344,28 +333,23 @@ class _ScheduleSurfaceShell extends StatelessWidget {
         style: scheduleTheme.textTheme.bodyMedium!,
         child: Material(
           color: Colors.transparent,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(32),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF0D1620),
-                    Color(0xFF13202C),
-                    Color(0xFF1A2934),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  const Positioned.fill(child: _ScheduleBackdrop()),
-                  Positioned.fill(child: child),
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF0D1620),
+                  Color(0xFF13202C),
+                  Color(0xFF1A2934),
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+            ),
+            child: Stack(
+              children: [
+                const Positioned.fill(child: _ScheduleBackdrop()),
+                Positioned.fill(child: child),
+              ],
             ),
           ),
         ),

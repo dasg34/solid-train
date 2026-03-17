@@ -61,8 +61,8 @@ lib/
 │   │   └── surface_style.dart         # surfaceId → 테마 매핑
 │   └── theme/app_theme.dart           # Material 3 다크 테마
 └── features/home/
-    ├── home_screen.dart               # 시나리오 선택 UI
-    ├── models/scenario_entry.dart     # 시나리오 카탈로그 (15개)
+    ├── home_screen.dart               # 단일 풀스크린 surface 호스트
+    ├── models/scenario_entry.dart     # 기본 fallback scenario 정의
     └── widgets/genui_scenario_surface.dart  # A2UI 렌더링 + 테마 쉘
 assets/a2ui/                           # 프리빌드된 A2UI NDJSON (15개)
 ```
