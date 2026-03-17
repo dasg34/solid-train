@@ -352,17 +352,17 @@ class _OverlayLayoutSpec {
         alignment = Alignment.center;
         widthFactor = smallScreen ? 0.94 : (compactTv ? 0.62 : 0.68);
         maxWidth = compactTv ? 720 : 1040;
-        heightFactor = smallScreen ? 0.88 : (compactTv ? 0.90 : 0.92);
+        heightFactor = smallScreen ? 0.90 : (compactTv ? 0.96 : 0.94);
       case TvSurfacePattern.sidePanel:
         alignment = smallScreen ? Alignment.center : Alignment.centerRight;
         widthFactor = smallScreen ? 0.88 : (compactTv ? 0.38 : 0.42);
         maxWidth = compactTv ? 440 : 700;
-        heightFactor = smallScreen ? 0.86 : (compactTv ? 0.90 : 0.92);
+        heightFactor = smallScreen ? 0.88 : (compactTv ? 0.94 : 0.94);
       case TvSurfacePattern.centerCard:
         alignment = Alignment.center;
         widthFactor = smallScreen ? 0.82 : (compactTv ? 0.36 : 0.40);
         maxWidth = compactTv ? 440 : 640;
-        heightFactor = smallScreen ? 0.72 : (compactTv ? 0.72 : 0.76);
+        heightFactor = smallScreen ? 0.76 : (compactTv ? 0.80 : 0.80);
     }
 
     final width = (availableWidth * widthFactor).clamp(360.0, maxWidth);
