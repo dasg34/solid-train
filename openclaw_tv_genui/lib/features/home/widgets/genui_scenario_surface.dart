@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:genui/genui.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -384,34 +382,47 @@ class _GlassOverlayPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(34),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(34),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
-            gradient: LinearGradient(
-              colors: [
-                Colors.white.withValues(alpha: 0.10),
-                Colors.white.withValues(alpha: 0.04),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(34),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.10)),
+          gradient: LinearGradient(
+            colors: [
+              Colors.black.withValues(alpha: 0.42),
+              Colors.black.withValues(alpha: 0.56),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.34),
+              blurRadius: 34,
+              offset: const Offset(0, 18),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.34),
-                blurRadius: 34,
-                offset: const Offset(0, 18),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned.fill(child: _PanelBackdrop(style: style)),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(34),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white.withValues(alpha: 0.02),
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.10),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
               ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              Positioned.fill(child: _PanelBackdrop(style: style)),
-              Positioned.fill(child: child),
-            ],
-          ),
+            ),
+            Positioned.fill(child: child),
+          ],
         ),
       ),
     );
@@ -788,9 +799,6 @@ class _PanelBackdrop extends StatelessWidget {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(26),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.04),
-                  ),
                   gradient: LinearGradient(
                     colors: [
                       Colors.white.withValues(alpha: config.innerStartOpacity),
