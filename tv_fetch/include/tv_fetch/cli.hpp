@@ -5,9 +5,8 @@
 #include <string_view>
 #include <variant>
 
-#include <nlohmann/json.hpp>
-
 #include "tv_fetch/error.hpp"
+#include "tv_fetch/json.hpp"
 
 namespace tv_fetch {
 
@@ -36,6 +35,6 @@ using Command = std::variant<DescribeCommand, WeatherCommand>;
 std::variant<Command, AppError> ParseCommand(int argc, char** argv);
 std::string RenderHelp();
 std::string_view ToString(OutputFormat format);
-nlohmann::json BuildDescribeDocument(const std::optional<std::string>& target);
+JsonValue BuildDescribeDocument(const std::optional<std::string>& target);
 
 }  // namespace tv_fetch

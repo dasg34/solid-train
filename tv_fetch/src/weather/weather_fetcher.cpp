@@ -9,8 +9,6 @@
 #include <sstream>
 #include <vector>
 
-#include <nlohmann/json.hpp>
-
 #include "tv_fetch/http_client.hpp"
 
 namespace tv_fetch::weather {
@@ -156,9 +154,22 @@ std::string RenderMissingFixtureHint(std::string_view file_name) {
   return hint.str();
 }
 
+JsonValue MakeObject(
+    std::initializer_list<std::pair<std::string_view, JsonValue>> entries) {
+  JsonValue object = JsonValue::Object();
+  for (const auto& [key, value] : entries) {
+    ObjectSet(object, key, value);
+  }
+  return object;
+}
+
+JsonValue CopyOrNull(const JsonValue& value) {
+  return value.get() == nullptr ? JsonValue::Null() : value;
+}
+
 }  // namespace
 
-std::variant<nlohmann::json, AppError> LoadMockWeatherPayload() {
+JsonResult LoadMockWeatherPayload() {
   const std::filesystem::path path =
       ResolveFixturePath("mock_weather_seoul.json");
   if (path.empty()) {
@@ -180,123 +191,129 @@ std::variant<nlohmann::json, AppError> LoadMockWeatherPayload() {
     };
   }
 
-  try {
-    nlohmann::json payload = nlohmann::json::parse(handle);
-    payload["domain"] = "weather";
-    payload["source"] = "mock";
-    return payload;
-  } catch (const std::exception& error) {
-    return AppError{
-        .code = "mock_fixture_invalid",
-        .message = "Bundled mock weather fixture is not valid JSON.",
-        .hint = error.what(),
-        .exit_code = 5,
-    };
+  std::ostringstream stream;
+  stream << handle.rdbuf();
+  auto parsed =
+      JsonValue::Parse(stream.str(), "mock_fixture_invalid",
+                       "Bundled mock weather fixture is not valid JSON.", 5);
+  if (std::holds_alternative<AppError>(parsed)) {
+    return std::get<AppError>(parsed);
   }
+
+  JsonValue payload = std::get<JsonValue>(std::move(parsed));
+  ObjectSet(payload, "domain", JsonValue::String("weather"));
+  ObjectSet(payload, "source", JsonValue::String("mock"));
+  return payload;
 }
 
-nlohmann::json NormalizeOpenMeteoResponse(const nlohmann::json& response,
-                                         const std::string& city,
-                                         const std::string& district,
-                                         int hours) {
-  const auto current = response.at("current");
-  const auto hourly = response.at("hourly");
+JsonValue NormalizeOpenMeteoResponse(const JsonValue& response,
+                                     const std::string& city,
+                                     const std::string& district,
+                                     int hours) {
+  const JsonValue current = response.At("current");
+  const JsonValue hourly = response.At("hourly");
 
-  const auto hourly_times = hourly.value("time", std::vector<std::string>{});
-  const auto hourly_temps =
-      hourly.value("temperature_2m", std::vector<double>{});
-  const auto hourly_precips =
-      hourly.value("precipitation_probability", std::vector<double>{});
-  const auto hourly_codes = hourly.value("weather_code", std::vector<int>{});
+  const JsonValue hourly_times = hourly.At("time");
+  const JsonValue hourly_temps = hourly.At("temperature_2m");
+  const JsonValue hourly_precips = hourly.At("precipitation_probability");
+  const JsonValue hourly_codes = hourly.At("weather_code");
 
-  nlohmann::json normalized_hours = nlohmann::json::array();
-  const std::size_t count =
-      std::min<std::size_t>(static_cast<std::size_t>(hours), hourly_times.size());
+  JsonValue normalized_hours = JsonValue::Array();
+  const std::size_t count = std::min<std::size_t>(
+      static_cast<std::size_t>(hours), hourly_times.Size());
   for (std::size_t index = 0; index < count; ++index) {
-    normalized_hours.push_back({
-        {"time", hourly_times[index]},
-        {"temperature_c",
-         index < hourly_temps.size() ? nlohmann::json(hourly_temps[index])
-                                     : nlohmann::json(nullptr)},
-        {"precip_probability_pct",
-         index < hourly_precips.size() ? nlohmann::json(hourly_precips[index])
-                                       : nlohmann::json(nullptr)},
-        {"condition",
-         OpenMeteoCondition(index < hourly_codes.size() ? hourly_codes[index]
-                                                        : -1)},
-    });
+    const JsonValue hourly_code = hourly_codes.At(index);
+    ArrayAppend(
+        normalized_hours,
+        MakeObject({
+            {"time", CopyOrNull(hourly_times.At(index))},
+            {"temperature_c", CopyOrNull(hourly_temps.At(index))},
+            {"precip_probability_pct", CopyOrNull(hourly_precips.At(index))},
+            {"condition",
+             JsonValue::String(
+                 OpenMeteoCondition(hourly_code.AsInt(-1)))},
+        }));
   }
 
   const double apparent_temperature =
-      current.value("apparent_temperature", 0.0);
+      current.At("apparent_temperature").AsDouble(0.0);
   const std::string condition =
-      OpenMeteoCondition(current.value("weather_code", -1));
-  const nlohmann::json first_precip_probability =
-      normalized_hours.empty()
-          ? nlohmann::json(nullptr)
-          : normalized_hours.front().value("precip_probability_pct",
-                                           nlohmann::json(nullptr));
+      OpenMeteoCondition(current.At("weather_code").AsInt(-1));
+  const JsonValue first_precip_probability =
+      normalized_hours.Size() == 0
+          ? JsonValue::Null()
+          : CopyOrNull(normalized_hours.At(0).At("precip_probability_pct"));
 
-  return {
-      {"domain", "weather"},
-      {"source", "open-meteo"},
+  return MakeObject({
+      {"domain", JsonValue::String("weather")},
+      {"source", JsonValue::String("open-meteo")},
       {"location",
-       {{"city", CleanText(city, 16)}, {"district", CleanText(district, 16)}}},
-      {"updated_at", current.value("time", "")},
+       MakeObject({
+           {"city", JsonValue::String(CleanText(city, 16))},
+           {"district", JsonValue::String(CleanText(district, 16))},
+       })},
+      {"updated_at", JsonValue::String(current.At("time").AsString(""))},
       {"headline",
-       CleanText(city + " 현재 " + condition + ", 체감 " +
-                     FormatTemperature(apparent_temperature) + "입니다.",
-                 48)},
+       JsonValue::String(CleanText(city + " 현재 " + condition + ", 체감 " +
+                                       FormatTemperature(apparent_temperature) +
+                                       "입니다.",
+                                   48))},
       {"current",
-       {{"temperature_c", current.value("temperature_2m", nlohmann::json(nullptr))},
-        {"feels_like_c",
-         current.value("apparent_temperature", nlohmann::json(nullptr))},
-        {"condition", condition},
-        {"humidity_pct",
-         current.value("relative_humidity_2m", nlohmann::json(nullptr))},
-        {"precip_probability_pct", first_precip_probability}}},
+       MakeObject({
+           {"temperature_c", CopyOrNull(current.At("temperature_2m"))},
+           {"feels_like_c", CopyOrNull(current.At("apparent_temperature"))},
+           {"condition", JsonValue::String(condition)},
+           {"humidity_pct", CopyOrNull(current.At("relative_humidity_2m"))},
+           {"precip_probability_pct", first_precip_probability},
+       })},
       {"alert",
-       {{"level", "안내"},
-        {"title", "공식 특보 연동 필요"},
-        {"summary",
-         "현재 화면은 Open-Meteo 실황과 예보를 사용합니다. 재난성 특보는 기상청 공식 채널과 별도로 연동하세요."},
-        {"source", "Open-Meteo"},
-        {"issued_at", current.value("time", "")}}},
+       MakeObject({
+           {"level", JsonValue::String("안내")},
+           {"title", JsonValue::String("공식 특보 연동 필요")},
+           {"summary",
+            JsonValue::String(
+                "현재 화면은 Open-Meteo 실황과 예보를 사용합니다. 재난성 특보는 기상청 공식 채널과 별도로 연동하세요.")},
+           {"source", JsonValue::String("Open-Meteo")},
+           {"issued_at", JsonValue::String(current.At("time").AsString(""))},
+       })},
       {"hourly", normalized_hours},
       {"footer",
-       "실황과 예보는 Open-Meteo 기반이며, 특보는 공식 소스를 별도로 연결하는 편이 안전합니다."},
-  };
+       JsonValue::String(
+           "실황과 예보는 Open-Meteo 기반이며, 특보는 공식 소스를 별도로 연결하는 편이 안전합니다.")},
+  });
 }
 
-std::variant<nlohmann::json, AppError> Execute(const WeatherCommand& command) {
+JsonResult Execute(const WeatherCommand& command) {
   if (command.source == WeatherCommand::Source::kMock) {
     if (command.dry_run) {
-      return nlohmann::json{
-          {"command", "weather"},
-          {"mode", "dry-run"},
-          {"source", "mock"},
+      const std::filesystem::path fixture_path =
+          ResolveFixturePath("mock_weather_seoul.json");
+      return MakeObject({
+          {"command", JsonValue::String("weather")},
+          {"mode", JsonValue::String("dry-run")},
+          {"source", JsonValue::String("mock")},
           {"fixture_path",
-           ResolveFixturePath("mock_weather_seoul.json").empty()
-               ? nlohmann::json(nullptr)
-               : nlohmann::json(
-                     ResolveFixturePath("mock_weather_seoul.json").string())},
-      };
+           fixture_path.empty() ? JsonValue::Null()
+                                : JsonValue::String(fixture_path.string())},
+      });
     }
     return LoadMockWeatherPayload();
   }
 
   const std::string url = BuildOpenMeteoUrl(command);
   if (command.dry_run) {
-    return nlohmann::json{
-        {"command", "weather"},
-        {"mode", "dry-run"},
-        {"source", "open-meteo"},
+    return MakeObject({
+        {"command", JsonValue::String("weather")},
+        {"mode", JsonValue::String("dry-run")},
+        {"source", JsonValue::String("open-meteo")},
         {"request",
-         {{"url", url},
-          {"city", command.city},
-          {"district", command.district},
-          {"hours", command.hours}}},
-    };
+         MakeObject({
+             {"url", JsonValue::String(url)},
+             {"city", JsonValue::String(command.city)},
+             {"district", JsonValue::String(command.district)},
+             {"hours", JsonValue::Integer(command.hours)},
+         })},
+    });
   }
 
   const auto response = HttpGet(url);
@@ -304,18 +321,15 @@ std::variant<nlohmann::json, AppError> Execute(const WeatherCommand& command) {
     return std::get<AppError>(response);
   }
 
-  try {
-    const auto parsed = nlohmann::json::parse(std::get<std::string>(response));
-    return NormalizeOpenMeteoResponse(parsed, command.city, command.district,
-                                      command.hours);
-  } catch (const std::exception& error) {
-    return AppError{
-        .code = "weather_parse_failed",
-        .message = "Open-Meteo response could not be parsed.",
-        .hint = error.what(),
-        .exit_code = 6,
-    };
+  auto parsed = JsonValue::Parse(std::get<std::string>(response),
+                                 "weather_parse_failed",
+                                 "Open-Meteo response could not be parsed.", 6);
+  if (std::holds_alternative<AppError>(parsed)) {
+    return std::get<AppError>(parsed);
   }
+
+  return NormalizeOpenMeteoResponse(std::get<JsonValue>(parsed), command.city,
+                                    command.district, command.hours);
 }
 
 }  // namespace tv_fetch::weather

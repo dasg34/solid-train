@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cctype>
 #include <sstream>
-#include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace tv_fetch {
@@ -208,78 +208,129 @@ std::variant<WeatherCommand, AppError> ParseWeather(
   return command;
 }
 
-nlohmann::json WeatherDescribeDocument() {
-  return {
-      {"name", "weather"},
+JsonValue MakeArray(std::initializer_list<JsonValue> values) {
+  JsonValue array = JsonValue::Array();
+  for (const auto& value : values) {
+    ArrayAppend(array, value);
+  }
+  return array;
+}
+
+JsonValue MakeObject(
+    std::initializer_list<std::pair<std::string_view, JsonValue>> entries) {
+  JsonValue object = JsonValue::Object();
+  for (const auto& [key, value] : entries) {
+    ObjectSet(object, key, value);
+  }
+  return object;
+}
+
+JsonValue WeatherDescribeDocument() {
+  return MakeObject({
+      {"name", JsonValue::String("weather")},
       {"description",
-       "Fetch and normalize Korea-first weather context for TV composition."},
-      {"supports_live", true},
-      {"default_source", "mock"},
-      {"sources", nlohmann::json::array({"mock", "open-meteo"})},
+       JsonValue::String(
+           "Fetch and normalize Korea-first weather context for TV composition.")},
+      {"supports_live", JsonValue::Boolean(true)},
+      {"default_source", JsonValue::String("mock")},
+      {"sources",
+       MakeArray({JsonValue::String("mock"), JsonValue::String("open-meteo")})},
       {"parameters",
-       nlohmann::json::array(
-           {{{"name", "--source"},
-             {"type", "string"},
-             {"required", false},
-             {"values", nlohmann::json::array({"mock", "open-meteo"})}},
-            {{"name", "--city"},
-             {"type", "string"},
-             {"required", false},
-             {"default", "서울"}},
-            {{"name", "--district"},
-             {"type", "string"},
-             {"required", false},
-             {"default", "중구"}},
-            {{"name", "--latitude"},
-             {"type", "number"},
-             {"required", false},
-             {"default", 37.5665}},
-            {{"name", "--longitude"},
-             {"type", "number"},
-             {"required", false},
-             {"default", 126.9780}},
-            {{"name", "--hours"},
-             {"type", "integer"},
-             {"required", false},
-             {"range", nlohmann::json::array({1, 24})},
-             {"default", 6}},
-            {{"name", "--dry-run"},
-             {"type", "boolean"},
-             {"required", false},
-             {"default", false}},
-            {{"name", "--format"},
-             {"type", "string"},
-             {"required", false},
-             {"values", nlohmann::json::array({"json", "pretty"})},
-             {"default", "json"}}})},
+       MakeArray({
+           MakeObject({
+               {"name", JsonValue::String("--source")},
+               {"type", JsonValue::String("string")},
+               {"required", JsonValue::Boolean(false)},
+               {"values",
+                MakeArray(
+                    {JsonValue::String("mock"), JsonValue::String("open-meteo")})},
+           }),
+           MakeObject({
+               {"name", JsonValue::String("--city")},
+               {"type", JsonValue::String("string")},
+               {"required", JsonValue::Boolean(false)},
+               {"default", JsonValue::String("서울")},
+           }),
+           MakeObject({
+               {"name", JsonValue::String("--district")},
+               {"type", JsonValue::String("string")},
+               {"required", JsonValue::Boolean(false)},
+               {"default", JsonValue::String("중구")},
+           }),
+           MakeObject({
+               {"name", JsonValue::String("--latitude")},
+               {"type", JsonValue::String("number")},
+               {"required", JsonValue::Boolean(false)},
+               {"default", JsonValue::Double(37.5665)},
+           }),
+           MakeObject({
+               {"name", JsonValue::String("--longitude")},
+               {"type", JsonValue::String("number")},
+               {"required", JsonValue::Boolean(false)},
+               {"default", JsonValue::Double(126.9780)},
+           }),
+           MakeObject({
+               {"name", JsonValue::String("--hours")},
+               {"type", JsonValue::String("integer")},
+               {"required", JsonValue::Boolean(false)},
+               {"range", MakeArray({JsonValue::Integer(1), JsonValue::Integer(24)})},
+               {"default", JsonValue::Integer(6)},
+           }),
+           MakeObject({
+               {"name", JsonValue::String("--dry-run")},
+               {"type", JsonValue::String("boolean")},
+               {"required", JsonValue::Boolean(false)},
+               {"default", JsonValue::Boolean(false)},
+           }),
+           MakeObject({
+               {"name", JsonValue::String("--format")},
+               {"type", JsonValue::String("string")},
+               {"required", JsonValue::Boolean(false)},
+               {"values",
+                MakeArray(
+                    {JsonValue::String("json"), JsonValue::String("pretty")})},
+               {"default", JsonValue::String("json")},
+           }),
+       })},
       {"output_shape",
-       {{"domain", "weather"},
-        {"source", "mock|open-meteo"},
-        {"location", {{"city", "string"}, {"district", "string"}}},
-        {"updated_at", "ISO-8601 string"},
-        {"headline", "string"},
-        {"current",
-         {{"temperature_c", "number|null"},
-          {"feels_like_c", "number|null"},
-          {"condition", "string"},
-          {"humidity_pct", "number|null"},
-          {"precip_probability_pct", "number|null"}}},
-        {"alert",
-         {{"level", "string"},
-          {"title", "string"},
-          {"summary", "string"},
-          {"source", "string"},
-          {"issued_at", "ISO-8601 string|null"}}},
-        {"hourly", "array"},
-        {"footer", "string"}}},
-  };
+       MakeObject({
+           {"domain", JsonValue::String("weather")},
+           {"source", JsonValue::String("mock|open-meteo")},
+           {"location",
+            MakeObject({
+                {"city", JsonValue::String("string")},
+                {"district", JsonValue::String("string")},
+            })},
+           {"updated_at", JsonValue::String("ISO-8601 string")},
+           {"headline", JsonValue::String("string")},
+           {"current",
+            MakeObject({
+                {"temperature_c", JsonValue::String("number|null")},
+                {"feels_like_c", JsonValue::String("number|null")},
+                {"condition", JsonValue::String("string")},
+                {"humidity_pct", JsonValue::String("number|null")},
+                {"precip_probability_pct", JsonValue::String("number|null")},
+            })},
+           {"alert",
+            MakeObject({
+                {"level", JsonValue::String("string")},
+                {"title", JsonValue::String("string")},
+                {"summary", JsonValue::String("string")},
+                {"source", JsonValue::String("string")},
+                {"issued_at", JsonValue::String("ISO-8601 string|null")},
+            })},
+           {"hourly", JsonValue::String("array")},
+           {"footer", JsonValue::String("string")},
+       })},
+  });
 }
 
 }  // namespace
 
 std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
   if (argc < 2) {
-    return InvalidArguments("Missing command.", "Use tv_fetch describe or tv_fetch weather.");
+    return InvalidArguments("Missing command.",
+                            "Use tv_fetch describe or tv_fetch weather.");
   }
 
   const std::string_view command_name(argv[1]);
@@ -305,21 +356,19 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
     return Command{std::get<WeatherCommand>(parsed)};
   }
 
-  return InvalidArguments(
-      "Unknown command.",
-      "Use tv_fetch describe or tv_fetch weather.");
+  return InvalidArguments("Unknown command.",
+                          "Use tv_fetch describe or tv_fetch weather.");
 }
 
 std::string RenderHelp() {
   std::ostringstream stream;
-  stream
-      << "tv_fetch\n"
-      << "Agent-friendly CLI for fetching normalized TV domain context.\n\n"
-      << "Commands:\n"
-      << "  describe [weather] [--format json|pretty]\n"
-      << "  weather [--source mock|open-meteo] [--city ...] [--district ...]\n"
-      << "          [--latitude ...] [--longitude ...] [--hours 1-24]\n"
-      << "          [--dry-run] [--format json|pretty]\n";
+  stream << "tv_fetch\n"
+         << "Agent-friendly CLI for fetching normalized TV domain context.\n\n"
+         << "Commands:\n"
+         << "  describe [weather] [--format json|pretty]\n"
+         << "  weather [--source mock|open-meteo] [--city ...] [--district ...]\n"
+         << "          [--latitude ...] [--longitude ...] [--hours 1-24]\n"
+         << "          [--dry-run] [--format json|pretty]\n";
   return stream.str();
 }
 
@@ -327,25 +376,26 @@ std::string_view ToString(OutputFormat format) {
   return format == OutputFormat::kPretty ? "pretty" : "json";
 }
 
-nlohmann::json BuildDescribeDocument(const std::optional<std::string>& target) {
+JsonValue BuildDescribeDocument(const std::optional<std::string>& target) {
   if (!target.has_value()) {
-    return {
-        {"name", "tv_fetch"},
+    return MakeObject({
+        {"name", JsonValue::String("tv_fetch")},
         {"description",
-         "Fetch and normalize TV-ready domain context for downstream A2UI composition."},
-        {"commands", nlohmann::json::array({WeatherDescribeDocument()})},
-    };
+         JsonValue::String(
+             "Fetch and normalize TV-ready domain context for downstream A2UI composition.")},
+        {"commands", MakeArray({WeatherDescribeDocument()})},
+    });
   }
 
   if (*target == "weather") {
     return WeatherDescribeDocument();
   }
 
-  return {
-      {"name", "tv_fetch"},
-      {"warning", "Unknown describe target."},
-      {"supported_targets", nlohmann::json::array({"weather"})},
-  };
+  return MakeObject({
+      {"name", JsonValue::String("tv_fetch")},
+      {"warning", JsonValue::String("Unknown describe target.")},
+      {"supported_targets", MakeArray({JsonValue::String("weather")})},
+  });
 }
 
 }  // namespace tv_fetch

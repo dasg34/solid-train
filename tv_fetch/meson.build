@@ -10,6 +10,10 @@ project(
 )
 
 curl_dep = dependency('libcurl', required: true)
+json_dep = dependency('json', required: false)
+if not json_dep.found()
+  json_dep = dependency('json-c', required: true)
+endif
 fixture_root = get_option('fixture_root')
 
 tv_fetch_cpp_args = ['-DTV_FETCH_PROJECT_ROOT="@0@"'.format(
@@ -22,17 +26,18 @@ if fixture_root != ''
   ]
 endif
 
-tv_fetch_includes = include_directories('include', 'third_party')
+tv_fetch_includes = include_directories('include')
 
 tv_fetch_lib = static_library(
   'tv_fetch_lib',
   [
     'src/cli.cpp',
     'src/http_client.cpp',
+    'src/json.cpp',
     'src/weather/weather_fetcher.cpp',
   ],
   include_directories: tv_fetch_includes,
-  dependencies: curl_dep,
+  dependencies: [curl_dep, json_dep],
   cpp_args: tv_fetch_cpp_args,
 )
 

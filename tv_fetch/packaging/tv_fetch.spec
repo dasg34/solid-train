@@ -7,6 +7,8 @@ Source0:    %{name}-%{version}.tar.gz
 BuildRequires: meson
 BuildRequires: ninja
 BuildRequires: pkgconfig(libcurl)
+BuildRequires: pkgconfig(json)
+Requires:    libjson
 
 %description
 tv_fetch is a data-only CLI for Tizen TV workflows. It fetches and normalizes

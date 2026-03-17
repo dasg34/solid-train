@@ -20,7 +20,7 @@ For Tizen packaging, the repository includes the RPM spec at
 - Self-describing commands via `describe`
 - Deterministic normalized payloads for downstream A2UI composition
 - Input hardening for agent-passed arguments
-- Small dependency surface: `libcurl` + vendored `nlohmann/json`
+- Small dependency surface: `libcurl` + system `libjson`
 
 The command surface takes cues from the sibling `../cli` project and from the
 AI-agent CLI guidance in Justin Poehnelt's “Rewrite your CLI for AI agents”.
@@ -39,6 +39,12 @@ If Meson and Ninja are not installed yet:
 ```bash
 python3 -m pip install meson ninja
 ```
+
+System library dependencies:
+
+- `libcurl`
+- `libjson` at runtime
+- `libjson-devel` for builds (`pkg-config json`, with `json-c` fallback for non-Tizen dev boxes)
 
 ## Tizen packaging
 

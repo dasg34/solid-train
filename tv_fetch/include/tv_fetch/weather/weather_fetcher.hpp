@@ -3,20 +3,19 @@
 #include <string>
 #include <variant>
 
-#include <nlohmann/json.hpp>
-
 #include "tv_fetch/cli.hpp"
 #include "tv_fetch/error.hpp"
+#include "tv_fetch/json.hpp"
 
 namespace tv_fetch::weather {
 
-std::variant<nlohmann::json, AppError> Execute(const WeatherCommand& command);
+JsonResult Execute(const WeatherCommand& command);
 
-nlohmann::json NormalizeOpenMeteoResponse(const nlohmann::json& response,
-                                         const std::string& city,
-                                         const std::string& district,
-                                         int hours);
+JsonValue NormalizeOpenMeteoResponse(const JsonValue& response,
+                                     const std::string& city,
+                                     const std::string& district,
+                                     int hours);
 
-std::variant<nlohmann::json, AppError> LoadMockWeatherPayload();
+JsonResult LoadMockWeatherPayload();
 
 }  // namespace tv_fetch::weather

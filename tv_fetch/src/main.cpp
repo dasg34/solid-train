@@ -1,10 +1,10 @@
 #include <iostream>
+#include <type_traits>
 #include <variant>
-
-#include <nlohmann/json.hpp>
 
 #include "tv_fetch/cli.hpp"
 #include "tv_fetch/error.hpp"
+#include "tv_fetch/json.hpp"
 #include "tv_fetch/weather/weather_fetcher.hpp"
 
 namespace {
@@ -12,36 +12,35 @@ namespace {
 using tv_fetch::AppError;
 using tv_fetch::Command;
 using tv_fetch::DescribeCommand;
+using tv_fetch::JsonValue;
+using tv_fetch::ObjectSet;
 using tv_fetch::OutputFormat;
 using tv_fetch::WeatherCommand;
 
-nlohmann::json ErrorToJson(const AppError& error) {
-  nlohmann::json document = {
-      {"ok", false},
-      {"error",
-       {{"code", error.code},
-        {"message", error.message},
-        {"hint", error.hint.empty() ? nlohmann::json(nullptr)
-                                    : nlohmann::json(error.hint)}}},
-  };
+JsonValue ErrorToJson(const AppError& error) {
+  JsonValue document = JsonValue::Object();
+  ObjectSet(document, "ok", JsonValue::Boolean(false));
+
+  JsonValue error_object = JsonValue::Object();
+  ObjectSet(error_object, "code", JsonValue::String(error.code));
+  ObjectSet(error_object, "message", JsonValue::String(error.message));
+  ObjectSet(error_object, "hint",
+            error.hint.empty() ? JsonValue::Null() : JsonValue::String(error.hint));
+  ObjectSet(document, "error", std::move(error_object));
   return document;
 }
 
-void PrintJson(const nlohmann::json& document, OutputFormat format) {
-  if (format == OutputFormat::kPretty) {
-    std::cout << document.dump(2) << '\n';
-    return;
-  }
-  std::cout << document.dump() << '\n';
+void PrintJson(const JsonValue& document, OutputFormat format) {
+  std::cout << document.Dump(format == OutputFormat::kPretty) << '\n';
 }
 
 void PrintError(const AppError& error, OutputFormat format) {
   PrintJson(ErrorToJson(error), format);
 }
 
-std::variant<nlohmann::json, AppError> ExecuteCommand(const Command& command) {
+tv_fetch::JsonResult ExecuteCommand(const Command& command) {
   return std::visit(
-      [](const auto& typed_command) -> std::variant<nlohmann::json, AppError> {
+      [](const auto& typed_command) -> tv_fetch::JsonResult {
         using CommandType = std::decay_t<decltype(typed_command)>;
         if constexpr (std::is_same_v<CommandType, DescribeCommand>) {
           return tv_fetch::BuildDescribeDocument(typed_command.target);
@@ -80,6 +79,6 @@ int main(int argc, char** argv) {
     return std::get<AppError>(executed).exit_code;
   }
 
-  PrintJson(std::get<nlohmann::json>(executed), format);
+  PrintJson(std::get<JsonValue>(executed), format);
   return 0;
 }
