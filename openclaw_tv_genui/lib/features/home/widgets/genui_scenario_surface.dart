@@ -38,6 +38,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   String _surfaceId = 'main';
   SurfaceStyle _style = SurfaceStyle.standard;
   bool _hasError = false;
+  String? _errorDetail;
 
   @override
   void initState() {
@@ -103,6 +104,12 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
 
       // Resolve surfaceId and style from the CreateSurface message.
       final createMsg = messages.whereType<CreateSurface>().firstOrNull;
+      if (createMsg == null) {
+        AppLogger.warn(
+          'surface',
+          'No createSurface message found for $target. Falling back to surfaceId resolution.',
+        );
+      }
       final surfaceId =
           createMsg?.surfaceId ?? widget._scenario?.surfaceId ?? 'main';
       final newStyle = resolveSurfaceStyle(surfaceId);
@@ -111,6 +118,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
         _surfaceId = surfaceId;
         _style = newStyle;
         _hasError = false;
+        _errorDetail = null;
       });
 
       AppLogger.info(
@@ -133,11 +141,15 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       }
       AppLogger.error(
         'surface',
-        'Failed to load surface content for $target',
+        'Failed to load surface content for $target. '
+            'reason=${_summarizeLoadError(error)}',
         error: error,
         stackTrace: stackTrace,
       );
-      setState(() => _hasError = true);
+      setState(() {
+        _hasError = true;
+        _errorDetail = _userFacingErrorDetail(error);
+      });
     }
   }
 
@@ -148,10 +160,47 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
     return 'scenario:${widget._scenario?.id ?? "unknown"}';
   }
 
+  String _summarizeLoadError(Object error) {
+    if (error is FormatException) {
+      return 'invalid_a2ui_format:${error.message}';
+    }
+    return '${error.runtimeType}:$error';
+  }
+
+  String _userFacingErrorDetail(Object error) {
+    if (error is FormatException) {
+      return 'A2UI NDJSON 포맷이 아니거나 메시지 구조가 올바르지 않습니다.';
+    }
+    return '로그에서 상세 오류를 확인해 주세요.';
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_hasError) {
-      return const Center(child: Text('시나리오를 불러올 수 없습니다.'));
+      final title = widget.filePath != null
+          ? '외부 A2UI 파일을 불러올 수 없습니다.'
+          : '시나리오를 불러올 수 없습니다.';
+      final detail = widget.filePath != null
+          ? _errorDetail ?? '전달한 파일이 A2UI NDJSON인지 확인해 주세요.'
+          : '데이터 또는 템플릿 상태를 확인해 주세요.';
+
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title, textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              Text(
+                detail,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     final content = SingleChildScrollView(
