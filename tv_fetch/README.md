@@ -58,8 +58,13 @@ requested `city/district` through a geocoding API first.
 
 ## Tizen packaging
 
-The project includes a spec-only native packaging path for Tizen. It builds
-`tv_fetch` as a regular native binary package instead of a manifest-based app.
+The project includes a native RPM packaging path for Tizen. It builds
+`tv_fetch` as a regular native binary package, with:
+
+- `packaging/tv_fetch.spec` for the RPM build rules
+- `packaging/tv_fetch.manifest` as the GBS packaging manifest metadata file
+
+This is separate from an application-level `tizen-manifest.xml`.
 
 Typical GBS build entry point:
 

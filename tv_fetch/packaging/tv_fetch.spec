@@ -4,6 +4,7 @@ Release:    0
 Summary:    Agent-friendly TV domain fetch CLI for Tizen
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
+Source1001: packaging/%{name}.manifest
 BuildRequires: meson
 BuildRequires: ninja
 BuildRequires: pkgconfig(libcurl)
