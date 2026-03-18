@@ -292,6 +292,26 @@ A simple card with a title and a value:
 {"version": "v0.9", "updateComponents": {"surfaceId": "weather", "components": [{"id": "root", "component": "Column", "justify": "center", "children": ["heroCard"]}, {"id": "heroCard", "component": "Card", "child": "cardContent"}, {"id": "cardContent", "component": "Column", "children": ["titleText", "tempRow"]}, {"id": "titleText", "component": "Text", "text": {"path": "/title"}, "variant": "h3"}, {"id": "tempRow", "component": "Row", "justify": "spaceBetween", "children": ["tempText", "conditionText"]}, {"id": "tempText", "component": "Text", "text": {"path": "/temp"}, "variant": "h1"}, {"id": "conditionText", "component": "Text", "text": {"path": "/condition"}, "variant": "body"}]}}
 ```
 
+## Validation
+
+After generating A2UI JSON, run `tv_a2ui_validate` to catch errors before
+the TV app receives it:
+
+```bash
+tv_a2ui_validate output.json
+```
+
+It checks NDJSON structure, message ordering, surfaceId consistency, theme,
+component types, icon names, referential integrity, data bindings, and
+component count. Error messages include the exact component ID, property,
+and valid values so you can fix issues directly.
+
+To read from stdin (useful when piping generated output):
+
+```bash
+echo "$NDJSON" | tv_a2ui_validate --stdin
+```
+
 ## Full Examples
 
 See `references/examples/` for production-validated A2UI JSON:

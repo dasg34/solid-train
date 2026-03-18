@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Daily Briefing"
-  short_description: "Korea-first TV daily briefing skill"
-  default_prompt: "Use $tv-daily-briefing to design or assess a Korea-first TV daily briefing surface."

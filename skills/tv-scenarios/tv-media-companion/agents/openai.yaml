@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Media Companion"
-  short_description: "Korea-first TV media companion skill"
-  default_prompt: "Use $tv-media-companion to design or assess a Korea-first TV media companion surface."

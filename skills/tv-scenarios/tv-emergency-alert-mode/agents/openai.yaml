@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Emergency Alert Mode"
-  short_description: "Korea-first TV emergency alert skill"
-  default_prompt: "Use $tv-emergency-alert-mode to design or assess a Korea-first TV emergency or alert surface."

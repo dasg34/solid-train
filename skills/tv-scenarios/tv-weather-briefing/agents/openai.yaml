@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Weather Briefing"
-  short_description: "Korea-first TV weather scenario skill"
-  default_prompt: "Use $tv-weather-briefing to design or assess a Korea-first TV weather surface for the utterance \"날씨 보여줘\"."

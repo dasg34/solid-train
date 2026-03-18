@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Daily Briefing"
-  short_description: "Assess daily briefing feasibility for TV GenUI"
-  default_prompt: "Use $tv-daily-briefing to assess or design a TV-first daily briefing scenario."

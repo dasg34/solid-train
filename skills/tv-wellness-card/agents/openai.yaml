@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Wellness Card"
-  short_description: "Assess wellness scenario feasibility for TV GenUI"
-  default_prompt: "Use $tv-wellness-card to assess or design a TV-first wellness scenario."

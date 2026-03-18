@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Sports Briefing"
-  short_description: "Assess sports scenario feasibility for TV GenUI"
-  default_prompt: "Use $tv-sports-briefing to assess or design a TV-first sports scenario."

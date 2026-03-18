@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Schedule Board"
-  short_description: "Assess schedule scenario feasibility for TV GenUI"
-  default_prompt: "Use $tv-schedule-board to assess or design a TV-first schedule scenario."

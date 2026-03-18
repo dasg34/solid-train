@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Travel Assistant"
-  short_description: "Assess travel scenario feasibility for TV GenUI"
-  default_prompt: "Use $tv-travel-assistant to assess or design a TV-first travel scenario."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Shopping Decision Support"
-  short_description: "Korea-first TV shopping scenario skill"
-  default_prompt: "Use $tv-shopping-decision-support to design or assess a Korea-first TV shopping decision support surface."

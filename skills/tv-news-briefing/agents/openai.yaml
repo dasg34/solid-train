@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV News Briefing"
-  short_description: "Assess news scenario feasibility for TV GenUI"
-  default_prompt: "Use $tv-news-briefing to assess or design a TV-first news scenario."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Smart Home Summary"
-  short_description: "Assess smart home feasibility for TV GenUI"
-  default_prompt: "Use $tv-smart-home-summary to assess or design a TV-first smart home scenario."

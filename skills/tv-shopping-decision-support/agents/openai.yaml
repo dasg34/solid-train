@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Shopping Decision Support"
-  short_description: "Assess shopping scenario feasibility for TV GenUI"
-  default_prompt: "Use $tv-shopping-decision-support to assess or design a TV-first shopping comparison scenario."

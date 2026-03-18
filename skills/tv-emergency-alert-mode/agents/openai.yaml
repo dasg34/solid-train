@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Emergency Alert Mode"
-  short_description: "Assess alert scenario feasibility for TV GenUI"
-  default_prompt: "Use $tv-emergency-alert-mode to assess or design a TV-first alert scenario."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "TV Weather Briefing"
-  short_description: "Assess weather scenario feasibility for TV GenUI"
-  default_prompt: "Use $tv-weather-briefing to assess or design a TV-first weather scenario."
