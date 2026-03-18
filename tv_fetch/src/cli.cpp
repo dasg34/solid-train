@@ -2141,7 +2141,7 @@ std::string RenderHelp() {
          << "Agent-friendly CLI for fetching normalized TV domain context.\n"
          << "Live sources are the default when available. Mock-only scenarios must use --source mock explicitly.\n\n"
          << "Commands:\n"
-         << "  describe [weather|news|finance|commute|sports] [--format json|pretty]\n"
+         << "  describe [weather|news|finance|commute|sports|schedule|travel|emergency|daily|family|meal-delivery|media|shopping|smart-home|wellness] [--format json|pretty]\n"
          << "  weather [--source mock|open-meteo] [--city ...] [--district ...]\n"
          << "          [--latitude ...] [--longitude ...] [--hours 1-24]\n"
          << "          [--dry-run] [--format json|pretty]\n"
