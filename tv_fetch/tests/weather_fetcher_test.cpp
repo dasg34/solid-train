@@ -84,14 +84,20 @@ void TestLiveDefaultsAndMockOnlyScenarios() {
   const char* weather_argv[] = {"tv_fetch", "weather"};
   const auto weather_parsed =
       tv_fetch::ParseCommand(2, const_cast<char**>(weather_argv));
-  Assert(std::holds_alternative<tv_fetch::Command>(weather_parsed),
-         "weather default command should parse");
-  const auto& weather_command = std::get<tv_fetch::Command>(weather_parsed);
+  Assert(std::holds_alternative<tv_fetch::AppError>(weather_parsed),
+         "weather should require an explicit location");
+
+  const char* weather_city_argv[] = {"tv_fetch", "weather", "--city", "서울"};
+  const auto weather_city_parsed =
+      tv_fetch::ParseCommand(4, const_cast<char**>(weather_city_argv));
+  Assert(std::holds_alternative<tv_fetch::Command>(weather_city_parsed),
+         "weather with city should parse");
+  const auto& weather_command = std::get<tv_fetch::Command>(weather_city_parsed);
   Assert(std::holds_alternative<tv_fetch::WeatherCommand>(weather_command),
-         "default weather command type");
+         "weather with city command type");
   Assert(std::get<tv_fetch::WeatherCommand>(weather_command).source ==
              tv_fetch::WeatherCommand::Source::kOpenMeteo,
-         "weather should default to live open-meteo");
+         "weather with city should still default to live open-meteo");
 
   const char* family_argv[] = {"tv_fetch", "family"};
   const auto family_parsed =

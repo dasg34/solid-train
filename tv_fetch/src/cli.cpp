@@ -233,6 +233,13 @@ std::variant<WeatherCommand, AppError> ParseWeather(
         "Either provide both --latitude and --longitude, or omit both to use geocoding.");
   }
 
+  if (!command.latitude.has_value() && command.city.empty() &&
+      command.district.empty()) {
+    return InvalidArguments(
+        "Weather requires a location input.",
+        "Use --city/--district or provide both --latitude and --longitude.");
+  }
+
   return command;
 }
 
@@ -1383,13 +1390,11 @@ JsonValue WeatherDescribeDocument() {
               {"name", JsonValue::String("--city")},
               {"type", JsonValue::String("string")},
               {"required", JsonValue::Boolean(false)},
-              {"default", JsonValue::String("서울")},
           }),
           MakeObject({
               {"name", JsonValue::String("--district")},
               {"type", JsonValue::String("string")},
               {"required", JsonValue::Boolean(false)},
-              {"default", JsonValue::String("중구")},
           }),
           MakeObject({
               {"name", JsonValue::String("--latitude")},

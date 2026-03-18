@@ -22,8 +22,8 @@ struct WeatherCommand {
 
   Source source = Source::kOpenMeteo;
   OutputFormat format = OutputFormat::kJson;
-  std::string city = "서울";
-  std::string district = "중구";
+  std::string city;
+  std::string district;
   std::optional<double> latitude;
   std::optional<double> longitude;
   int hours = 6;
