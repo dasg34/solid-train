@@ -23,9 +23,9 @@ of A2UI.
    tv_fetch describe <domain> --format pretty
    ```
 
-4. Read `../tv-fetch/SKILL.md` if you need its CLI etiquette or missing-input
-   reminders, then fetch normalized domain JSON from `tv_fetch`.
-5. Read `../tv-a2ui-catalog/SKILL.md` and generate valid A2UI v0.9 NDJSON.
+4. Use `tv-fetch` if you need its CLI etiquette or missing-input reminders,
+   then fetch normalized domain JSON from `tv_fetch`.
+5. Use `tv-a2ui-catalog` to generate valid A2UI v0.9 NDJSON.
 6. Save the generated NDJSON directly to a local file. Do not keep it only in
    the chat response.
 7. Validate the saved file with
@@ -110,23 +110,9 @@ requests, or when the user explicitly asks for mock data.
 
 ## A2UI Step
 
-Use `../tv-a2ui-catalog/SKILL.md` for the full component rules. Keep only the
-minimum reminders here:
-
-- Emit exactly three NDJSON messages in the required order:
-  `createSurface`, `updateDataModel`, `updateComponents`.
-- Set `theme.domain` and `theme.pattern`.
-- Keep `surfaceId` unique and opaque, for example `news-20260318-161500`.
-- Include one component with `id: "root"`.
-- Use only components allowed by the TV catalog skill.
-- Keep the data model flat and keep the screen glanceable.
-- Prefer a domain-specific surface over a generic transcript.
-
-Read the sibling example files only when helpful:
-
-- `../tv-a2ui-catalog/references/examples/weather.json`
-- `../tv-a2ui-catalog/references/examples/news.json`
-- `../tv-a2ui-catalog/references/examples/card_briefing.json`
+Do not restate the catalog rules here. Follow `tv-a2ui-catalog` for component
+constraints, message structure, TV layout rules, and examples, then return to
+this skill for file save, validation, and launch.
 
 ## Save, Validate, Launch
 
