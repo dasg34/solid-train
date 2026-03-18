@@ -3,7 +3,8 @@ name: tv-a2ui-catalog
 description: >
   A2UI component catalog and generation rules for Samsung Tizen TV.
   Teaches LLM agents how to generate valid A2UI v0.9 JSON that the TV app
-  can render via genui's SurfaceController.
+  can render via genui's SurfaceController. If required rendering inputs are
+  missing, ask the user a short follow-up question instead of inventing them.
 ---
 
 # TV A2UI Catalog
@@ -11,6 +12,15 @@ description: >
 This skill defines how to generate valid A2UI JSON for the OpenClaw TV app.
 The TV app renders A2UI messages using genui's SurfaceController. You must
 only use components listed here. Unknown components will display an error.
+
+## Missing Information Rule
+
+Do not invent required rendering inputs just to complete the JSON.
+
+- If `theme.domain` cannot be determined from the request, ask the user.
+- If the surface needs a user-specific value such as location, destination, keyword, or watchlist and the upstream data step did not provide it, ask the user.
+- If the user asked for a vague shape like "보여줘" but the domain is clear, you may choose a reasonable `pattern`.
+- Keep the follow-up short and targeted to the single missing piece.
 
 ## A2UI Protocol
 
