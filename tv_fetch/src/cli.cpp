@@ -1443,9 +1443,9 @@ JsonValue WeatherDescribeDocument() {
 }
 
 JsonValue NewsDescribeDocument() {
-  return DomainDescribeBase(
+  JsonValue document = DomainDescribeBase(
       "news",
-      "Fetch headline-first news context for TV composition.",
+      "Fetch headline-first news context for TV composition. Without --query it returns latest headlines; with --query it performs search.",
       true,
       "yonhap-rss",
       MakeArray({JsonValue::String("mock"),
@@ -1473,7 +1473,7 @@ JsonValue NewsDescribeDocument() {
               {"required", JsonValue::Boolean(false)},
               {"description",
                JsonValue::String(
-                   "Enables Google News RSS search when provided.")},
+                   "When provided, tv_fetch news automatically switches to google-news-rss unless --source is explicitly set.")},
           }),
           MakeObject({
               {"name", JsonValue::String("--count")},
@@ -1508,6 +1508,20 @@ JsonValue NewsDescribeDocument() {
           {"alert", JsonValue::String("object")},
           {"footer", JsonValue::String("string")},
       }));
+  ObjectSet(
+      document, "mode_selection",
+      MakeObject({
+          {"default_mode", JsonValue::String("latest-headlines")},
+          {"default_source", JsonValue::String("yonhap-rss")},
+          {"when_query_is_missing",
+           JsonValue::String(
+               "Return the latest headline feed from Yonhap RSS.")},
+          {"when_query_is_present",
+           JsonValue::String(
+               "Treat the request as search and use google-news-rss.")},
+          {"query_requires_search_source", JsonValue::Boolean(true)},
+      }));
+  return document;
 }
 
 JsonValue FinanceDescribeDocument() {
@@ -2152,6 +2166,7 @@ std::string RenderHelp() {
          << "          [--dry-run] [--format json|pretty]\n"
          << "  news [--source mock|yonhap-rss|google-news-rss] [--rss-url ...]\n"
          << "       [--query ...] [--count 1-12]\n"
+         << "       (no --query: latest Yonhap headlines, with --query: Google News search)\n"
          << "       [--dry-run] [--format json|pretty]\n"
          << "  finance [--source mock|naver-public] [--watchlist ...]\n"
          << "          [--dry-run] [--format json|pretty]\n"

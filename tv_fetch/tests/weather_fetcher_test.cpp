@@ -62,6 +62,30 @@ void TestParseNewsQueryCommand() {
   const auto& news = std::get<tv_fetch::NewsCommand>(command);
   Assert(news.query == "반도체", "news query should be preserved");
   Assert(news.count == 4, "news count should be preserved");
+  Assert(news.source == tv_fetch::NewsCommand::Source::kGoogleNewsRss,
+         "news query should auto-switch to google news search");
+}
+
+void TestNewsDefaultsAreExplicitInDescribeAndParse() {
+  const char* argv[] = {"tv_fetch", "news"};
+  const auto parsed = tv_fetch::ParseCommand(2, const_cast<char**>(argv));
+  Assert(std::holds_alternative<tv_fetch::Command>(parsed),
+         "plain news command should parse");
+  const auto& command = std::get<tv_fetch::Command>(parsed);
+  Assert(std::holds_alternative<tv_fetch::NewsCommand>(command),
+         "plain news command type");
+  Assert(std::get<tv_fetch::NewsCommand>(command).source ==
+             tv_fetch::NewsCommand::Source::kYonhapRss,
+         "plain news should default to latest yonhap feed");
+
+  const auto describe = tv_fetch::BuildDescribeDocument(std::string("news"));
+  Assert(describe.At("mode_selection").At("default_source").AsString() ==
+             "yonhap-rss",
+         "news describe should expose default source");
+  Assert(describe.At("mode_selection")
+                 .At("query_requires_search_source")
+                 .AsBoolean(false) == true,
+         "news describe should expose query search rule");
 }
 
 void TestParseScheduleCommand() {
@@ -240,6 +264,7 @@ int main() {
   TestDescribeWeather();
   TestDescribeAdditionalDomains();
   TestParseNewsQueryCommand();
+  TestNewsDefaultsAreExplicitInDescribeAndParse();
   TestParseScheduleCommand();
   TestLiveDefaultsAndMockOnlyScenarios();
   TestNormalizeOpenMeteoResponse();
