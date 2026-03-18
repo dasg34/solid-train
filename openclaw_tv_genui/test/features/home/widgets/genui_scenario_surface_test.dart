@@ -1,0 +1,40 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:openclaw_tv_genui/features/home/widgets/genui_scenario_surface.dart';
+
+void main() {
+  testWidgets('finance surface keeps charts visible with fitted panel layout', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1920, 1080);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final rawJson = File(
+      '${Directory.current.path}/assets/a2ui/finance.json',
+    ).readAsStringSync();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: GenUiScenarioSurface.raw(rawJson: rawJson)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('An error occurred'), findsNothing);
+
+    final chartFinder = find.byType(CustomPaint);
+    expect(chartFinder, findsAtLeastNWidgets(2));
+
+    final firstChartSize = tester.getSize(chartFinder.first);
+    final secondChartSize = tester.getSize(chartFinder.at(1));
+
+    expect(firstChartSize.width, greaterThan(120));
+    expect(firstChartSize.height, greaterThan(60));
+    expect(secondChartSize.width, greaterThan(120));
+    expect(secondChartSize.height, greaterThan(60));
+  });
+}

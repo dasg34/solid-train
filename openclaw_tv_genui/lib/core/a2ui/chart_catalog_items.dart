@@ -415,11 +415,9 @@ class _ChartShell extends StatelessWidget {
     final theme = Theme.of(context);
     final hasLabels = showLabels && labels.isNotEmpty;
     final hasStats = stats.isNotEmpty;
-    final chartHeight = height - (hasStats ? 58 : 0) - (hasLabels ? 30 : 0);
 
     return Container(
       width: double.infinity,
-      height: height,
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
@@ -427,20 +425,33 @@ class _ChartShell extends StatelessWidget {
         border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (hasStats) ...[
             _ChartStatsRow(stats: stats),
             const SizedBox(height: 10),
           ],
-          Expanded(
-            child: chartHeight <= 24
-                ? const SizedBox.shrink()
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: chart,
-                  ),
-          ),
+          if (height > 24)
+            SizedBox(
+              height: height,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: chart,
+              ),
+            )
+          else
+            const SizedBox.shrink(),
+          if (!hasData) ...[
+            const SizedBox(height: 8),
+            Text(
+              emptyStateLabel,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white.withValues(alpha: 0.60),
+              ),
+            ),
+          ],
           if (hasLabels) ...[
             const SizedBox(height: 8),
             SizedBox(
@@ -462,16 +473,6 @@ class _ChartShell extends StatelessWidget {
                       ),
                     )
                     .toList(),
-              ),
-            ),
-          ],
-          if (!hasData) ...[
-            const SizedBox(height: 8),
-            Text(
-              emptyStateLabel,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white.withValues(alpha: 0.60),
               ),
             ),
           ],
@@ -573,8 +574,8 @@ class _LineChartPainter extends CustomPainter {
     }
 
     const horizontalPadding = 10.0;
-    const labelBandHeight = 22.0;
-    const plotTopPadding = labelBandHeight + 10.0;
+    final labelBandHeight = size.height >= 56 ? 22.0 : 0.0;
+    final plotTopPadding = labelBandHeight > 0 ? labelBandHeight + 10.0 : 6.0;
     const plotBottomPadding = 8.0;
     final plotWidth = math.max(size.width - horizontalPadding * 2, 1.0);
     final plotHeight = math.max(
@@ -607,12 +608,12 @@ class _LineChartPainter extends CustomPainter {
       final normalized = (values[index] - minValue) / range;
       final y =
           plotTopPadding + plotHeight - (normalized * (plotHeight - 8)) - 4;
-      return Offset(
-        x,
-        y
-            .clamp(plotTopPadding + 4, size.height - plotBottomPadding - 4)
-            .toDouble(),
+      final lowerBound = plotTopPadding + 4;
+      final upperBound = math.max(
+        lowerBound,
+        size.height - plotBottomPadding - 4,
       );
+      return Offset(x, y.clamp(lowerBound, upperBound).toDouble());
     }
 
     final points = List<Offset>.generate(values.length, pointFor);

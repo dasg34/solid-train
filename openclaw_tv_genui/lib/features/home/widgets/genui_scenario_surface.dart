@@ -262,12 +262,38 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       data: MediaQuery.of(
         context,
       ).copyWith(textScaler: const TextScaler.linear(_tvSurfaceTextScale)),
-      child: SingleChildScrollView(
-        padding: contentPadding,
-        child: Align(
-          alignment: contentAlignment,
-          child: Surface(surfaceContext: _controller.contextFor(_surfaceId)),
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final contentWidth =
+              (constraints.maxWidth - contentPadding.horizontal).clamp(
+                0.0,
+                4000.0,
+              );
+          final contentHeight =
+              (constraints.maxHeight - contentPadding.vertical).clamp(
+                0.0,
+                4000.0,
+              );
+
+          return SingleChildScrollView(
+            padding: contentPadding,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: contentWidth,
+                minHeight: contentHeight,
+              ),
+              child: Align(
+                alignment: contentAlignment,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: contentWidth),
+                  child: Surface(
+                    surfaceContext: _controller.contextFor(_surfaceId),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
     final overlayContent = Stack(
