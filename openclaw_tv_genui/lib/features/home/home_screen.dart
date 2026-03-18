@@ -23,8 +23,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  static const String _defaultScenarioId = String.fromEnvironment(
+    'OPENCLAW_DEFAULT_SCENARIO',
+    defaultValue: 'daily',
+  );
+
   static final ScenarioEntry _fallbackScenario = scenarioCatalog.firstWhere(
-    (scenario) => scenario.id == 'daily',
+    (scenario) => scenario.id == _defaultScenarioId,
     orElse: () => scenarioCatalog.first,
   );
 

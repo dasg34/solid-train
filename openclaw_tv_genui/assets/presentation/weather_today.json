@@ -1,0 +1,57 @@
+{
+  "surfaceId": "weather_today",
+  "theme": {
+    "domain": "weather",
+    "pattern": "immersive"
+  },
+  "title": "서울 서초구",
+  "summary": "서울 현재 맑음, 체감 -5°입니다.",
+  "hero": {
+    "label": "현재 기온",
+    "value": "-1°",
+    "detail": "체감 -5°",
+    "caption": "2026-03-19 07:45 기준"
+  },
+  "metrics": [
+    {
+      "label": "상태",
+      "value": "맑음",
+      "detail": "Open-Meteo 실황"
+    },
+    {
+      "label": "습도",
+      "value": "56%",
+      "detail": "건조 주의"
+    },
+    {
+      "label": "강수확률",
+      "value": "0%",
+      "detail": "오전 내내 낮음"
+    }
+  ],
+  "chart": {
+    "title": "오전 기온 추이",
+    "kind": "line",
+    "labels": ["07시", "08시", "09시", "10시", "11시", "12시"],
+    "values": [-2.0, -0.9, 0.8, 2.7, 5.1, 7.2],
+    "unitLabel": "기온(°C)",
+    "detail": "6시간 snapshot 기준"
+  },
+  "facts": [
+    {
+      "label": "09시",
+      "value": "0.8°C",
+      "detail": "출근 시간대에도 맑음"
+    },
+    {
+      "label": "12시",
+      "value": "7.2°C",
+      "detail": "한낮에는 빠르게 기온 상승"
+    }
+  ],
+  "alert": {
+    "title": "공식 특보 연동 필요",
+    "summary": "현재 화면은 Open-Meteo 실황과 예보를 사용합니다. 재난성 특보는 기상청 공식 채널과 별도로 연동하세요.",
+    "meta": "Open-Meteo · 2026-03-19 07:45"
+  }
+}

@@ -1,399 +1,166 @@
 ---
 name: tv-a2ui-catalog
 description: >
-  A2UI component catalog and generation rules for Samsung Tizen TV.
-  Teaches LLM agents how to generate valid A2UI v0.9 JSON that the TV app
-  can render via genui's SurfaceController. If required rendering inputs are
-  missing, ask the user a short follow-up question instead of inventing them.
+  Historical name. Use this skill when generating presentation JSON for the
+  Samsung Tizen TV app. The LLM should output semantic TV presentation data,
+  not raw A2UI NDJSON. The app converts this JSON into deterministic A2UI.
 ---
 
-# TV A2UI Catalog
+# TV Presentation Catalog
 
-This skill defines how to generate valid A2UI JSON for the OpenClaw TV app.
-The TV app renders A2UI messages using genui's SurfaceController. You must
-only use components listed here. Unknown components will display an error.
+This skill defines the preferred LLM output for the OpenClaw TV app.
+
+The LLM does NOT generate `createSurface`, `updateDataModel`, or
+`updateComponents`. The LLM outputs one presentation JSON object, and the app
+converts it into deterministic A2UI internally.
+
+## Output Rule
+
+Emit one raw JSON object only.
+
+- Do NOT output NDJSON.
+- Do NOT output `createSurface`, `updateDataModel`, or `updateComponents`.
+- Do NOT wrap the payload in Markdown fences.
+- Do NOT add prose before or after the JSON.
+- The first character must be `{`.
 
 ## Missing Information Rule
 
-Do not invent required rendering inputs just to complete the JSON.
-
-- If `theme.domain` cannot be determined from the request, ask the user.
-- If the surface needs a user-specific value such as location, destination, keyword, or watchlist and the upstream data step did not provide it, ask the user.
-- If the user asked for a vague shape like "보여줘" but the domain is clear, you may choose a reasonable `pattern`.
-- Keep the follow-up short and targeted to the single missing piece.
-
-## Raw Output Rule
-
-When producing the final payload, emit raw NDJSON only.
-
-- Do NOT wrap the payload in Markdown code fences such as ```json ... ``` or
-  '''json ... '''.
-- Do NOT add a `json` label, backticks, prose, bullets, or any explanation
-  before or after the payload.
-- The first character of the payload must be `{`.
-- Every output line must be a JSON object.
-- The fenced examples in this skill are documentation examples only. They are
-  not the required final output format.
-
-## A2UI Protocol
-
-Generate three NDJSON messages (one JSON object per line) in this order:
-
-### 1. createSurface
-
-```json
-{"version": "v0.9", "createSurface": {"surfaceId": "weather", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {"domain": "weather", "pattern": "immersive"}}}
-```
-
-- `surfaceId`: unique identifier for this surface. Treat it as an opaque ID, not as theme or layout metadata.
-- `catalogId`: always `https://a2ui.org/specification/v0_9/standard_catalog.json`
-- `theme.domain`: required. The scenario/domain such as `weather`, `news`, `finance`
-- `theme.pattern`: required. One of `immersive`, `sidePanel`, `centerCard`, `topBanner`, `bottomRibbon`
-- `theme.scale`: optional. One of `compact`, `standard`, `expanded`.
-  Use `compact` when the content is sparse enough that the default panel would
-  feel too empty. Use `expanded` only for unusually dense surfaces.
-
-### 2. updateDataModel
-
-```json
-{"version": "v0.9", "updateDataModel": {"surfaceId": "weather", "value": {"title": "서울 강남구", "currentTemp": "18°"}}}
-```
-
-- `surfaceId`: must match createSurface
-- `value`: flat key-value map of all dynamic data
-- May be omitted for purely static surfaces
-
-### 3. updateComponents
-
-```json
-{"version": "v0.9", "updateComponents": {"surfaceId": "weather", "components": [...]}}
-```
-
-- `surfaceId`: must match createSurface
-- `components`: array of component objects (see below)
-
-## Components
-
-The TV app supports these 11 components. Do NOT use any other component type.
-
-The base layout and text items come from genui's standard catalog. The TV app
-also registers these custom TV items:
-- `Inset`
-- `Wrap`
-- `LineChart`
-- `BarChart`
-
-Every component must have:
-- `id` — unique string identifier
-- `component` — type name from the table below
-- `weight` — (optional) integer for flex sizing inside Row/Column
-
-One component MUST have `id: "root"` — the render entry point.
-
-### Text
-
-Display text, either static or data-bound.
-
-| Property | Required | Values |
-|----------|----------|--------|
-| `text` | yes | `"literal string"` or `{"path": "/dataKey"}` |
-| `variant` | no | `h1`, `h2`, `h3`, `h4`, `h5`, `body`, `caption` |
-
-### Column
-
-Vertical layout container.
-
-| Property | Required | Values |
-|----------|----------|--------|
-| `children` | yes | array of component IDs, or template object |
-| `justify` | no | `start`, `center`, `end`, `spaceBetween`, `spaceAround` |
-| `align` | no | `start`, `center`, `end`, `stretch` |
-
-### Row
-
-Horizontal layout container. Same properties as Column.
-
-### Inset
-
-Padding container for a single child.
-
-| Property | Required | Values |
-|----------|----------|--------|
-| `child` | yes | single component ID |
-| `all` | no | number, uniform padding on every side |
-| `horizontal` | no | number, horizontal padding in logical pixels |
-| `vertical` | no | number, vertical padding in logical pixels |
-
-Use `all` for one-value padding, or `horizontal` and `vertical` together for
-TV-safe spacing around a child card or text block.
-
-Prefer `Inset` aggressively for readable TV spacing.
-
-- Most major content groups should sit inside an `Inset`, not flush against a
-  card edge.
-- Inside cards, prefer `all: 20`-`32` for compact/standard layouts.
-- Use `horizontal: 24` and `vertical: 20` or larger when the layout mixes
-  headline text, metrics, and charts.
-- If a text block or chart feels cramped, add `Inset` before adding more
-  nested layout containers.
-
-### Wrap
-
-Flow layout for multiple children that should wrap onto new rows.
-
-| Property | Required | Values |
-|----------|----------|--------|
-| `children` | yes | array of component IDs |
-| `spacing` | no | number, horizontal gap between children |
-| `runSpacing` | no | number, vertical gap between rows |
-| `alignment` | no | `start`, `center`, `end`, `spaceBetween`, `spaceAround`, `spaceEvenly` |
-| `runAlignment` | no | `start`, `center`, `end`, `spaceBetween`, `spaceAround`, `spaceEvenly` |
-| `crossAlign` | no | `start`, `center`, `end` |
-
-Use this for chip-like summaries or small card groups that should reflow
-without forcing a strict `Row`.
-
-### Card
-
-Visual container with elevation and rounded corners.
-
-| Property | Required | Values |
-|----------|----------|--------|
-| `child` | yes | single component ID |
-
-Prefer `Card` for almost every major TV section.
-
-- Use `Card` for hero metrics, headline groups, chart panels, schedule blocks,
-  and summary clusters.
-- A strong default composition is `Card -> Inset -> Column`.
-- In immersive layouts, use a small number of larger cards instead of many
-  loose text nodes.
-- In side panels, stack cards vertically rather than letting sections blend
-  into one long plain column.
-
-### Icon
-
-Material Design icon.
-
-| Property | Required | Values |
-|----------|----------|--------|
-| `name` | yes | one of the valid icon names below |
-
-Valid icon names:
-```
-accountCircle, add, arrowBack, arrowForward, attachFile, calendarToday,
-call, camera, check, close, delete, download, edit, error, event,
-favorite, favoriteOff, folder, help, home, info, locationOn, lock,
-lockOpen, mail, menu, moreHoriz, moreVert, notifications,
-notificationsOff, payment, person, phone, photo, print, refresh,
-search, send, settings, share, shoppingCart, star, starHalf, starOff,
-upload, visibility, visibilityOff, warning
-```
-
-Using any other name will render a broken image.
-
-### Divider
-
-Visual separator line.
-
-| Property | Required | Values |
-|----------|----------|--------|
-| `axis` | no | `horizontal` (default), `vertical` |
-
-### Button
-
-Clickable action trigger.
-
-| Property | Required | Values |
-|----------|----------|--------|
-| `child` | yes | component ID (usually a Text) |
-| `action` | yes | `{"event": {"name": "eventName"}}` |
-| `variant` | no | `primary`, `borderless` |
-
-### LineChart
-
-Compact trend chart for ordered numeric values.
-
-| Property | Required | Values |
-|----------|----------|--------|
-| `values` | yes | number array or `{"path": "/dataKey"}` |
-| `labels` | no | string array or `{"path": "/dataKey"}` |
-| `height` | no | number, usually `120`-`160` |
-| `strokeColor` | no | hex color string like `"#7DE8D5"` |
-| `fillStartColor` | no | hex color string |
-| `fillEndColor` | no | hex color string, `"#00000000"` allowed |
-| `showGrid` | no | boolean |
-| `showLabels` | no | boolean |
-
-Use for short time-series such as hourly weather, 5-day exchange trend, or
-weekly activity movement. Prefer 4-8 points for TV readability.
-
-Do not place a line chart on screen by itself.
-
-- Pair it with a visible chart title that explains what the numbers represent.
-- Include adjacent summary values such as current, high, low, change, or
-  baseline context in text components outside the chart itself.
-- Prefer the composition `Card -> Inset -> Column -> [title, summary row, chart]`.
-- If the numeric unit matters, spell it out in nearby text such as `기온(°C)`,
-  `변동률(%)`, or `강수확률(%)`.
-
-### BarChart
-
-Compact comparison chart for category values.
-
-| Property | Required | Values |
-|----------|----------|--------|
-| `values` | yes | number array or `{"path": "/dataKey"}` |
-| `labels` | no | string array or `{"path": "/dataKey"}` |
-| `height` | no | number, usually `120`-`160` |
-| `positiveColor` | no | hex color string |
-| `negativeColor` | no | hex color string |
-| `baselineColor` | no | hex color string |
-| `showGrid` | no | boolean |
-| `showLabels` | no | boolean |
-
-Use for comparisons such as stock moves, category scores, spending buckets, or
-temperature/rain probability by slot. Keep label count low, usually 3-6.
-
-Do not place a bar chart on screen by itself.
-
-- Add a title that names the metric and comparison group.
-- Add nearby text for max/min/change interpretation when the bars alone would
-  be ambiguous.
-- Prefer the composition `Card -> Inset -> Column -> [title, summary row, chart]`.
-- If positive/negative direction matters, make that explicit in surrounding
-  text instead of relying only on color.
-
-## Data Binding
-
-Dynamic values reference the dataModel using path syntax:
-```json
-{"text": {"path": "/currentTemp"}}
-```
-
-Static values are literal strings:
-```json
-{"text": "서울 강남구"}
-```
-
-Every path must have a corresponding key in the `updateDataModel` value map.
-
-Number arrays for charts should be emitted as actual JSON numbers, not strings,
-unless the values are already formatted for display elsewhere.
-
-You do not need to render every available data field. Select the subset that
-best supports the surface. It is acceptable to omit low-value or secondary
-data when it would reduce clarity.
-
-## Dynamic-Length Lists
-
-Column and Row support template children for variable-length data:
+Do not invent required rendering inputs.
+
+- If `theme.domain` is unclear, ask one short question.
+- If the request needs a user-specific value such as location, watchlist, or
+  destination and upstream data did not provide it, ask one short question.
+- If the domain is clear but the exact visual emphasis is vague, choose a
+  reasonable `theme.pattern`.
+
+## Presentation Model
+
+Generate one JSON object with this shape.
+
+### Required fields
+
+- `surfaceId`: unique string such as `weather_today` or `finance_focus`
+- `theme.domain`: domain such as `weather`, `news`, `finance`, `schedule`
+- `theme.pattern`: one of `immersive`, `sidePanel`, `centerCard`,
+  `topBanner`, `bottomRibbon`
+- `title`: primary heading
+- `hero.label`: label for the main metric
+- `hero.value`: main metric value
+
+### Optional fields
+
+- `theme.scale`: `compact`, `standard`, or `expanded`
+- `summary`: one short sentence under the title
+- `hero.detail`: supporting metric such as feels-like temperature or day change
+- `hero.caption`: timestamp or trust label
+- `metrics`: array of 1-4 `{label, value, detail?}` objects
+- `facts`: array of 1-4 `{label, value, detail?}` objects
+- `chart`: chart object
+- `alert`: alert object
+
+### Chart
 
 ```json
 {
-  "id": "itemList",
-  "component": "Column",
-  "children": {"componentId": "itemRow", "path": "/items"}
+  "title": "오전 기온 추이",
+  "kind": "line",
+  "labels": ["07시", "08시", "09시", "10시"],
+  "values": [-2.0, -0.9, 0.8, 2.7],
+  "unitLabel": "기온(°C)",
+  "detail": "6시간 snapshot 기준"
 }
 ```
 
-This renders one `itemRow` component per entry in the `/items` array.
+Rules:
 
-`Wrap` currently expects an explicit `children` array of component IDs.
+- `kind` must be `line` or `bar`
+- `values` must be a numeric array with at least 2 points
+- if `labels` is present, it must match `values` length
+- prefer 4-8 points for TV readability
 
-## TV UX Principles
+### Alert
 
-- **10-foot experience** — understandable from across the room in seconds
-- **Large typography** — use `h1`-`h3` for primary info, `body`/`caption` for details
-- **Strong visual hierarchy** — generous spacing, clear grouping with Cards
-- **Card-first composition** — prefer a few well-separated cards over raw
-  text blocks floating directly on the root layout
-- **Inset for breathing room** — give card content visible inner padding so
-  text, icons, and charts do not touch card edges
-- **Glanceable** — keep under ~40 components per surface
-- **Chart restraint** — one chart per card is usually enough on TV
-- **Chart context** — every chart should have a title and nearby summary
-  numbers so the viewer can tell what the graph measures
-- **No walls of text** — short labels, concise values
-- **Selective data use** — show only the data that strengthens the current
-  surface; not every fetched field must be displayed
-- **Korean locale** — ko-KR, Asia/Seoul timezone
-- **Domain-specific** — prefer purpose-built surfaces over generic layouts
-
-## Surface Patterns
-
-Choose `theme.pattern` based on how much screen space the content needs and
-whether the user is actively watching TV content alongside it.
-
-If the chosen pattern still feels too large for the content, add
-`theme.scale: "compact"` so the outer panel hugs the generated items more
-closely.
-
-| Pattern | When to use | theme.pattern |
-|---------|-------------|---------------|
-| Immersive (풀 캔버스) | rich multi-section content that deserves full attention — weather detail, sports scores, travel plans | `immersive` |
-| Side Panel (사이드 패널) | supplementary info while TV content stays visible — news headlines, smart home status | `sidePanel` |
-| Center Card (센터 카드) | one key metric or brief summary — quick stock check, delivery ETA, calendar next-up | `centerCard` |
-| Top Banner (상단 배너) | urgent one-line alert that should not block viewing — severe weather warning, breaking news flash | `topBanner` |
-| Bottom Ribbon (하단 리본) | ambient persistent status — commute ETA, air quality index, live score ticker | `bottomRibbon` |
-
-The TV app applies a themed background based on `theme.domain`:
-- `weather` → warm atmospheric gradient
-- `news` → muted news backdrop
-- `schedule` → cool schedule backdrop
-- everything else → standard dark theme (#12212D)
-
-## Common Mistakes
-
-- Do NOT nest components inside `createSurface` — use `updateComponents`
-- Do NOT reference a data path not defined in `updateDataModel`
-- Do NOT use component IDs not defined in the components array
-- Do NOT forget the `"root"` component — nothing renders without it
-- Do NOT use icon names outside the valid list
-- Do NOT leave major sections as bare `Column` or `Row` blocks when a `Card`
-  would create clearer grouping
-- Do NOT place dense card content directly against card edges without `Inset`
-- Do NOT place a chart by itself without a title or summary values explaining
-  what the viewer is looking at
-- Do NOT send chart arrays of mismatched lengths unless labels are optional
-- Do NOT cram dense dashboards with many tiny charts onto one TV surface
-- Do NOT try to display every available field if it weakens clarity
-- Do NOT create more than ~40 components per surface
-- Do NOT force one fixed `theme.pattern` for a domain
-
-## Minimal Example
-
-A simple card with a title and a value:
-
-```
-{"version": "v0.9", "createSurface": {"surfaceId": "weather", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {"domain": "weather", "pattern": "centerCard"}}}
-{"version": "v0.9", "updateDataModel": {"surfaceId": "weather", "value": {"title": "서울 날씨", "temp": "18°", "condition": "맑음"}}}
-{"version": "v0.9", "updateComponents": {"surfaceId": "weather", "components": [{"id": "root", "component": "Column", "justify": "center", "children": ["heroCard"]}, {"id": "heroCard", "component": "Card", "child": "heroInset"}, {"id": "heroInset", "component": "Inset", "all": 24, "child": "cardContent"}, {"id": "cardContent", "component": "Column", "children": ["titleText", "tempRow"]}, {"id": "titleText", "component": "Text", "text": {"path": "/title"}, "variant": "h3"}, {"id": "tempRow", "component": "Row", "justify": "spaceBetween", "children": ["tempText", "conditionText"]}, {"id": "tempText", "component": "Text", "text": {"path": "/temp"}, "variant": "h1"}, {"id": "conditionText", "component": "Text", "text": {"path": "/condition"}, "variant": "body"}]}}
+```json
+{
+  "title": "공식 특보 연동 필요",
+  "summary": "재난성 특보는 기상청 공식 채널과 별도로 연동하세요.",
+  "meta": "Open-Meteo · 2026-03-19 07:45"
+}
 ```
 
-## Validation
+## Selection Guidance
 
-After generating A2UI JSON, run `tv_a2ui_validate` to catch errors before
-the TV app receives it:
+Use the model conservatively.
 
-```bash
-tv_a2ui_validate output.json
+- `summary`: only when one short sentence improves understanding
+- `metrics`: for compact supporting numbers such as humidity, change, count,
+  ETA, or category totals
+- `facts`: for short fact cards that are not the main metric
+- `chart`: when ordered numeric data materially improves the screen
+- `alert`: when there is a warning, trust caveat, or operational notice
+
+Do not force every optional field to appear.
+
+- Sparse requests such as "삼성전자만 보여줘" can be just `title + hero`
+- Richer requests can add `metrics`, `chart`, `facts`, and `alert`
+
+## TV UX Rules
+
+- Design for a 10-foot experience
+- Use one strong hero metric, not many competing ones
+- Keep text short and glanceable
+- Prefer a small number of meaningful blocks
+- Avoid walls of prose and dense dashboards
+- Korean locale first: `ko-KR`, `Asia/Seoul`
+
+## What Not To Output
+
+- Raw A2UI NDJSON
+- Low-level component trees
+- Footer text blocks
+- Hidden implementation details such as icon names or chart colors
+
+## Example
+
+```json
+{
+  "surfaceId": "weather_today",
+  "theme": {
+    "domain": "weather",
+    "pattern": "immersive"
+  },
+  "title": "서울 서초구",
+  "summary": "서울 현재 맑음, 체감 -5°입니다.",
+  "hero": {
+    "label": "현재 기온",
+    "value": "-1°",
+    "detail": "체감 -5°",
+    "caption": "2026-03-19 07:45 기준"
+  },
+  "metrics": [
+    {"label": "상태", "value": "맑음"},
+    {"label": "습도", "value": "56%"},
+    {"label": "강수확률", "value": "0%"}
+  ],
+  "chart": {
+    "title": "오전 기온 추이",
+    "kind": "line",
+    "labels": ["07시", "08시", "09시", "10시"],
+    "values": [-2.0, -0.9, 0.8, 2.7],
+    "unitLabel": "기온(°C)"
+  },
+  "alert": {
+    "title": "공식 특보 연동 필요",
+    "summary": "재난성 특보는 기상청 공식 채널과 별도로 연동하세요.",
+    "meta": "Open-Meteo · 2026-03-19 07:45"
+  }
+}
 ```
 
-It checks NDJSON structure, message ordering, surfaceId consistency, theme,
-component types, icon names, referential integrity, data bindings, and
-component count. Error messages include the exact component ID, property,
-and valid values so you can fix issues directly.
+## References
 
-To read from stdin (useful when piping generated output):
+See `references/examples/` for validated presentation JSON:
 
-```bash
-echo "$NDJSON" | tv_a2ui_validate --stdin
-```
-
-## Full Examples
-
-See `references/examples/` for production-validated A2UI JSON:
-- `weather.json` — immersive weather briefing with hourly forecast
-- `news.json` — side panel news with headline list
-- `card_briefing.json` — center card financial snapshot
+- `weather_today.json`
+- `finance_focus.json`

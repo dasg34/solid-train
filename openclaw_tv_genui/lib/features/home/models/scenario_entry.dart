@@ -56,6 +56,14 @@ const scenarioCatalog = <ScenarioEntry>[
     pattern: TvSurfacePattern.immersive,
   ),
   ScenarioEntry(
+    id: 'weather_today',
+    title: '오늘 날씨 카드',
+    summary: '실시간 날씨 snapshot을 data-first 경로로 렌더링',
+    domain: 'weather',
+    surfaceId: 'weather_today',
+    pattern: TvSurfacePattern.immersive,
+  ),
+  ScenarioEntry(
     id: 'news',
     title: '뉴스 브리핑',
     summary: '주요 헤드라인과 속보',
@@ -93,6 +101,14 @@ const scenarioCatalog = <ScenarioEntry>[
     summary: '관심 종목, 환율, 시장 동향',
     domain: 'finance',
     surfaceId: 'finance',
+    pattern: TvSurfacePattern.centerCard,
+  ),
+  ScenarioEntry(
+    id: 'finance_focus',
+    title: '종목 포커스 카드',
+    summary: 'LLM이 고른 핵심 수치와 추세를 단일 카드로 정리',
+    domain: 'finance',
+    surfaceId: 'finance_focus',
     pattern: TvSurfacePattern.centerCard,
   ),
   ScenarioEntry(

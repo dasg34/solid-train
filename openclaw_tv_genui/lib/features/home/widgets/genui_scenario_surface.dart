@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:genui/genui.dart';
 
 import '../../../core/a2ui/a2ui_payload_source.dart';
@@ -14,6 +15,11 @@ import '../models/scenario_entry.dart';
 // Skills emit this catalogId in their createSurface messages.
 const _catalogId = 'https://a2ui.org/specification/v0_9/standard_catalog.json';
 const _tvSurfaceTextScale = 0.65;
+const _keyboardScrollStepMin = 88.0;
+const _keyboardScrollStepMax = 168.0;
+const _keyboardScrollStepViewportFactor = 0.22;
+const _keyboardRepeatStepFactor = 0.28;
+const _keyboardScrollDuration = Duration(milliseconds: 240);
 
 class GenUiScenarioSurface extends StatefulWidget {
   const GenUiScenarioSurface.scenario({
@@ -46,6 +52,10 @@ class GenUiScenarioSurface extends StatefulWidget {
 
 class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   late SurfaceController _controller;
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _scrollFocusNode = FocusNode(
+    debugLabel: 'genui_surface_scroll',
+  );
   int _loadId = 0;
   String _surfaceId = 'surface';
   SurfaceStyle _style = SurfaceStyle.standard;
@@ -63,6 +73,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       'surface',
       'Initializing surface for ${_activeTargetDescription()}',
     );
+    _scheduleScrollFocus();
     _loadScenario();
   }
 
@@ -160,6 +171,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       for (final message in messages) {
         _controller.handleMessage(message);
       }
+      _scheduleScrollFocus();
     } catch (error, stackTrace) {
       if (!mounted || loadId != _loadId) {
         AppLogger.debug(
@@ -206,6 +218,80 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       return error.message;
     }
     return '로그에서 상세 오류를 확인해 주세요.';
+  }
+
+  void _scheduleScrollFocus() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollFocusNode.canRequestFocus) {
+        return;
+      }
+      if (_scrollFocusNode.hasFocus) {
+        return;
+      }
+      _scrollFocusNode.requestFocus();
+    });
+  }
+
+  KeyEventResult _handleScrollKey(FocusNode node, KeyEvent event) {
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+      return KeyEventResult.ignored;
+    }
+    final isRepeat = event is KeyRepeatEvent;
+
+    final baseDelta = switch (event.logicalKey) {
+      LogicalKeyboardKey.arrowDown => _scrollStep(),
+      LogicalKeyboardKey.arrowUp => -_scrollStep(),
+      LogicalKeyboardKey.pageDown => _scrollStep() * 1.4,
+      LogicalKeyboardKey.pageUp => -_scrollStep() * 1.4,
+      _ => null,
+    };
+    if (baseDelta == null) {
+      return KeyEventResult.ignored;
+    }
+    final delta = isRepeat ? baseDelta * _keyboardRepeatStepFactor : baseDelta;
+
+    _scrollBy(delta, animate: !isRepeat);
+    return KeyEventResult.handled;
+  }
+
+  double _scrollStep() {
+    if (!_scrollController.hasClients) {
+      return 240;
+    }
+    final viewport = _scrollController.position.viewportDimension;
+    return (viewport * _keyboardScrollStepViewportFactor).clamp(
+      _keyboardScrollStepMin,
+      _keyboardScrollStepMax,
+    );
+  }
+
+  void _scrollBy(double delta, {required bool animate}) {
+    if (!_scrollController.hasClients) {
+      return;
+    }
+    final position = _scrollController.position;
+    if (position.maxScrollExtent <= position.minScrollExtent) {
+      return;
+    }
+
+    final target = (position.pixels + delta).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+    if ((target - position.pixels).abs() < 1) {
+      return;
+    }
+
+    if (!animate) {
+      _scrollController.jumpTo(target);
+      return;
+    }
+
+    _scrollController.animateTo(
+      target,
+      duration: _keyboardScrollDuration,
+      curve: Curves.easeInOutCubicEmphasized,
+    );
   }
 
   @override
@@ -276,6 +362,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
               );
 
           return SingleChildScrollView(
+            controller: _scrollController,
             padding: contentPadding,
             child: ConstrainedBox(
               constraints: BoxConstraints(
@@ -327,14 +414,30 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
     );
 
     return switch (_style) {
-      SurfaceStyle.atmosphericWeather => _WeatherSurfaceShell(
-        child: overlayContent,
+      SurfaceStyle.atmosphericWeather => Focus(
+        autofocus: true,
+        focusNode: _scrollFocusNode,
+        onKeyEvent: _handleScrollKey,
+        child: _WeatherSurfaceShell(child: overlayContent),
       ),
-      SurfaceStyle.newsPanel => _NewsSurfaceShell(child: overlayContent),
-      SurfaceStyle.schedulePanel => _ScheduleSurfaceShell(
-        child: overlayContent,
+      SurfaceStyle.newsPanel => Focus(
+        autofocus: true,
+        focusNode: _scrollFocusNode,
+        onKeyEvent: _handleScrollKey,
+        child: _NewsSurfaceShell(child: overlayContent),
       ),
-      SurfaceStyle.standard => _StandardSurfaceShell(child: overlayContent),
+      SurfaceStyle.schedulePanel => Focus(
+        autofocus: true,
+        focusNode: _scrollFocusNode,
+        onKeyEvent: _handleScrollKey,
+        child: _ScheduleSurfaceShell(child: overlayContent),
+      ),
+      SurfaceStyle.standard => Focus(
+        autofocus: true,
+        focusNode: _scrollFocusNode,
+        onKeyEvent: _handleScrollKey,
+        child: _StandardSurfaceShell(child: overlayContent),
+      ),
     };
   }
 
@@ -400,6 +503,8 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       'surface',
       'Disposing surface controller for surfaceId=$_surfaceId',
     );
+    _scrollController.dispose();
+    _scrollFocusNode.dispose();
     _controller.dispose();
     super.dispose();
   }
