@@ -62,6 +62,7 @@ void AddPass(std::vector<CheckResult>& checks, std::string rule,
       .severity = Severity::kError,
       .rule = std::move(rule),
       .message = std::move(message),
+      .detail = {},
   });
 }
 
