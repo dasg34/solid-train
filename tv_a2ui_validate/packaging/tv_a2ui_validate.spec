@@ -4,6 +4,7 @@ Release:    0
 Summary:    A2UI v0.9 NDJSON validator for Tizen TV
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
+Source1001: packaging/%{name}.manifest
 BuildRequires: meson
 BuildRequires: ninja
 BuildRequires: pkgconfig(json)
@@ -15,7 +16,8 @@ It validates structure, message ordering, theme, component types, icon names,
 referential integrity, data bindings, and component count limits.
 
 %prep
-%autosetup
+%setup -q
+cp %{SOURCE1001} .
 
 %build
 meson setup builddir \
