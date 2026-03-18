@@ -89,16 +89,18 @@ JsonValue Describe(const ScenarioCommand::Kind kind) {
       {"name", JsonValue::String(meta->command_name)},
       {"description", JsonValue::String(meta->description)},
       {"supports_live", JsonValue::Boolean(false)},
-      {"default_source", JsonValue::String("mock")},
+      {"default_source", JsonValue::String("none")},
       {"sources", MakeArray({JsonValue::String("mock")})},
       {"parameters",
        MakeArray({
            MakeObject({
                {"name", JsonValue::String("--source")},
                {"type", JsonValue::String("string")},
-               {"required", JsonValue::Boolean(false)},
+               {"required", JsonValue::Boolean(true)},
                {"values", MakeArray({JsonValue::String("mock")})},
-               {"default", JsonValue::String("mock")},
+               {"description",
+                JsonValue::String(
+                    "Mock-only scenario. Pass --source mock explicitly.")},
            }),
            MakeObject({
                {"name", JsonValue::String("--dry-run")},

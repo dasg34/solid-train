@@ -20,7 +20,7 @@ struct DescribeCommand {
 struct WeatherCommand {
   enum class Source { kMock, kOpenMeteo };
 
-  Source source = Source::kMock;
+  Source source = Source::kOpenMeteo;
   OutputFormat format = OutputFormat::kJson;
   std::string city = "서울";
   std::string district = "중구";
@@ -33,7 +33,7 @@ struct WeatherCommand {
 struct NewsCommand {
   enum class Source { kMock, kYonhapRss, kGoogleNewsRss };
 
-  Source source = Source::kMock;
+  Source source = Source::kYonhapRss;
   OutputFormat format = OutputFormat::kJson;
   std::string rss_url = "https://www.yonhapnewstv.co.kr/browse/feed/";
   std::string query;
@@ -44,7 +44,7 @@ struct NewsCommand {
 struct FinanceCommand {
   enum class Source { kMock, kNaverPublic };
 
-  Source source = Source::kMock;
+  Source source = Source::kNaverPublic;
   OutputFormat format = OutputFormat::kJson;
   std::string watchlist = "005930:삼성전자,000660:SK하이닉스,035420:NAVER";
   bool dry_run = false;
@@ -54,7 +54,7 @@ struct CommuteCommand {
   enum class Source { kMock, kOsrm };
   enum class Profile { kDriving, kWalking };
 
-  Source source = Source::kMock;
+  Source source = Source::kOsrm;
   OutputFormat format = OutputFormat::kJson;
   std::string origin = "서울시청";
   std::string destination = "강남역";
@@ -70,7 +70,7 @@ struct CommuteCommand {
 struct SportsCommand {
   enum class Source { kMock, kTheSportsDb };
 
-  Source source = Source::kMock;
+  Source source = Source::kTheSportsDb;
   OutputFormat format = OutputFormat::kJson;
   std::string league = "kleague1";
   std::string league_id;
@@ -81,7 +81,7 @@ struct SportsCommand {
 struct ScheduleCommand {
   enum class Source { kMock, kIcsUrl, kIcsFile };
 
-  Source source = Source::kMock;
+  Source source = Source::kIcsUrl;
   OutputFormat format = OutputFormat::kJson;
   std::string ics_url = "https://holidays.hyunbin.page/basic.ics";
   std::string ics_file;
@@ -94,7 +94,7 @@ struct ScheduleCommand {
 struct TravelCommand {
   enum class Source { kMock, kAirportKr };
 
-  Source source = Source::kMock;
+  Source source = Source::kAirportKr;
   OutputFormat format = OutputFormat::kJson;
   std::string now;
   std::string date;
@@ -117,7 +117,7 @@ struct EmergencyCommand {
     kKmaCombined,
   };
 
-  Source source = Source::kMock;
+  Source source = Source::kKmaCombined;
   OutputFormat format = OutputFormat::kJson;
   double min_magnitude = 3.0;
   int max_age_days = 7;
@@ -132,7 +132,7 @@ struct DailyCommand {
   enum class ScheduleSource { kIcsUrl, kIcsFile, kMock, kSkip };
   enum class CommuteSource { kOsrm, kMock, kSkip };
 
-  Source source = Source::kMock;
+  Source source = Source::kComposeLive;
   OutputFormat format = OutputFormat::kJson;
   WeatherSource weather_source = WeatherSource::kOpenMeteo;
   NewsSource news_source = NewsSource::kYonhapRss;
@@ -173,7 +173,7 @@ struct ScenarioCommand {
 
   Kind kind = Kind::kFamily;
   OutputFormat format = OutputFormat::kJson;
-  std::string source = "mock";
+  std::string source;
   bool dry_run = false;
 };
 

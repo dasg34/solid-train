@@ -80,6 +80,26 @@ void TestParseScheduleCommand() {
          "schedule format should be preserved");
 }
 
+void TestLiveDefaultsAndMockOnlyScenarios() {
+  const char* weather_argv[] = {"tv_fetch", "weather"};
+  const auto weather_parsed =
+      tv_fetch::ParseCommand(2, const_cast<char**>(weather_argv));
+  Assert(std::holds_alternative<tv_fetch::Command>(weather_parsed),
+         "weather default command should parse");
+  const auto& weather_command = std::get<tv_fetch::Command>(weather_parsed);
+  Assert(std::holds_alternative<tv_fetch::WeatherCommand>(weather_command),
+         "default weather command type");
+  Assert(std::get<tv_fetch::WeatherCommand>(weather_command).source ==
+             tv_fetch::WeatherCommand::Source::kOpenMeteo,
+         "weather should default to live open-meteo");
+
+  const char* family_argv[] = {"tv_fetch", "family"};
+  const auto family_parsed =
+      tv_fetch::ParseCommand(2, const_cast<char**>(family_argv));
+  Assert(std::holds_alternative<tv_fetch::AppError>(family_parsed),
+         "mock-only scenario should require explicit mock source");
+}
+
 void TestNormalizeOpenMeteoResponse() {
   const auto sample = tv_fetch::JsonValue::Parse(
       R"({
@@ -194,6 +214,7 @@ void TestScenarioMockFixturesLoad() {
   for (const auto& [kind, domain] : kScenarios) {
     tv_fetch::ScenarioCommand command;
     command.kind = kind;
+    command.source = "mock";
 
     const auto result = tv_fetch::scenario::Execute(command);
     Assert(std::holds_alternative<tv_fetch::JsonValue>(result),
@@ -214,6 +235,7 @@ int main() {
   TestDescribeAdditionalDomains();
   TestParseNewsQueryCommand();
   TestParseScheduleCommand();
+  TestLiveDefaultsAndMockOnlyScenarios();
   TestNormalizeOpenMeteoResponse();
   TestMockFixtureLoads();
   TestAdditionalMockFixturesLoad();

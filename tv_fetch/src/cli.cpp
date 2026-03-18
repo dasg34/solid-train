@@ -282,7 +282,7 @@ std::variant<NewsCommand, AppError> ParseNews(
         return InvalidArguments("Query contains control characters.");
       }
       command.query = std::string(args[index + 1]);
-      if (!source_explicit && command.source == NewsCommand::Source::kMock) {
+      if (!source_explicit) {
         command.source = NewsCommand::Source::kGoogleNewsRss;
       } else if (source_explicit &&
                  command.source != NewsCommand::Source::kGoogleNewsRss) {
@@ -1289,6 +1289,7 @@ std::variant<ScenarioCommand, AppError> ParseScenario(
     ScenarioCommand::Kind kind, const std::vector<std::string_view>& args) {
   ScenarioCommand command;
   command.kind = kind;
+  bool source_explicit = false;
 
   for (std::size_t index = 0; index < args.size();) {
     const auto arg = args[index];
@@ -1300,6 +1301,7 @@ std::variant<ScenarioCommand, AppError> ParseScenario(
         return InvalidArguments("Source contains control characters.");
       }
       command.source = std::string(args[index + 1]);
+      source_explicit = true;
       index += 2;
       continue;
     }
@@ -1323,7 +1325,21 @@ std::variant<ScenarioCommand, AppError> ParseScenario(
     return InvalidArguments(
         "Unsupported scenario option.",
         "Use tv_fetch " + std::string(scenario::CommandName(kind)) +
-            " [--source mock] [--dry-run] [--format json|pretty].");
+            " --source mock [--dry-run] [--format json|pretty].");
+  }
+
+  if (!source_explicit) {
+    return InvalidArguments(
+        "This scenario does not have a live source yet.",
+        "Use tv_fetch " + std::string(scenario::CommandName(kind)) +
+            " --source mock [--format json|pretty].");
+  }
+
+  if (command.source != "mock") {
+    return InvalidArguments(
+        "This scenario currently supports mock source only.",
+        "Use tv_fetch " + std::string(scenario::CommandName(kind)) +
+            " --source mock [--format json|pretty].");
   }
 
   return command;
@@ -1352,7 +1368,7 @@ JsonValue WeatherDescribeDocument() {
       "weather",
       "Fetch and normalize Korea-first weather context for TV composition.",
       true,
-      "mock",
+      "open-meteo",
       MakeArray({JsonValue::String("mock"), JsonValue::String("open-meteo")}),
       MakeArray({
           MakeObject({
@@ -1426,7 +1442,7 @@ JsonValue NewsDescribeDocument() {
       "news",
       "Fetch headline-first news context for TV composition.",
       true,
-      "mock",
+      "yonhap-rss",
       MakeArray({JsonValue::String("mock"),
                  JsonValue::String("yonhap-rss"),
                  JsonValue::String("google-news-rss")}),
@@ -1494,7 +1510,7 @@ JsonValue FinanceDescribeDocument() {
       "finance",
       "Fetch KRW-first finance context for TV composition.",
       true,
-      "mock",
+      "naver-public",
       MakeArray(
           {JsonValue::String("mock"), JsonValue::String("naver-public")}),
       MakeArray({
@@ -1547,7 +1563,7 @@ JsonValue CommuteDescribeDocument() {
       "commute",
       "Fetch route and departure recommendation context for TV composition.",
       true,
-      "mock",
+      "osrm",
       MakeArray({JsonValue::String("mock"), JsonValue::String("osrm")}),
       MakeArray({
           MakeObject({
@@ -1624,7 +1640,7 @@ JsonValue SportsDescribeDocument() {
       "sports",
       "Fetch league-first sports context for TV composition.",
       true,
-      "mock",
+      "thesportsdb",
       MakeArray({JsonValue::String("mock"), JsonValue::String("thesportsdb")}),
       MakeArray({
           MakeObject({
@@ -1684,7 +1700,7 @@ JsonValue ScheduleDescribeDocument() {
       "schedule",
       "Fetch schedule briefing context from mock or live ICS feeds.",
       true,
-      "mock",
+      "ics-url",
       MakeArray({JsonValue::String("mock"),
                  JsonValue::String("ics-url"),
                  JsonValue::String("ics-file")}),
@@ -1761,7 +1777,7 @@ JsonValue TravelDescribeDocument() {
       "travel",
       "Fetch airport departure helper context from bundled mock data or live airport.kr feeds.",
       true,
-      "mock",
+      "airport-kr",
       MakeArray({JsonValue::String("mock"), JsonValue::String("airport-kr")}),
       MakeArray({
           MakeObject({
@@ -1858,7 +1874,7 @@ JsonValue EmergencyDescribeDocument() {
       "emergency",
       "Fetch high-priority emergency context from bundled mock data or official KMA sources.",
       true,
-      "mock",
+      "kma-combined",
       MakeArray({JsonValue::String("mock"),
                  JsonValue::String("kma-special-report"),
                  JsonValue::String("kma-earthquake"),
@@ -1925,7 +1941,7 @@ JsonValue DailyDescribeDocument() {
       "daily",
       "Fetch a morning digest from bundled mock data or compose-live weather, news, schedule, and commute sources.",
       true,
-      "mock",
+      "compose-live",
       MakeArray({JsonValue::String("mock"), JsonValue::String("compose-live")}),
       MakeArray({
           MakeObject({
@@ -2122,7 +2138,8 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
 std::string RenderHelp() {
   std::ostringstream stream;
   stream << "tv_fetch\n"
-         << "Agent-friendly CLI for fetching normalized TV domain context.\n\n"
+         << "Agent-friendly CLI for fetching normalized TV domain context.\n"
+         << "Live sources are the default when available. Mock-only scenarios must use --source mock explicitly.\n\n"
          << "Commands:\n"
          << "  describe [weather|news|finance|commute|sports] [--format json|pretty]\n"
          << "  weather [--source mock|open-meteo] [--city ...] [--district ...]\n"
@@ -2151,8 +2168,8 @@ std::string RenderHelp() {
          << "  daily [--source mock|compose-live] [--weather-source ...]\n"
          << "        [--news-source ...] [--schedule-source ...] [--commute-source ...]\n"
          << "        [--city ...] [--district ...] [--dry-run] [--format json|pretty]\n"
-         << "  family|meal-delivery|media|shopping|smart-home|wellness\n"
-         << "         [--source mock] [--dry-run] [--format json|pretty]\n";
+          << "  family|meal-delivery|media|shopping|smart-home|wellness\n"
+         << "         --source mock [--dry-run] [--format json|pretty]\n";
   return stream.str();
 }
 
