@@ -68,45 +68,21 @@ Map common Korean requests like this:
 If no supported domain is clear, ask a short clarification question instead of
 guessing.
 
-## Missing Input Rules
-
-Follow the fetch contract, not intuition.
-
-- `weather`: if the location is missing, ask which city or district to use.
-- `news`: if the user only says `뉴스 보여줘`, latest headlines are fine without
-  a query. If the user implies a topic search but omits the keyword, ask for
-  the keyword.
-- `schedule`: do not invent a personal calendar source. Ask for an ICS URL,
-  ICS file path, or whether mock/demo data is acceptable.
-- `commute`: never call the domain without both `origin` and `destination`.
-  Ask only for the missing side first.
-- `finance`: if the user names specific stocks or a watchlist, honor it. If
-  the request is broad, a market-style snapshot is fine.
-- `travel`: ask for the most important missing discriminator such as flight
-  number, date, or terminal.
-- `daily`: if personal schedule or commute inputs are unavailable, explicitly
-  use `mock` or `skip` sub-sources instead of inventing them.
-- `family`, `meal-delivery`, `media`, `shopping`, `smart-home`, `wellness`:
-  these are currently mock-only. Pass `--source mock` explicitly.
-
 ## Fetch Step
 
-Run `describe` first when you do not already know the current CLI shape from
-this turn. Then fetch the actual JSON with `--format json`.
+Do not duplicate the fetch contract here. Follow `tv-fetch` for
+domain-specific parameters, live-vs-mock source choices, and missing-input
+questions.
 
-Examples:
+Keep only these launcher-specific fetch reminders:
 
-```bash
-tv_fetch weather --city 서울 --district 강남구 --format json
-tv_fetch news --query 반도체 --count 6 --format json
-tv_fetch schedule --source mock --format json
-tv_fetch commute --origin '망포역' --destination '서초구청' --format json
-tv_fetch daily --source compose-live --schedule-source skip --commute-source skip --format json
-```
-
-Prefer live sources when the user asked for current real-world information and
-the domain supports live data. Use mock data for mock-only domains, demo
-requests, or when the user explicitly asks for mock data.
+- Run `tv_fetch describe` first when the current domain contract is not already
+  clear in this turn.
+- Fetch the actual payload with `--format json`.
+- Ask at most one short follow-up question when a required fetch input is
+  missing.
+- Do not invent personal inputs such as location, route endpoints, watchlists,
+  calendar sources, or flight details.
 
 ## A2UI Step
 
