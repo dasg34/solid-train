@@ -97,5 +97,54 @@ void main() {
         ),
       );
     });
+
+    test('throws a helpful error for Markdown-wrapped payloads', () {
+      final fencedPayload = [
+        '```json',
+        jsonEncode({
+          'version': 'v0.9',
+          'createSurface': {
+            'surfaceId': 'test_surface',
+            'catalogId': 'test_catalog',
+          },
+        }),
+        '```',
+      ].join('\n');
+
+      expect(
+        () => parseNdjson(fencedPayload),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains('Markdown-wrapped'),
+          ),
+        ),
+      );
+    });
+
+    test('throws a helpful error for json-labeled payloads', () {
+      final labeledPayload = [
+        'json',
+        jsonEncode({
+          'version': 'v0.9',
+          'createSurface': {
+            'surfaceId': 'test_surface',
+            'catalogId': 'test_catalog',
+          },
+        }),
+      ].join('\n');
+
+      expect(
+        () => parseNdjson(labeledPayload),
+        throwsA(
+          isA<FormatException>().having(
+            (error) => error.message,
+            'message',
+            contains('prefixed with a json label'),
+          ),
+        ),
+      );
+    });
   });
 }

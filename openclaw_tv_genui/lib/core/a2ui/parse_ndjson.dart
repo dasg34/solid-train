@@ -5,8 +5,23 @@ import 'package:genui/genui.dart';
 /// Parses an NDJSON string into a list of [A2uiMessage].
 List<A2uiMessage> parseNdjson(String ndjson) {
   final normalized = ndjson.trimLeft().replaceFirst(_utf8Bom, '');
-  if (normalized.trim().isEmpty) {
+  final trimmed = normalized.trim();
+  if (trimmed.isEmpty) {
     return const <A2uiMessage>[];
+  }
+
+  if (_looksLikeMarkdownWrappedPayload(trimmed)) {
+    throw const FormatException(
+      'Received Markdown-wrapped A2UI payload. Remove code fences like '
+      '```json ... ``` or \'\'\'json ... \'\'\' and pass raw NDJSON only.',
+    );
+  }
+
+  if (_looksLikeJsonLabeledPayload(trimmed)) {
+    throw const FormatException(
+      'Received an A2UI payload prefixed with a json label. Pass raw NDJSON '
+      'only, without a leading "json" line or other wrapper text.',
+    );
   }
 
   final wholeJson = _tryDecodeWholeJson(normalized);
@@ -69,6 +84,23 @@ bool _looksLikeA2uiEnvelope(Map<String, dynamic> json) {
   };
 
   return json.containsKey('version') || messageKeys.any(json.containsKey);
+}
+
+bool _looksLikeMarkdownWrappedPayload(String source) =>
+    source.startsWith('```') || source.startsWith("'''");
+
+bool _looksLikeJsonLabeledPayload(String source) {
+  final lower = source.toLowerCase();
+  if (!lower.startsWith('json')) {
+    return false;
+  }
+
+  if (lower.length == 4) {
+    return true;
+  }
+
+  final next = lower[4];
+  return next == '\n' || next == '\r' || next == ' ' || next == '\t';
 }
 
 const String _utf8Bom = '\uFEFF';

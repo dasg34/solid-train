@@ -31,6 +31,17 @@ generation to launch without requiring other skills to be loaded.
 8. Launch: `cat <file> | tv_a2ui_launcher`
 9. Report domain, source, file path, validation, and launch result.
 
+## Raw NDJSON Only
+
+The payload that gets saved, validated, and launched must be raw NDJSON only.
+
+- Do NOT save or pipe Markdown code fences such as ```json ... ``` or
+  '''json ... '''.
+- Do NOT prefix the payload with `json`, commentary, bullets, or headings.
+- The file content must start with `{` on the first line.
+- If fenced output appears by accident, treat it as invalid output and
+  regenerate the payload in raw NDJSON form before saving it.
+
 ## Domain Routing
 
 Map Korean noun phrases to domains:

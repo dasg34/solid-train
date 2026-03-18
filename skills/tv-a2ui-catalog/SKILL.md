@@ -22,6 +22,19 @@ Do not invent required rendering inputs just to complete the JSON.
 - If the user asked for a vague shape like "보여줘" but the domain is clear, you may choose a reasonable `pattern`.
 - Keep the follow-up short and targeted to the single missing piece.
 
+## Raw Output Rule
+
+When producing the final payload, emit raw NDJSON only.
+
+- Do NOT wrap the payload in Markdown code fences such as ```json ... ``` or
+  '''json ... '''.
+- Do NOT add a `json` label, backticks, prose, bullets, or any explanation
+  before or after the payload.
+- The first character of the payload must be `{`.
+- Every output line must be a JSON object.
+- The fenced examples in this skill are documentation examples only. They are
+  not the required final output format.
+
 ## A2UI Protocol
 
 Generate three NDJSON messages (one JSON object per line) in this order:
