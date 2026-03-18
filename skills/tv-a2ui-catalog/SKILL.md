@@ -225,6 +225,15 @@ Compact trend chart for ordered numeric values.
 Use for short time-series such as hourly weather, 5-day exchange trend, or
 weekly activity movement. Prefer 4-8 points for TV readability.
 
+Do not place a line chart on screen by itself.
+
+- Pair it with a visible chart title that explains what the numbers represent.
+- Include adjacent summary values such as current, high, low, change, or
+  baseline context in text components outside the chart itself.
+- Prefer the composition `Card -> Inset -> Column -> [title, summary row, chart]`.
+- If the numeric unit matters, spell it out in nearby text such as `기온(°C)`,
+  `변동률(%)`, or `강수확률(%)`.
+
 ### BarChart
 
 Compact comparison chart for category values.
@@ -242,6 +251,15 @@ Compact comparison chart for category values.
 
 Use for comparisons such as stock moves, category scores, spending buckets, or
 temperature/rain probability by slot. Keep label count low, usually 3-6.
+
+Do not place a bar chart on screen by itself.
+
+- Add a title that names the metric and comparison group.
+- Add nearby text for max/min/change interpretation when the bars alone would
+  be ambiguous.
+- Prefer the composition `Card -> Inset -> Column -> [title, summary row, chart]`.
+- If positive/negative direction matters, make that explicit in surrounding
+  text instead of relying only on color.
 
 ## Data Binding
 
@@ -291,6 +309,8 @@ This renders one `itemRow` component per entry in the `/items` array.
   text, icons, and charts do not touch card edges
 - **Glanceable** — keep under ~40 components per surface
 - **Chart restraint** — one chart per card is usually enough on TV
+- **Chart context** — every chart should have a title and nearby summary
+  numbers so the viewer can tell what the graph measures
 - **No walls of text** — short labels, concise values
 - **Selective data use** — show only the data that strengthens the current
   surface; not every fetched field must be displayed
@@ -326,6 +346,8 @@ The TV app applies a themed background based on `theme.domain`:
 - Do NOT leave major sections as bare `Column` or `Row` blocks when a `Card`
   would create clearer grouping
 - Do NOT place dense card content directly against card edges without `Inset`
+- Do NOT place a chart by itself without a title or summary values explaining
+  what the viewer is looking at
 - Do NOT send chart arrays of mismatched lengths unless labels are optional
 - Do NOT cram dense dashboards with many tiny charts onto one TV surface
 - Do NOT try to display every available field if it weakens clarity

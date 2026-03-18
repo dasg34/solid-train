@@ -143,6 +143,8 @@ padding.
 - A good default is `Inset all: 24`, then adjust upward for denser content.
 - In side panels and center-card layouts, be especially aggressive about using
   cards for section separation.
+- Charts should usually live inside the same card as their title and summary
+  values, not as a naked graph block.
 
 ## Components
 
@@ -191,10 +193,12 @@ Optional: `variant` (primary|borderless).
 **LineChart** — Trend line for ordered numeric values.
 `values`: number array or `{"path": "/key"}`.
 Optional: `labels`, `height` (120-160), `strokeColor`, `fillStartColor`, `fillEndColor`, `showGrid`, `showLabels`.
+Do not emit a line chart without nearby text explaining the metric and key values.
 
 **BarChart** — Comparison bars for category values.
 `values`: number array or `{"path": "/key"}`.
 Optional: `labels`, `height` (120-160), `positiveColor`, `negativeColor`, `baselineColor`, `showGrid`, `showLabels`.
+Do not emit a bar chart without a title and nearby max/min or change summary text.
 
 ### Valid Icon Names
 

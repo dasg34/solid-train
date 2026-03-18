@@ -286,10 +286,18 @@ class _LineChartPanel extends StatelessWidget {
         _parseHexColor(fillStartColor) ??
         theme.colorScheme.primary.withValues(alpha: 0.28);
     final areaBottomColor = _parseHexColor(fillEndColor) ?? Colors.transparent;
+    final stats = values.isEmpty
+        ? const <_ChartStat>[]
+        : <_ChartStat>[
+            _ChartStat('최근', _formatChartValue(values.last)),
+            _ChartStat('최고', _formatChartValue(values.reduce(math.max))),
+            _ChartStat('최저', _formatChartValue(values.reduce(math.min))),
+          ];
 
     return _ChartShell(
       height: height,
       labels: labels,
+      stats: stats,
       showLabels: showLabels,
       hasData: values.isNotEmpty,
       emptyStateLabel: '차트 데이터 없음',
@@ -301,6 +309,7 @@ class _LineChartPanel extends StatelessWidget {
           areaBottomColor: areaBottomColor,
           gridColor: Colors.white.withValues(alpha: 0.08),
           pointColor: theme.colorScheme.onSurface,
+          valueLabelColor: theme.colorScheme.onSurface.withValues(alpha: 0.96),
           showGrid: showGrid,
         ),
       ),
@@ -340,10 +349,29 @@ class _BarChartPanel extends StatelessWidget {
         theme.colorScheme.error.withValues(alpha: 0.90);
     final zeroColor =
         _parseHexColor(baselineColor) ?? Colors.white.withValues(alpha: 0.18);
+    final stats = values.isEmpty
+        ? const <_ChartStat>[]
+        : <_ChartStat>[
+            _ChartStat(
+              '최대',
+              _formatChartValue(values.reduce(math.max), signed: true),
+            ),
+            _ChartStat(
+              '최소',
+              _formatChartValue(values.reduce(math.min), signed: true),
+            ),
+            _ChartStat(
+              '범위',
+              _formatChartValue(
+                values.reduce(math.max) - values.reduce(math.min),
+              ),
+            ),
+          ];
 
     return _ChartShell(
       height: height,
       labels: labels,
+      stats: stats,
       showLabels: showLabels,
       hasData: values.isNotEmpty,
       emptyStateLabel: '비교 데이터 없음',
@@ -354,6 +382,8 @@ class _BarChartPanel extends StatelessWidget {
           negativeColor: downColor,
           baselineColor: zeroColor,
           gridColor: Colors.white.withValues(alpha: 0.08),
+          valueLabelColor: theme.colorScheme.onSurface.withValues(alpha: 0.96),
+          showSignedValueLabels: values.any((value) => value < 0),
           showGrid: showGrid,
         ),
       ),
@@ -365,6 +395,7 @@ class _ChartShell extends StatelessWidget {
   const _ChartShell({
     required this.height,
     required this.labels,
+    required this.stats,
     required this.showLabels,
     required this.hasData,
     required this.emptyStateLabel,
@@ -373,6 +404,7 @@ class _ChartShell extends StatelessWidget {
 
   final double height;
   final List<String> labels;
+  final List<_ChartStat> stats;
   final bool showLabels;
   final bool hasData;
   final String emptyStateLabel;
@@ -382,7 +414,8 @@ class _ChartShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final hasLabels = showLabels && labels.isNotEmpty;
-    final chartHeight = hasLabels ? height - 30 : height;
+    final hasStats = stats.isNotEmpty;
+    final chartHeight = height - (hasStats ? 58 : 0) - (hasLabels ? 30 : 0);
 
     return Container(
       width: double.infinity,
@@ -396,6 +429,10 @@ class _ChartShell extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (hasStats) ...[
+            _ChartStatsRow(stats: stats),
+            const SizedBox(height: 10),
+          ],
           Expanded(
             child: chartHeight <= 24
                 ? const SizedBox.shrink()
@@ -444,6 +481,70 @@ class _ChartShell extends StatelessWidget {
   }
 }
 
+class _ChartStat {
+  const _ChartStat(this.label, this.value);
+
+  final String label;
+  final String value;
+}
+
+class _ChartStatsRow extends StatelessWidget {
+  const _ChartStatsRow({required this.stats});
+
+  final List<_ChartStat> stats;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: stats
+          .map(
+            (stat) => Expanded(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: Colors.white.withValues(alpha: 0.05),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.06),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      stat.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.64),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      stat.value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.95),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
 class _LineChartPainter extends CustomPainter {
   const _LineChartPainter({
     required this.values,
@@ -452,6 +553,7 @@ class _LineChartPainter extends CustomPainter {
     required this.areaBottomColor,
     required this.gridColor,
     required this.pointColor,
+    required this.valueLabelColor,
     required this.showGrid,
   });
 
@@ -461,6 +563,7 @@ class _LineChartPainter extends CustomPainter {
   final Color areaBottomColor;
   final Color gridColor;
   final Color pointColor;
+  final Color valueLabelColor;
   final bool showGrid;
 
   @override
@@ -469,13 +572,27 @@ class _LineChartPainter extends CustomPainter {
       return;
     }
 
+    const horizontalPadding = 10.0;
+    const labelBandHeight = 22.0;
+    const plotTopPadding = labelBandHeight + 10.0;
+    const plotBottomPadding = 8.0;
+    final plotWidth = math.max(size.width - horizontalPadding * 2, 1.0);
+    final plotHeight = math.max(
+      size.height - plotTopPadding - plotBottomPadding,
+      1.0,
+    );
+
     if (showGrid) {
       final gridPaint = Paint()
         ..color = gridColor
         ..strokeWidth = 1;
       for (var i = 0; i < 4; i++) {
-        final y = size.height * (i / 3);
-        canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+        final y = plotTopPadding + plotHeight * (i / 3);
+        canvas.drawLine(
+          Offset(horizontalPadding, y),
+          Offset(size.width - horizontalPadding, y),
+          gridPaint,
+        );
       }
     }
 
@@ -486,10 +603,16 @@ class _LineChartPainter extends CustomPainter {
     Offset pointFor(int index) {
       final x = values.length == 1
           ? size.width / 2
-          : size.width * index / (values.length - 1);
+          : horizontalPadding + plotWidth * index / (values.length - 1);
       final normalized = (values[index] - minValue) / range;
-      final y = size.height - (normalized * (size.height - 8)) - 4;
-      return Offset(x, y.clamp(4, size.height - 4).toDouble());
+      final y =
+          plotTopPadding + plotHeight - (normalized * (plotHeight - 8)) - 4;
+      return Offset(
+        x,
+        y
+            .clamp(plotTopPadding + 4, size.height - plotBottomPadding - 4)
+            .toDouble(),
+      );
     }
 
     final points = List<Offset>.generate(values.length, pointFor);
@@ -544,6 +667,17 @@ class _LineChartPainter extends CustomPainter {
       canvas.drawCircle(point, 4.5, haloPaint);
       canvas.drawCircle(point, 2.2, pointPaint);
     }
+
+    for (var i = 0; i < points.length; i++) {
+      _paintChartValueChip(
+        canvas,
+        size,
+        centerX: points[i].dx,
+        top: points[i].dy - 24,
+        text: _formatChartValue(values[i]),
+        textColor: valueLabelColor,
+      );
+    }
   }
 
   @override
@@ -554,6 +688,7 @@ class _LineChartPainter extends CustomPainter {
         oldDelegate.areaBottomColor != areaBottomColor ||
         oldDelegate.gridColor != gridColor ||
         oldDelegate.pointColor != pointColor ||
+        oldDelegate.valueLabelColor != valueLabelColor ||
         oldDelegate.showGrid != showGrid;
   }
 }
@@ -565,6 +700,8 @@ class _BarChartPainter extends CustomPainter {
     required this.negativeColor,
     required this.baselineColor,
     required this.gridColor,
+    required this.valueLabelColor,
+    required this.showSignedValueLabels,
     required this.showGrid,
   });
 
@@ -573,6 +710,8 @@ class _BarChartPainter extends CustomPainter {
   final Color negativeColor;
   final Color baselineColor;
   final Color gridColor;
+  final Color valueLabelColor;
+  final bool showSignedValueLabels;
   final bool showGrid;
 
   @override
@@ -581,18 +720,22 @@ class _BarChartPainter extends CustomPainter {
       return;
     }
 
+    const topPadding = 18.0;
+    const bottomPadding = 20.0;
+    final plotHeight = math.max(size.height - topPadding - bottomPadding, 1.0);
+
     final minValue = math.min(0, values.reduce(math.min));
     final maxValue = math.max(0, values.reduce(math.max));
     final range = math.max(maxValue - minValue, 0.001);
     double yFor(double value) =>
-        size.height - ((value - minValue) / range) * size.height;
+        topPadding + plotHeight - ((value - minValue) / range) * plotHeight;
 
     if (showGrid) {
       final gridPaint = Paint()
         ..color = gridColor
         ..strokeWidth = 1;
       for (var i = 0; i < 4; i++) {
-        final y = size.height * (i / 3);
+        final y = topPadding + plotHeight * (i / 3);
         canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
       }
     }
@@ -624,6 +767,15 @@ class _BarChartPainter extends CustomPainter {
       );
       final paint = Paint()..color = value >= 0 ? positiveColor : negativeColor;
       canvas.drawRRect(rect, paint);
+
+      _paintChartValueChip(
+        canvas,
+        size,
+        centerX: rect.center.dx,
+        top: value >= 0 ? rect.top - 24 : rect.bottom + 6,
+        text: _formatChartValue(value, signed: showSignedValueLabels),
+        textColor: valueLabelColor,
+      );
     }
   }
 
@@ -634,6 +786,8 @@ class _BarChartPainter extends CustomPainter {
         oldDelegate.negativeColor != negativeColor ||
         oldDelegate.baselineColor != baselineColor ||
         oldDelegate.gridColor != gridColor ||
+        oldDelegate.valueLabelColor != valueLabelColor ||
+        oldDelegate.showSignedValueLabels != showSignedValueLabels ||
         oldDelegate.showGrid != showGrid;
   }
 }
@@ -675,4 +829,57 @@ Color? _parseHexColor(String? value) {
     return null;
   }
   return Color(parsed);
+}
+
+String _formatChartValue(double value, {bool signed = false}) {
+  final rounded = value == value.roundToDouble();
+  final text = rounded ? value.toStringAsFixed(0) : value.toStringAsFixed(1);
+  if (signed && value > 0) {
+    return '+$text';
+  }
+  return text;
+}
+
+void _paintChartValueChip(
+  Canvas canvas,
+  Size size, {
+  required double centerX,
+  required double top,
+  required String text,
+  required Color textColor,
+}) {
+  final textPainter = TextPainter(
+    text: TextSpan(
+      text: text,
+      style: TextStyle(
+        color: textColor,
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        height: 1,
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+    maxLines: 1,
+  )..layout();
+
+  const horizontalPadding = 7.0;
+  const verticalPadding = 4.0;
+  final chipWidth = textPainter.width + horizontalPadding * 2;
+  final chipHeight = textPainter.height + verticalPadding * 2;
+  final left = (centerX - chipWidth / 2).clamp(0.0, size.width - chipWidth);
+  final clampedTop = top.clamp(0.0, size.height - chipHeight);
+  final rect = RRect.fromRectAndRadius(
+    Rect.fromLTWH(left, clampedTop, chipWidth, chipHeight),
+    const Radius.circular(999),
+  );
+
+  final backgroundPaint = Paint()
+    ..color = Colors.black.withValues(alpha: 0.34)
+    ..style = PaintingStyle.fill;
+  canvas.drawRRect(rect, backgroundPaint);
+
+  textPainter.paint(
+    canvas,
+    Offset(left + horizontalPadding, clampedTop + verticalPadding),
+  );
 }
