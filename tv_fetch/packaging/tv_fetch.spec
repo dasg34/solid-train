@@ -19,7 +19,8 @@ also bundles mock-ready scenario payloads for family, meal-delivery, media,
 shopping, smart-home, and wellness surfaces.
 
 %prep
-%autosetup
+%setup -q
+cp %{SOURCE1001} .
 
 %build
 meson setup builddir \
