@@ -1,2 +1,5 @@
-# GBS packaging manifest for tv_fetch.
-# This package builds a native RPM CLI and does not use tizen-manifest.xml.
+<manifest>
+  <request>
+    <domain name="_"/>
+  </request>
+</manifest>
