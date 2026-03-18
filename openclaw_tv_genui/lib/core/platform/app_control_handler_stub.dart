@@ -1,11 +1,13 @@
 import 'dart:async';
 
-class AppControlHandler {
-  final _filePathController = StreamController<String>.broadcast();
+import 'received_a2ui_payload.dart';
 
-  Stream<String> get onFileReceived => _filePathController.stream;
+class AppControlHandler {
+  final _payloadController = StreamController<ReceivedA2uiPayload>.broadcast();
+
+  Stream<ReceivedA2uiPayload> get onPayloadReceived => _payloadController.stream;
 
   void dispose() {
-    _filePathController.close();
+    _payloadController.close();
   }
 }

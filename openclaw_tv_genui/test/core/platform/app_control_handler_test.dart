@@ -10,10 +10,10 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('AppControlHandler', () {
-    test('onFileReceived is a broadcast stream', () {
+    test('onPayloadReceived is a broadcast stream', () {
       final handler = AppControlHandler();
-      final sub1 = handler.onFileReceived.listen((_) {});
-      final sub2 = handler.onFileReceived.listen((_) {});
+      final sub1 = handler.onPayloadReceived.listen((_) {});
+      final sub2 = handler.onPayloadReceived.listen((_) {});
 
       // Both subscriptions active = broadcast stream works.
       sub1.cancel();
@@ -26,7 +26,7 @@ void main() {
       handler.dispose();
 
       final completer = Completer<bool>();
-      handler.onFileReceived.listen(
+      handler.onPayloadReceived.listen(
         (_) {},
         onDone: () => completer.complete(true),
       );

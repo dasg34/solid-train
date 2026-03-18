@@ -13,7 +13,6 @@ enum class OutputFormat { kJson, kPretty };
 struct LaunchCommand {
   std::string app_id = "com.example_tv_genui";
   std::string input_file;
-  std::string output_file;
   OutputFormat format = OutputFormat::kJson;
   bool dry_run = false;
 };

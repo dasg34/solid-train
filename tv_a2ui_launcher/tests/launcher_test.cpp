@@ -1,6 +1,4 @@
 #include <cstdlib>
-#include <filesystem>
-#include <fstream>
 #include <iostream>
 #include <sstream>
 
@@ -34,14 +32,7 @@ void TestParseCommand() {
 }
 
 void TestPreparePayloadFromStdin() {
-  const auto temp_root =
-      std::filesystem::temp_directory_path() / "tv_a2ui_launcher_tests";
-  std::filesystem::create_directories(temp_root);
-  const auto output_path = temp_root / "payload.ndjson";
-
   tv_a2ui_launcher::LaunchCommand command;
-  command.output_file = output_path.string();
-
   std::istringstream input(
       "{\"createSurface\":{\"surfaceId\":\"demo\"}}\n"
       "{\"updateDataModel\":{\"state\":{\"title\":\"hello\"}}}\n");
@@ -52,17 +43,9 @@ void TestPreparePayloadFromStdin() {
   const auto& payload =
       std::get<tv_a2ui_launcher::PersistedPayload>(prepared);
   Assert(payload.used_stdin, "stdin flag should be true");
-  Assert(payload.file_path == output_path.string(),
-         "output path should match request");
-  Assert(std::filesystem::exists(output_path), "output file should exist");
-
-  std::ifstream saved(output_path, std::ios::binary);
-  std::ostringstream contents;
-  contents << saved.rdbuf();
-  Assert(contents.str().find("\"surfaceId\":\"demo\"") != std::string::npos,
-         "saved payload should contain the NDJSON content");
-
-  std::filesystem::remove_all(temp_root);
+  Assert(payload.source_label == "stdin", "source label should identify stdin");
+  Assert(payload.json.find("\"surfaceId\":\"demo\"") != std::string::npos,
+         "prepared payload should keep the NDJSON content");
 }
 
 void TestDryRunLaunch() {
@@ -70,7 +53,8 @@ void TestDryRunLaunch() {
   command.dry_run = true;
 
   tv_a2ui_launcher::PersistedPayload payload{
-      .file_path = "/tmp/a2ui.json",
+      .json = "{\"createSurface\":{\"surfaceId\":\"demo\"}}\n",
+      .source_label = "stdin",
       .bytes = 42,
       .used_stdin = true,
   };
@@ -82,6 +66,7 @@ void TestDryRunLaunch() {
       std::get<tv_a2ui_launcher::LaunchReport>(launched);
   Assert(!report.launched, "dry-run should not send launch request");
   Assert(report.bytes == 42, "report should preserve byte count");
+  Assert(report.source_label == "stdin", "report should preserve source label");
 }
 
 }  // namespace

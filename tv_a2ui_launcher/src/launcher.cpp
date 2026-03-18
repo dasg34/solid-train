@@ -1,7 +1,6 @@
 #include "tv_a2ui_launcher/launcher.hpp"
 
 #include <cctype>
-#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <optional>
@@ -80,16 +79,6 @@ bool HasContent(std::string_view value) {
   return false;
 }
 
-std::filesystem::path DefaultOutputPath() {
-  const auto temp_root = std::filesystem::temp_directory_path();
-  const auto dir = temp_root / "tv_a2ui_launcher";
-  std::filesystem::create_directories(dir);
-  const auto timestamp = std::to_string(
-      static_cast<long long>(std::time(nullptr)));
-  const auto pid = std::to_string(static_cast<long long>(::getpid()));
-  return dir / ("payload_" + timestamp + "_" + pid + ".ndjson");
-}
-
 #if TV_A2UI_LAUNCHER_HAS_APP_CONTROL
 std::optional<std::string> TizenErrorHint(int code) {
   switch (code) {
@@ -112,16 +101,7 @@ std::optional<std::string> TizenErrorHint(int code) {
 std::variant<PersistedPayload, AppError> PreparePayload(
     const LaunchCommand& command, std::istream& input) {
   if (!command.input_file.empty()) {
-    const std::filesystem::path path(command.input_file);
-    if (!std::filesystem::exists(path)) {
-      return MakeError(
-          "input_file_missing",
-          "The specified input file does not exist.",
-          command.input_file,
-          3);
-    }
-
-    std::ifstream file(path, std::ios::binary);
+    std::ifstream file(command.input_file, std::ios::binary);
     if (!file) {
       return MakeError(
           "input_file_unreadable",
@@ -140,7 +120,8 @@ std::variant<PersistedPayload, AppError> PreparePayload(
     }
 
     return PersistedPayload{
-        .file_path = path.string(),
+        .json = content,
+        .source_label = command.input_file,
         .bytes = content.size(),
         .used_stdin = false,
     };
@@ -163,24 +144,9 @@ std::variant<PersistedPayload, AppError> PreparePayload(
         3);
   }
 
-  const std::filesystem::path output_path =
-      command.output_file.empty() ? DefaultOutputPath()
-                                  : std::filesystem::path(command.output_file);
-  std::filesystem::create_directories(output_path.parent_path());
-
-  std::ofstream output(output_path, std::ios::binary);
-  if (!output) {
-    return MakeError(
-        "output_file_unwritable",
-        "Failed to create the persisted payload file.",
-        output_path.string(),
-        3);
-  }
-  output << content;
-  output.close();
-
   return PersistedPayload{
-      .file_path = output_path.string(),
+      .json = content,
+      .source_label = "stdin",
       .bytes = content.size(),
       .used_stdin = true,
   };
@@ -190,7 +156,7 @@ std::variant<LaunchReport, AppError> LaunchPayload(
     const LaunchCommand& command, const PersistedPayload& payload) {
   LaunchReport report{
       .app_id = command.app_id,
-      .file_path = payload.file_path,
+      .source_label = payload.source_label,
       .bytes = payload.bytes,
       .used_stdin = payload.used_stdin,
       .platform_supported = TV_A2UI_LAUNCHER_HAS_APP_CONTROL != 0,
@@ -235,12 +201,12 @@ std::variant<LaunchReport, AppError> LaunchPayload(
         4);
   }
 
-  ret = app_control_add_extra_data(app_control, "file", payload.file_path.c_str());
+  ret = app_control_add_extra_data(app_control, "json", payload.json.c_str());
   if (ret != APP_CONTROL_ERROR_NONE) {
     destroy();
     return MakeError(
         "app_control_extra_data_failed",
-        "Failed to attach the payload file path as extra data.",
+        "Failed to attach the raw A2UI JSON as extra data.",
         "app_control_add_extra_data error=" + std::to_string(ret),
         4);
   }
@@ -277,7 +243,8 @@ std::string RenderReport(const LaunchReport& report, OutputFormat format) {
       << newline
       << indent << "\"ok\": true," << newline
       << indent << "\"app_id\": \"" << EscapeJson(report.app_id) << "\"," << newline
-      << indent << "\"file\": \"" << EscapeJson(report.file_path) << "\"," << newline
+      << indent << "\"source\": \"" << EscapeJson(report.source_label) << "\"," << newline
+      << indent << "\"extra_data_key\": \"json\"," << newline
       << indent << "\"bytes\": " << report.bytes << "," << newline
       << indent << "\"used_stdin\": " << (report.used_stdin ? "true" : "false") << "," << newline
       << indent << "\"launched\": " << (report.launched ? "true" : "false") << "," << newline

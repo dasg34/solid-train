@@ -11,14 +11,15 @@
 namespace tv_a2ui_launcher {
 
 struct PersistedPayload {
-  std::string file_path;
+  std::string json;
+  std::string source_label;
   std::size_t bytes = 0;
   bool used_stdin = false;
 };
 
 struct LaunchReport {
   std::string app_id;
-  std::string file_path;
+  std::string source_label;
   std::size_t bytes = 0;
   bool used_stdin = false;
   bool launched = false;

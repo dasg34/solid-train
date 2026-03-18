@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:tizen_app_control/tizen_app_control.dart';
 
 import '../logging/app_logger.dart';
+import 'received_a2ui_payload.dart';
 
 class AppControlHandler {
-  final _filePathController = StreamController<String>.broadcast();
+  final _payloadController = StreamController<ReceivedA2uiPayload>.broadcast();
 
-  Stream<String> get onFileReceived => _filePathController.stream;
+  Stream<ReceivedA2uiPayload> get onPayloadReceived => _payloadController.stream;
 
   StreamSubscription<ReceivedAppControl>? _sub;
 
@@ -24,19 +25,29 @@ class AppControlHandler {
                 'extraKeys=${request.extraData.keys.toList()}',
           );
 
+          final rawJson = request.extraData['json'];
+          if (rawJson is String && rawJson.trim().isNotEmpty) {
+            AppLogger.info(
+              'app_control',
+              'Forwarding raw A2UI JSON from AppControl: ${rawJson.length} chars',
+            );
+            _payloadController.add(ReceivedA2uiPayload(rawJson: rawJson));
+            return;
+          }
+
           final filePath = request.extraData['file'];
           if (filePath is String && filePath.isNotEmpty) {
             AppLogger.info(
               'app_control',
               'Forwarding payload file from AppControl: $filePath',
             );
-            _filePathController.add(filePath);
+            _payloadController.add(ReceivedA2uiPayload(filePath: filePath));
             return;
           }
 
           AppLogger.warn(
             'app_control',
-            'Received AppControl without a usable "file" extra.',
+            'Received AppControl without a usable "json" or "file" extra.',
           );
         },
         onError: (Object error, StackTrace stackTrace) {
@@ -61,6 +72,6 @@ class AppControlHandler {
   void dispose() {
     AppLogger.info('app_control', 'Disposing AppControl handler.');
     _sub?.cancel();
-    _filePathController.close();
+    _payloadController.close();
   }
 }

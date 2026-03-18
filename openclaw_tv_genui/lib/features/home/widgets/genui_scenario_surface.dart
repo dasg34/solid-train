@@ -5,6 +5,7 @@ import '../../../core/a2ui/a2ui_payload_source.dart';
 import '../../../core/a2ui/chart_catalog_items.dart';
 import '../../../core/a2ui/file_payload_source.dart';
 import '../../../core/a2ui/layout_catalog_items.dart';
+import '../../../core/a2ui/parse_ndjson.dart';
 import '../../../core/a2ui/surface_style.dart';
 import '../../../core/logging/app_logger.dart';
 import '../models/scenario_entry.dart';
@@ -20,15 +21,23 @@ class GenUiScenarioSurface extends StatefulWidget {
     super.key,
   }) : _payloadSource = payloadSource,
        _scenario = scenario,
-       filePath = null;
+       filePath = null,
+       rawJson = null;
 
   const GenUiScenarioSurface.file({required this.filePath, super.key})
     : _payloadSource = null,
-      _scenario = null;
+      _scenario = null,
+      rawJson = null;
+
+  const GenUiScenarioSurface.raw({required this.rawJson, super.key})
+    : _payloadSource = null,
+      _scenario = null,
+      filePath = null;
 
   final A2uiPayloadSource? _payloadSource;
   final ScenarioEntry? _scenario;
   final String? filePath;
+  final String? rawJson;
 
   @override
   State<GenUiScenarioSurface> createState() => _GenUiScenarioSurfaceState();
@@ -76,6 +85,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   void didUpdateWidget(covariant GenUiScenarioSurface oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.filePath != widget.filePath ||
+        oldWidget.rawJson != widget.rawJson ||
         oldWidget._scenario?.id != widget._scenario?.id) {
       AppLogger.debug(
         'surface',
@@ -98,7 +108,9 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
     try {
       final List<A2uiMessage> messages;
 
-      if (widget.filePath != null) {
+      if (widget.rawJson != null) {
+        messages = parseNdjson(widget.rawJson!);
+      } else if (widget.filePath != null) {
         messages = await FilePayloadSource().loadFile(widget.filePath!);
       } else {
         messages = await widget._payloadSource!.load(widget._scenario!.id);
@@ -167,6 +179,9 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   }
 
   String _activeTargetDescription() {
+    if (widget.rawJson != null) {
+      return 'raw-json:${widget.rawJson!.length}chars';
+    }
     if (widget.filePath != null) {
       return 'file:${widget.filePath}';
     }
@@ -190,10 +205,14 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   @override
   Widget build(BuildContext context) {
     if (_hasError) {
-      final title = widget.filePath != null
+      final title = widget.rawJson != null
+          ? '외부 A2UI JSON을 불러올 수 없습니다.'
+          : widget.filePath != null
           ? '외부 A2UI 파일을 불러올 수 없습니다.'
           : '시나리오를 불러올 수 없습니다.';
-      final detail = widget.filePath != null
+      final detail = widget.rawJson != null
+          ? _errorDetail ?? '전달한 App Control JSON이 A2UI NDJSON인지 확인해 주세요.'
+          : widget.filePath != null
           ? _errorDetail ?? '전달한 파일이 A2UI NDJSON인지 확인해 주세요.'
           : '데이터 또는 템플릿 상태를 확인해 주세요.';
 
