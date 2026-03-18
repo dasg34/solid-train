@@ -129,6 +129,21 @@ Generate exactly three NDJSON lines (one JSON object per line):
 Background themes: `weather` → warm gradient, `news` → muted backdrop,
 `schedule` → cool backdrop, others → dark (#12212D).
 
+## Card-First Layout Rule
+
+When composing the final A2UI, prefer card-based sections with visible inner
+padding.
+
+- Major sections should usually be `Card` containers, not bare root-level text
+  blocks.
+- The safest default structure is `Card -> Inset -> Column` or
+  `Card -> Inset -> Row`.
+- Use `Inset` inside cards so text, icons, and charts do not touch the card
+  edge.
+- A good default is `Inset all: 24`, then adjust upward for denser content.
+- In side panels and center-card layouts, be especially aggressive about using
+  cards for section separation.
+
 ## Components
 
 11 allowed component types. Using any other type renders an error.
@@ -146,12 +161,14 @@ Optional: `justify` (start|center|end|spaceBetween|spaceAround), `align` (start|
 
 **Inset** — Padding wrapper for a single child.
 `child`: single component ID. Optional: `all`, `horizontal`, `vertical` (pixel values).
+Prefer `Inset` inside `Card` for inner padding.
 
 **Wrap** — Flow layout that wraps onto new rows.
 `children`: ID array. Optional: `spacing`, `runSpacing`, `alignment`, `runAlignment`, `crossAlign`.
 
 **Card** — Elevated container with rounded corners.
 `child`: single component ID.
+Prefer `Card` for hero summaries, section groups, and chart blocks.
 
 ### Content Components
 

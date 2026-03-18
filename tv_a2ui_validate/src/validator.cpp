@@ -55,6 +55,45 @@ std::vector<std::string> SplitLines(std::string_view content) {
   return lines;
 }
 
+std::string_view Trim(std::string_view content) {
+  const auto start = content.find_first_not_of(" \t\r\n");
+  if (start == std::string_view::npos) {
+    return {};
+  }
+
+  const auto end = content.find_last_not_of(" \t\r\n");
+  return content.substr(start, end - start + 1);
+}
+
+bool StartsWith(std::string_view content, std::string_view prefix) {
+  return content.size() >= prefix.size() &&
+         content.substr(0, prefix.size()) == prefix;
+}
+
+bool LooksLikeMarkdownWrappedPayload(std::string_view content) {
+  return StartsWith(content, "```") || StartsWith(content, "'''");
+}
+
+bool LooksLikeJsonLabeledPayload(std::string_view content) {
+  if (!StartsWith(content, "json") && !StartsWith(content, "JSON")) {
+    return false;
+  }
+
+  if (content.size() == 4) {
+    return true;
+  }
+
+  const char next = content[4];
+  return next == '\n' || next == '\r' || next == ' ' || next == '\t';
+}
+
+bool LooksLikeA2uiEnvelope(const JsonValue& json) {
+  return ObjectHasKey(json, "version") || ObjectHasKey(json, "createSurface") ||
+         ObjectHasKey(json, "updateDataModel") ||
+         ObjectHasKey(json, "updateComponents") ||
+         ObjectHasKey(json, "deleteSurface");
+}
+
 void AddPass(std::vector<CheckResult>& checks, std::string rule,
              std::string message) {
   checks.push_back({
@@ -162,10 +201,68 @@ ValidationReport Validate(std::string_view content,
   ValidationReport report;
   report.file = std::string(file_name);
 
+  const auto trimmed = Trim(content);
   const auto lines = SplitLines(content);
 
   // Check 1: NDJSON structure — exactly 3 non-empty lines.
   if (lines.size() != 3) {
+    if (LooksLikeMarkdownWrappedPayload(trimmed)) {
+      AddError(
+          report.checks, "ndjson_structure",
+          "Received Markdown code fences instead of raw NDJSON.",
+          "Remove wrappers like ```json ... ``` or '''json ... ''' and pass "
+          "only the three raw JSON lines.");
+      report.errors = 1;
+      report.passed = false;
+      return report;
+    }
+
+    if (LooksLikeJsonLabeledPayload(trimmed)) {
+      AddError(report.checks, "ndjson_structure",
+               "Received a payload prefixed with a json label.",
+               "Remove the leading 'json' label and pass only the three raw "
+               "NDJSON lines.");
+      report.errors = 1;
+      report.passed = false;
+      return report;
+    }
+
+    if (lines.size() == 1 && !trimmed.empty()) {
+      auto parsed = JsonValue::Parse(trimmed, "parse_error",
+                                     "Input is not valid JSON.", 1);
+      if (std::holds_alternative<JsonValue>(parsed)) {
+        const auto& whole = std::get<JsonValue>(parsed);
+        if (whole.IsObject()) {
+          if (LooksLikeA2uiEnvelope(whole)) {
+            AddError(
+                report.checks, "ndjson_structure",
+                "Received a single A2UI JSON object instead of 3 NDJSON lines.",
+                "Emit createSurface, updateDataModel, and updateComponents as "
+                "three separate lines.");
+          } else {
+            AddError(
+                report.checks, "ndjson_structure",
+                "Received a normalized scenario JSON payload instead of A2UI NDJSON.",
+                "Pass the generated A2UI NDJSON output instead of the "
+                "dump_normalized JSON file.");
+          }
+          report.errors = 1;
+          report.passed = false;
+          return report;
+        }
+
+        if (whole.IsArray()) {
+          AddError(report.checks, "ndjson_structure",
+                   "Received a JSON array instead of raw NDJSON.",
+                   "Remove the surrounding [ ] wrapper and emit one JSON "
+                   "object per line.");
+          report.errors = 1;
+          report.passed = false;
+          return report;
+        }
+      }
+    }
+
     AddError(report.checks, "ndjson_structure",
              "Expected 3 NDJSON lines, got " + std::to_string(lines.size()) +
                  ".");

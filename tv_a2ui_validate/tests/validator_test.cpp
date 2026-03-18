@@ -40,6 +40,47 @@ void TestBadJson() {
   std::cout << "PASS TestBadJson\n";
 }
 
+void TestNormalizedScenarioPayload() {
+  const auto report = Validate(
+      R"({"title":"오늘의 주요 뉴스","headline":"정규화된 데이터 payload"})",
+      "normalized.json");
+  assert(!report.passed);
+  assert(report.checks[0].rule == "ndjson_structure");
+  assert(report.checks[0].message.find("normalized scenario JSON payload") !=
+         std::string::npos);
+  std::cout << "PASS TestNormalizedScenarioPayload\n";
+}
+
+void TestMarkdownWrappedPayload() {
+  const std::string input =
+      "```json\n" + kValidMinimal + "\n```";
+  const auto report = Validate(input, "wrapped.ndjson");
+  assert(!report.passed);
+  assert(report.checks[0].rule == "ndjson_structure");
+  assert(report.checks[0].message.find("Markdown code fences") !=
+         std::string::npos);
+  std::cout << "PASS TestMarkdownWrappedPayload\n";
+}
+
+void TestJsonLabeledPayload() {
+  const std::string input = "json\n" + kValidMinimal;
+  const auto report = Validate(input, "labeled.ndjson");
+  assert(!report.passed);
+  assert(report.checks[0].rule == "ndjson_structure");
+  assert(report.checks[0].message.find("json label") != std::string::npos);
+  std::cout << "PASS TestJsonLabeledPayload\n";
+}
+
+void TestJsonArrayPayload() {
+  const std::string input =
+      "[" + kValidMinimal.substr(0, kValidMinimal.find('\n')) + "]";
+  const auto report = Validate(input, "array.json");
+  assert(!report.passed);
+  assert(report.checks[0].rule == "ndjson_structure");
+  assert(report.checks[0].message.find("JSON array") != std::string::npos);
+  std::cout << "PASS TestJsonArrayPayload\n";
+}
+
 void TestMissingRoot() {
   const std::string input =
       R"({"version":"v0.9","createSurface":{"surfaceId":"s","catalogId":"c","theme":{"domain":"d","pattern":"immersive"}}})"
@@ -223,6 +264,10 @@ int main() {
   TestValidMinimal();
   TestBadLineCount();
   TestBadJson();
+  TestNormalizedScenarioPayload();
+  TestMarkdownWrappedPayload();
+  TestJsonLabeledPayload();
+  TestJsonArrayPayload();
   TestMissingRoot();
   TestInvalidComponentType();
   TestInvalidIconName();
@@ -231,6 +276,6 @@ int main() {
   TestMissingDataBinding();
   TestComponentCountWarning();
   TestMissingTheme();
-  std::cout << "\nAll 11 tests passed.\n";
+  std::cout << "\nAll 15 tests passed.\n";
   return 0;
 }

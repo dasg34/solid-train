@@ -124,6 +124,16 @@ Padding container for a single child.
 Use `all` for one-value padding, or `horizontal` and `vertical` together for
 TV-safe spacing around a child card or text block.
 
+Prefer `Inset` aggressively for readable TV spacing.
+
+- Most major content groups should sit inside an `Inset`, not flush against a
+  card edge.
+- Inside cards, prefer `all: 20`-`32` for compact/standard layouts.
+- Use `horizontal: 24` and `vertical: 20` or larger when the layout mixes
+  headline text, metrics, and charts.
+- If a text block or chart feels cramped, add `Inset` before adding more
+  nested layout containers.
+
 ### Wrap
 
 Flow layout for multiple children that should wrap onto new rows.
@@ -147,6 +157,16 @@ Visual container with elevation and rounded corners.
 | Property | Required | Values |
 |----------|----------|--------|
 | `child` | yes | single component ID |
+
+Prefer `Card` for almost every major TV section.
+
+- Use `Card` for hero metrics, headline groups, chart panels, schedule blocks,
+  and summary clusters.
+- A strong default composition is `Card -> Inset -> Column`.
+- In immersive layouts, use a small number of larger cards instead of many
+  loose text nodes.
+- In side panels, stack cards vertically rather than letting sections blend
+  into one long plain column.
 
 ### Icon
 
@@ -265,6 +285,10 @@ This renders one `itemRow` component per entry in the `/items` array.
 - **10-foot experience** — understandable from across the room in seconds
 - **Large typography** — use `h1`-`h3` for primary info, `body`/`caption` for details
 - **Strong visual hierarchy** — generous spacing, clear grouping with Cards
+- **Card-first composition** — prefer a few well-separated cards over raw
+  text blocks floating directly on the root layout
+- **Inset for breathing room** — give card content visible inner padding so
+  text, icons, and charts do not touch card edges
 - **Glanceable** — keep under ~40 components per surface
 - **Chart restraint** — one chart per card is usually enough on TV
 - **No walls of text** — short labels, concise values
@@ -299,6 +323,9 @@ The TV app applies a themed background based on `theme.domain`:
 - Do NOT use component IDs not defined in the components array
 - Do NOT forget the `"root"` component — nothing renders without it
 - Do NOT use icon names outside the valid list
+- Do NOT leave major sections as bare `Column` or `Row` blocks when a `Card`
+  would create clearer grouping
+- Do NOT place dense card content directly against card edges without `Inset`
 - Do NOT send chart arrays of mismatched lengths unless labels are optional
 - Do NOT cram dense dashboards with many tiny charts onto one TV surface
 - Do NOT try to display every available field if it weakens clarity
@@ -312,7 +339,7 @@ A simple card with a title and a value:
 ```
 {"version": "v0.9", "createSurface": {"surfaceId": "weather", "catalogId": "https://a2ui.org/specification/v0_9/standard_catalog.json", "theme": {"domain": "weather", "pattern": "centerCard"}}}
 {"version": "v0.9", "updateDataModel": {"surfaceId": "weather", "value": {"title": "서울 날씨", "temp": "18°", "condition": "맑음"}}}
-{"version": "v0.9", "updateComponents": {"surfaceId": "weather", "components": [{"id": "root", "component": "Column", "justify": "center", "children": ["heroCard"]}, {"id": "heroCard", "component": "Card", "child": "cardContent"}, {"id": "cardContent", "component": "Column", "children": ["titleText", "tempRow"]}, {"id": "titleText", "component": "Text", "text": {"path": "/title"}, "variant": "h3"}, {"id": "tempRow", "component": "Row", "justify": "spaceBetween", "children": ["tempText", "conditionText"]}, {"id": "tempText", "component": "Text", "text": {"path": "/temp"}, "variant": "h1"}, {"id": "conditionText", "component": "Text", "text": {"path": "/condition"}, "variant": "body"}]}}
+{"version": "v0.9", "updateComponents": {"surfaceId": "weather", "components": [{"id": "root", "component": "Column", "justify": "center", "children": ["heroCard"]}, {"id": "heroCard", "component": "Card", "child": "heroInset"}, {"id": "heroInset", "component": "Inset", "all": 24, "child": "cardContent"}, {"id": "cardContent", "component": "Column", "children": ["titleText", "tempRow"]}, {"id": "titleText", "component": "Text", "text": {"path": "/title"}, "variant": "h3"}, {"id": "tempRow", "component": "Row", "justify": "spaceBetween", "children": ["tempText", "conditionText"]}, {"id": "tempText", "component": "Text", "text": {"path": "/temp"}, "variant": "h1"}, {"id": "conditionText", "component": "Text", "text": {"path": "/condition"}, "variant": "body"}]}}
 ```
 
 ## Validation
