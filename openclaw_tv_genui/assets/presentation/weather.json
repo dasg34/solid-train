@@ -1,0 +1,77 @@
+{
+  "surfaceId": "weather",
+  "theme": {
+    "domain": "weather",
+    "pattern": "immersive"
+  },
+  "title": "서울 강남구",
+  "summary": "출근 시간대에는 약한 비 가능성이 있습니다.",
+  "hero": {
+    "label": "현재 기온",
+    "value": "8°",
+    "detail": "체감 5°",
+    "caption": "오전 7:20 기준"
+  },
+  "metrics": [
+    {
+      "label": "상태",
+      "value": "흐림"
+    },
+    {
+      "label": "강수확률",
+      "value": "70%"
+    },
+    {
+      "label": "습도",
+      "value": "61%"
+    }
+  ],
+  "chart": {
+    "title": "시간대별 기온",
+    "kind": "line",
+    "labels": [
+      "09시",
+      "12시",
+      "15시",
+      "18시",
+      "21시",
+      "00시"
+    ],
+    "values": [
+      10.0,
+      12.0,
+      13.0,
+      11.0,
+      9.0,
+      7.0
+    ],
+    "unitLabel": "기온(°C)"
+  },
+  "facts": [
+    {
+      "label": "09시",
+      "value": "10°",
+      "detail": "강수 30%"
+    },
+    {
+      "label": "12시",
+      "value": "12°",
+      "detail": "강수 20%"
+    },
+    {
+      "label": "15시",
+      "value": "13°",
+      "detail": "강수 10%"
+    },
+    {
+      "label": "18시",
+      "value": "11°",
+      "detail": "강수 20%"
+    }
+  ],
+  "alert": {
+    "title": "강풍 예비특보",
+    "summary": "오전부터 해안과 일부 내륙에 순간 강한 바람이 불 수 있습니다.",
+    "meta": "기상청 · 오전 6:50 기준"
+  }
+}

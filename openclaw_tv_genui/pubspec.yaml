@@ -48,5 +48,4 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/a2ui/
     - assets/presentation/

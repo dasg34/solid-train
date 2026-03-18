@@ -1,0 +1,53 @@
+{
+  "surfaceId": "wellness",
+  "theme": {
+    "domain": "wellness",
+    "pattern": "centerCard"
+  },
+  "title": "오늘의 웰니스",
+  "summary": "짧게 확인하고 바로 행동할 수 있는 건강 카드만 남겼습니다.",
+  "hero": {
+    "label": "수면",
+    "value": "7시간 10분",
+    "detail": "평균 대비 +20분"
+  },
+  "metrics": [
+    {
+      "label": "걸음 수",
+      "value": "4,200보",
+      "detail": "목표의 42%"
+    },
+    {
+      "label": "추천",
+      "value": "5분 스트레칭",
+      "detail": "오전 루틴"
+    }
+  ],
+  "facts": [
+    {
+      "label": "수면",
+      "value": "양호",
+      "detail": "오늘 상태 · 기상 후 컨디션 안정"
+    },
+    {
+      "label": "스트레칭",
+      "value": "5분",
+      "detail": "다음 행동 · 목과 어깨 위주"
+    },
+    {
+      "label": "활동량",
+      "value": "보통",
+      "detail": "오늘 상태 · 점심 전 10분 걷기 권장"
+    },
+    {
+      "label": "수분",
+      "value": "한 컵 마시기",
+      "detail": "다음 행동 · 오전 리마인드"
+    }
+  ],
+  "alert": {
+    "title": "비의료 정보 유지",
+    "summary": "TV 웰니스 카드는 생활 습관 리마인드에 집중하고 의료적 조언처럼 보이는 표현은 피하는 편이 안전합니다.",
+    "meta": "건강 데이터 정책"
+  }
+}

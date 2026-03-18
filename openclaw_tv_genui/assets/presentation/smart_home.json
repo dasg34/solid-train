@@ -1,0 +1,53 @@
+{
+  "surfaceId": "smart_home",
+  "theme": {
+    "domain": "smart_home",
+    "pattern": "sidePanel"
+  },
+  "title": "스마트홈 요약",
+  "summary": "거실 TV에서 바로 확인해야 할 집 상태만 간단히 모았습니다.",
+  "hero": {
+    "label": "출입문",
+    "value": "모두 잠김",
+    "detail": "현관 포함 3개"
+  },
+  "metrics": [
+    {
+      "label": "실내 온도",
+      "value": "22°",
+      "detail": "쾌적"
+    },
+    {
+      "label": "공기질",
+      "value": "좋음",
+      "detail": "미세먼지 낮음"
+    }
+  ],
+  "facts": [
+    {
+      "label": "현관문",
+      "value": "잠김",
+      "detail": "주요 공간 · 마지막 상태 변경 오전 6:55"
+    },
+    {
+      "label": "현관 카메라",
+      "value": "움직임 1건",
+      "detail": "주의 · 새벽 5시 이후 추가 이벤트 없음"
+    },
+    {
+      "label": "거실 조명",
+      "value": "꺼짐",
+      "detail": "주요 공간 · 외출 모드 유지 중"
+    },
+    {
+      "label": "안방 습도",
+      "value": "67%",
+      "detail": "주의 · 환기 권장 기준에 근접"
+    }
+  ],
+  "alert": {
+    "title": "읽기 전용 권장",
+    "summary": "스마트홈 요약 화면은 상태 확인 중심으로 유지하고, 실제 제어는 별도 승인 흐름으로 분리하는 편이 안전합니다.",
+    "meta": "신뢰 경계"
+  }
+}

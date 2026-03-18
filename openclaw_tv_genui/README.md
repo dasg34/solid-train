@@ -1,21 +1,20 @@
 # OpenClaw TV GenUI
 
-Samsung Tizen TV용 A2UI 렌더링 앱. OpenClaw에서 전달받은 A2UI JSON을 Flutter
-UI로 렌더링합니다.
+Samsung Tizen TV용 presentation-first 렌더링 앱. OpenClaw에서 전달받은
+semantic presentation JSON을 Flutter UI로 렌더링합니다.
 
 ## Architecture
 
 ```
-A2UI JSON (NDJSON) → A2uiPayloadSource → SurfaceController → Surface → TV UI
+Presentation JSON → A2uiPayloadSource → deterministic A2UI → SurfaceController → Surface → TV UI
 ```
 
-- **A2uiPayloadSource**: A2UI 메시지 로딩 인터페이스
-  - Phase 1: `JsonFilePayloadSource` (로컬 JSON 파일)
-  - Phase 2: HTTP 또는 스트리밍 프로토콜
+- **A2uiPayloadSource**: presentation 자산이나 외부 payload를 A2UI 메시지로 변환해 주는 인터페이스
+- **deterministic A2UI**: 앱 내부에서 기계적으로 생성되는 A2UI NDJSON
 - **SurfaceController**: genui의 A2UI 메시지 처리 엔진
 - **Surface**: genui의 Flutter 위젯 렌더러
 
-Structured presentation path for selected scenarios:
+Current flow:
 
 ```
 Presentation JSON → PresentationAssetPayloadSource → deterministic A2UI → SurfaceController
@@ -23,7 +22,7 @@ Presentation JSON → PresentationAssetPayloadSource → deterministic A2UI → 
 
 - LLM은 로우레벨 `components` 트리 대신 의미 중심 JSON만 생성
 - 앱이 카드, 차트, 알림, 요약 레이아웃을 기계적으로 조립
-- 현재 샘플 시나리오: `finance_focus`
+- 기본 시나리오 전체가 `assets/presentation/` 기반으로 동작
 
 ## Registered Components
 
@@ -62,9 +61,9 @@ flutter run -d chrome
 flutter run -d web-server --web-hostname=127.0.0.1 --web-port=3000
 ```
 
-## Presentation JSON PoC
+## Presentation Assets
 
-`assets/presentation/finance_focus.json`은 새 data-first 경로 예시입니다.
+`assets/presentation/` 아래의 JSON이 앱의 기본 입력입니다.
 
 - 입력: 제목, hero metric, secondary metrics, 시계열, facts, alert
 - 출력: 동일한 데이터에서 deterministic A2UI NDJSON 생성
@@ -80,24 +79,25 @@ lib/
 ├── core/
 │   ├── a2ui/
 │   │   ├── a2ui_payload_source.dart   # 추상 인터페이스
-│   │   ├── json_file_payload_source.dart  # Phase 1 구현
+│   │   ├── parse_ndjson.dart          # 내부 deterministic A2UI 파서
 │   │   └── surface_style.dart         # surfaceId → 테마 매핑
 │   ├── presentation/
 │   │   ├── presentation_surface.dart  # 의미 중심 입력 모델
 │   │   ├── presentation_a2ui_builder.dart  # deterministic A2UI 변환기
-│   │   └── presentation_asset_payload_source.dart
+│   │   ├── presentation_asset_payload_source.dart
+│   │   ├── presentation_file_payload_source.dart
+│   │   └── presentation_payload_decoder.dart
 │   └── theme/app_theme.dart           # Material 3 다크 테마
 └── features/home/
     ├── home_screen.dart               # 단일 풀스크린 surface 호스트
     ├── models/scenario_entry.dart     # 기본 fallback scenario 정의
     └── widgets/genui_scenario_surface.dart  # A2UI 렌더링 + 테마 쉘
-assets/a2ui/                           # 프리빌드된 A2UI NDJSON (15개)
-assets/presentation/                   # LLM-friendly structured JSON examples
+assets/presentation/                   # built-in presentation scenarios
 ```
 
-## A2UI JSON Format
+## Internal A2UI Format
 
-앱이 소비하는 NDJSON 형식 (줄당 하나의 JSON):
+앱은 presentation JSON을 내부적으로 아래 A2UI NDJSON 형태로 바꿉니다:
 
 ```
 {"version":"v0.9","createSurface":{"surfaceId":"...","catalogId":"..."}}

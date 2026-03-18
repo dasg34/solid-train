@@ -1,0 +1,53 @@
+{
+  "surfaceId": "media",
+  "theme": {
+    "domain": "media",
+    "pattern": "sidePanel"
+  },
+  "title": "미디어 컴패니언",
+  "summary": "현재 보고 있는 장면과 관련된 핵심 정보만 옆 패널에 정리했습니다.",
+  "hero": {
+    "label": "현재 재생",
+    "value": "32분",
+    "detail": "에피소드 3"
+  },
+  "metrics": [
+    {
+      "label": "주요 출연진",
+      "value": "3명",
+      "detail": "등장 장면 기준"
+    },
+    {
+      "label": "사운드트랙",
+      "value": "1곡 확인",
+      "detail": "현재 장면 배경음"
+    }
+  ],
+  "facts": [
+    {
+      "label": "작품",
+      "value": "서울의 밤",
+      "detail": "작품 정보 · 시즌 1 · 에피소드 3"
+    },
+    {
+      "label": "OST",
+      "value": "River Lights",
+      "detail": "현재 장면 · 비슷한 분위기 재생 목록 연결 가능"
+    },
+    {
+      "label": "주요 인물",
+      "value": "주연 3명",
+      "detail": "작품 정보 · 현재 장면 등장 기준"
+    },
+    {
+      "label": "트리비아",
+      "value": "촬영지 서울",
+      "detail": "현재 장면 · 스포일러 없는 정보만 표시"
+    }
+  ],
+  "alert": {
+    "title": "스포일러 제어 필요",
+    "summary": "미디어 컴패니언은 현재 장면 기준 정보만 보여주고 이후 전개를 암시하는 내용은 피하는 편이 안전합니다.",
+    "meta": "콘텐츠 메타데이터 정책"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "surfaceId": "delivery",
+  "theme": {
+    "domain": "delivery",
+    "pattern": "centerCard"
+  },
+  "title": "배달 상태",
+  "summary": "현재 단계와 예상 도착 시간을 중심으로 주문 상태를 크게 보여줍니다.",
+  "hero": {
+    "label": "예상 도착",
+    "value": "18분",
+    "detail": "평균 범위 15~20분"
+  },
+  "metrics": [
+    {
+      "label": "현재 단계",
+      "value": "배달원 이동 중",
+      "detail": "가게 출발 완료"
+    },
+    {
+      "label": "주문 번호",
+      "value": "#240315",
+      "detail": "표시 범위 축약"
+    }
+  ],
+  "facts": [
+    {
+      "label": "결제 완료",
+      "value": "18:02",
+      "detail": "주문 진행 · 주문 접수 완료"
+    },
+    {
+      "label": "연락 필요 시",
+      "value": "앱에서 진행",
+      "detail": "다음 액션 · TV에서는 번호 노출 없이 버튼만 제공 권장"
+    },
+    {
+      "label": "조리 완료",
+      "value": "18:14",
+      "detail": "주문 진행 · 픽업 대기 종료"
+    },
+    {
+      "label": "재주문",
+      "value": "가능",
+      "detail": "다음 액션 · 자주 주문한 메뉴로 빠른 재선택 지원"
+    }
+  ],
+  "alert": {
+    "title": "PII 주의",
+    "summary": "주소, 상세 연락처, 문 앞 요청사항은 거실 TV에 직접 노출하지 않는 편이 안전합니다.",
+    "meta": "배송 정보 정책"
+  }
+}

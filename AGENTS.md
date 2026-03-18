@@ -207,13 +207,12 @@ Presentation JSON → deterministic A2UI builder → SurfaceController → Surfa
 ```
 
 - The app does NOT fetch domain data itself.
-- The app may still accept raw A2UI for compatibility, but the preferred agent
-  output is semantic presentation JSON.
+- The app accepts semantic presentation JSON and converts it into
+  deterministic A2UI internally.
 - Theme shells (weather gradient, news backdrop, schedule backdrop) are
   applied based on the surfaceId prefix.
 
-Phase 1 (current): loads pre-generated JSON from `assets/presentation/` or
-legacy `assets/a2ui/`.
+Phase 1 (current): loads pre-generated JSON from `assets/presentation/`.
 Phase 2 (planned): receives presentation JSON from OpenClaw via HTTP or
 streaming protocol.
 
