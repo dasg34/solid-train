@@ -4,6 +4,7 @@
 #include <cmath>
 #include <ctime>
 #include <iomanip>
+#include <iconv.h>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -196,6 +197,70 @@ std::string DirectionIcon(double value) {
   return "showChart";
 }
 
+bool IsAscii(std::string_view value) {
+  return std::all_of(value.begin(), value.end(), [](unsigned char ch) {
+    return ch < 0x80;
+  });
+}
+
+std::optional<std::string> ConvertToUtf8(std::string_view value,
+                                         const char* source_encoding) {
+  iconv_t converter = iconv_open("UTF-8", source_encoding);
+  if (converter == reinterpret_cast<iconv_t>(-1)) {
+    return std::nullopt;
+  }
+
+  std::string output(value.size() * 4 + 16, '\0');
+  char* input_buffer = const_cast<char*>(value.data());
+  std::size_t input_left = value.size();
+  char* output_buffer = output.data();
+  std::size_t output_left = output.size();
+
+  while (input_left > 0) {
+    if (iconv(converter, &input_buffer, &input_left, &output_buffer,
+              &output_left) == static_cast<std::size_t>(-1)) {
+      iconv_close(converter);
+      return std::nullopt;
+    }
+  }
+
+  iconv_close(converter);
+  output.resize(output.size() - output_left);
+  return output;
+}
+
+std::string DecodeNaverLabel(std::string_view raw_value) {
+  if (raw_value.empty()) {
+    return {};
+  }
+  if (IsAscii(raw_value)) {
+    return CleanText(raw_value, 24);
+  }
+
+  for (const char* encoding : {"CP949", "EUC-KR"}) {
+    const auto converted = ConvertToUtf8(raw_value, encoding);
+    if (converted.has_value() && !converted->empty()) {
+      return CleanText(*converted, 24);
+    }
+  }
+
+  return {};
+}
+
+std::string ResolveWatchLabel(const WatchlistEntry& entry,
+                              const JsonValue& quote) {
+  if (!entry.label.empty() && entry.label != entry.code) {
+    return entry.label;
+  }
+
+  const std::string decoded_name = DecodeNaverLabel(quote.At("nm").AsString(""));
+  if (!decoded_name.empty()) {
+    return decoded_name;
+  }
+
+  return entry.code;
+}
+
 std::string BuildNaverQueryUrl(std::string_view query) {
   return std::string(kNaverRealtimeBase) + UrlEncode(query);
 }
@@ -234,7 +299,7 @@ MarketSnapshot FetchStockSnapshot(const WatchlistEntry& entry) {
   const std::string rf = quote.At("rf").AsString("");
   return MarketSnapshot{
       .code = entry.code,
-      .label = entry.label,
+      .label = ResolveWatchLabel(entry, quote),
       .current = quote.At("nv").AsDouble(0.0),
       .change = SignedNumber(quote.At("cv"), rf),
       .change_pct = SignedNumber(quote.At("cr"), rf),
@@ -519,13 +584,23 @@ JsonValue BuildFinancePayload(const std::vector<WatchlistEntry>& watchlist,
           {"items", std::move(indicator_items)},
       }));
 
-  const std::string requested_labels = [&watchlist]() {
+  const std::string requested_labels = [&watchlist, &stocks]() {
     std::ostringstream joined;
     for (std::size_t index = 0; index < watchlist.size(); ++index) {
+      std::string label = watchlist[index].label;
+      if (label.empty() || label == watchlist[index].code) {
+        const auto match =
+            std::find_if(stocks.begin(), stocks.end(), [&](const auto& stock) {
+              return stock.code == watchlist[index].code && !stock.label.empty();
+            });
+        if (match != stocks.end()) {
+          label = match->label;
+        }
+      }
       if (index > 0) {
         joined << ", ";
       }
-      joined << watchlist[index].label;
+      joined << (label.empty() ? watchlist[index].code : label);
     }
     return joined.str();
   }();

@@ -56,8 +56,8 @@ struct CommuteCommand {
 
   Source source = Source::kOsrm;
   OutputFormat format = OutputFormat::kJson;
-  std::string origin = "서울시청";
-  std::string destination = "강남역";
+  std::string origin;
+  std::string destination;
   std::string origin_label;
   std::string destination_label;
   Profile profile = Profile::kDriving;

@@ -551,6 +551,12 @@ std::variant<CommuteCommand, AppError> ParseCommute(
         "[--buffer-minutes 0-180] [--dry-run] [--format json|pretty].");
   }
 
+  if (command.origin.empty() || command.destination.empty()) {
+    return InvalidArguments(
+        "Commute requires both origin and destination.",
+        "Use --origin '망포역' --destination '서초구청'.");
+  }
+
   return command;
 }
 
@@ -1578,9 +1584,9 @@ JsonValue FinanceDescribeDocument() {
 }
 
 JsonValue CommuteDescribeDocument() {
-  return DomainDescribeBase(
+  JsonValue document = DomainDescribeBase(
       "commute",
-      "Fetch route and departure recommendation context for TV composition.",
+      "Fetch route and departure recommendation context for TV composition. Both --origin and --destination are required.",
       true,
       "osrm",
       MakeArray({JsonValue::String("mock"), JsonValue::String("osrm")}),
@@ -1596,14 +1602,18 @@ JsonValue CommuteDescribeDocument() {
           MakeObject({
               {"name", JsonValue::String("--origin")},
               {"type", JsonValue::String("string")},
-              {"required", JsonValue::Boolean(false)},
-              {"default", JsonValue::String("서울시청")},
+              {"required", JsonValue::Boolean(true)},
+              {"description",
+               JsonValue::String(
+                   "Required. Starting point for routing.")},
           }),
           MakeObject({
               {"name", JsonValue::String("--destination")},
               {"type", JsonValue::String("string")},
-              {"required", JsonValue::Boolean(false)},
-              {"default", JsonValue::String("강남역")},
+              {"required", JsonValue::Boolean(true)},
+              {"description",
+               JsonValue::String(
+                   "Required. Arrival target for routing.")},
           }),
           MakeObject({
               {"name", JsonValue::String("--profile")},
@@ -1652,6 +1662,17 @@ JsonValue CommuteDescribeDocument() {
           {"alert", JsonValue::String("object")},
           {"footer", JsonValue::String("string")},
       }));
+  ObjectSet(
+      document, "input_contract",
+      MakeObject({
+          {"requires_origin", JsonValue::Boolean(true)},
+          {"requires_destination", JsonValue::Boolean(true)},
+          {"location_defaults", JsonValue::String("none")},
+          {"rule",
+           JsonValue::String(
+               "Do not call tv_fetch commute without both --origin and --destination.")},
+      }));
+  return document;
 }
 
 JsonValue SportsDescribeDocument() {
@@ -2169,8 +2190,9 @@ std::string RenderHelp() {
          << "       (no --query: latest Yonhap headlines, with --query: Google News search)\n"
          << "       [--dry-run] [--format json|pretty]\n"
          << "  finance [--source mock|naver-public] [--watchlist ...]\n"
-         << "          [--dry-run] [--format json|pretty]\n"
+          << "          [--dry-run] [--format json|pretty]\n"
          << "  commute [--source mock|osrm] [--origin ...] [--destination ...]\n"
+         << "          (requires both --origin and --destination)\n"
          << "          [--profile driving|walking] [--arrive-by ...]\n"
          << "          [--buffer-minutes 0-180] [--dry-run] [--format json|pretty]\n"
          << "  sports [--source mock|thesportsdb] [--league ...] [--league-id ...]\n"

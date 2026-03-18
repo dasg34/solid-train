@@ -14,6 +14,8 @@ json_dep = dependency('json', required: false)
 if not json_dep.found()
   json_dep = dependency('json-c', required: true)
 endif
+cpp_compiler = meson.get_compiler('cpp')
+iconv_dep = cpp_compiler.find_library('iconv', required: false)
 fixture_root = get_option('fixture_root')
 
 tv_fetch_cpp_args = ['-DTV_FETCH_PROJECT_ROOT="@0@"'.format(
@@ -47,7 +49,7 @@ tv_fetch_lib = static_library(
     'src/weather/weather_fetcher.cpp',
   ],
   include_directories: tv_fetch_includes,
-  dependencies: [curl_dep, json_dep],
+  dependencies: [curl_dep, json_dep, iconv_dep],
   cpp_args: tv_fetch_cpp_args,
 )
 

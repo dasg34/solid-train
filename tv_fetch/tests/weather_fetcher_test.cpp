@@ -123,6 +123,23 @@ void TestLiveDefaultsAndMockOnlyScenarios() {
              tv_fetch::WeatherCommand::Source::kOpenMeteo,
          "weather with city should still default to live open-meteo");
 
+  const char* commute_argv[] = {"tv_fetch", "commute"};
+  const auto commute_parsed =
+      tv_fetch::ParseCommand(2, const_cast<char**>(commute_argv));
+  Assert(std::holds_alternative<tv_fetch::AppError>(commute_parsed),
+         "commute should require both origin and destination");
+
+  const auto commute_describe =
+      tv_fetch::BuildDescribeDocument(std::string("commute"));
+  Assert(commute_describe.At("input_contract")
+                 .At("requires_origin")
+                 .AsBoolean(false),
+         "commute describe should expose origin requirement");
+  Assert(commute_describe.At("input_contract")
+                 .At("requires_destination")
+                 .AsBoolean(false),
+         "commute describe should expose destination requirement");
+
   const char* family_argv[] = {"tv_fetch", "family"};
   const auto family_parsed =
       tv_fetch::ParseCommand(2, const_cast<char**>(family_argv));
