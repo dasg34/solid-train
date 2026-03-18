@@ -294,6 +294,8 @@ std::variant<ResolvedLocation, AppError> ResolveLocation(
         .longitude = *command.longitude,
         .city = command.city,
         .district = command.district,
+        .geocoding_query = "",
+        .geocoding_url = "",
     };
   }
 
