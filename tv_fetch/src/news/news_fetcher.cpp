@@ -1,5 +1,6 @@
 #include "tv_fetch/news/news_fetcher.hpp"
 
+#include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
