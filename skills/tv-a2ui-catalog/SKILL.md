@@ -49,6 +49,9 @@ Generate three NDJSON messages (one JSON object per line) in this order:
 - `catalogId`: always `https://a2ui.org/specification/v0_9/standard_catalog.json`
 - `theme.domain`: required. The scenario/domain such as `weather`, `news`, `finance`
 - `theme.pattern`: required. One of `immersive`, `sidePanel`, `centerCard`, `topBanner`, `bottomRibbon`
+- `theme.scale`: optional. One of `compact`, `standard`, `expanded`.
+  Use `compact` when the content is sparse enough that the default panel would
+  feel too empty. Use `expanded` only for unusually dense surfaces.
 
 ### 2. updateDataModel
 
@@ -321,6 +324,10 @@ This renders one `itemRow` component per entry in the `/items` array.
 
 Choose `theme.pattern` based on how much screen space the content needs and
 whether the user is actively watching TV content alongside it.
+
+If the chosen pattern still feels too large for the content, add
+`theme.scale: "compact"` so the outer panel hugs the generated items more
+closely.
 
 | Pattern | When to use | theme.pattern |
 |---------|-------------|---------------|

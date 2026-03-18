@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:genui/genui.dart';
 
 import '../../../core/a2ui/a2ui_payload_source.dart';
@@ -49,6 +50,8 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   String _surfaceId = 'surface';
   SurfaceStyle _style = SurfaceStyle.standard;
   TvSurfacePattern _pattern = TvSurfacePattern.immersive;
+  TvSurfaceScale _scale = TvSurfaceScale.standard;
+  Size? _measuredContentSize;
   bool _hasError = false;
   String? _errorDetail;
 
@@ -134,12 +137,14 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
           widget._scenario?.surfaceId ??
           widget._scenario?.id ??
           'surface';
-      final presentation = _resolvePresentation(createMsg);
+      final presentation = _resolvePresentation(createMsg, messages);
 
       setState(() {
         _surfaceId = surfaceId;
         _style = presentation.style;
         _pattern = presentation.pattern;
+        _scale = presentation.scale;
+        _measuredContentSize = null;
         _hasError = false;
         _errorDetail = null;
       });
@@ -149,6 +154,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
         'Applying ${messages.length} messages to surfaceId=$surfaceId '
             'domain=${presentation.domain} '
             'pattern=${presentation.pattern.name} '
+            'scale=${presentation.scale.name} '
             'style=${presentation.style.name} for $target',
       );
       for (final message in messages) {
@@ -235,24 +241,63 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       );
     }
 
+    final contentPadding = EdgeInsets.fromLTRB(
+      _scale == TvSurfaceScale.compact ? 24 : 32,
+      _style == SurfaceStyle.atmosphericWeather
+          ? (_scale == TvSurfaceScale.compact ? 30 : 36)
+          : (_scale == TvSurfaceScale.compact ? 24 : 28),
+      _scale == TvSurfaceScale.compact ? 24 : 32,
+      _scale == TvSurfaceScale.compact ? 24 : 32,
+    );
+    final contentAlignment = _surfaceContentAlignment(
+      pattern: _pattern,
+      scale: _scale,
+    );
+    final spec = _OverlayLayoutSpec.resolve(
+      size: MediaQuery.sizeOf(context),
+      pattern: _pattern,
+      scale: _scale,
+    );
     final content = MediaQuery(
       data: MediaQuery.of(
         context,
       ).copyWith(textScaler: const TextScaler.linear(_tvSurfaceTextScale)),
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          32,
-          _style == SurfaceStyle.atmosphericWeather ? 36 : 28,
-          32,
-          32,
+        padding: contentPadding,
+        child: Align(
+          alignment: contentAlignment,
+          child: Surface(surfaceContext: _controller.contextFor(_surfaceId)),
         ),
-        child: Surface(surfaceContext: _controller.contextFor(_surfaceId)),
       ),
     );
-    final overlayContent = _OverlaySurfaceFrame(
-      pattern: _pattern,
-      style: _style,
-      child: content,
+    final overlayContent = Stack(
+      children: [
+        _OverlaySurfaceFrame(
+          spec: spec,
+          style: _style,
+          contentPadding: contentPadding,
+          measuredContentSize: _measuredContentSize,
+          child: content,
+        ),
+        Positioned.fill(
+          child: IgnorePointer(
+            child: _OffstageSurfaceMeasurer(
+              spec: spec,
+              contentPadding: contentPadding,
+              contentAlignment: contentAlignment,
+              onMeasured: _handleMeasuredContentSize,
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: const TextScaler.linear(_tvSurfaceTextScale),
+                ),
+                child: Surface(
+                  surfaceContext: _controller.contextFor(_surfaceId),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
 
     return switch (_style) {
@@ -267,12 +312,41 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
     };
   }
 
-  _SurfacePresentation _resolvePresentation(CreateSurface? createMsg) {
+  void _handleMeasuredContentSize(Size size) {
+    if (!mounted) {
+      return;
+    }
+    final next = Size(
+      size.width.clamp(0.0, 4000.0),
+      size.height.clamp(0.0, 4000.0),
+    );
+    final current = _measuredContentSize;
+    if (current != null &&
+        (current.width - next.width).abs() < 1 &&
+        (current.height - next.height).abs() < 1) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _measuredContentSize = next;
+      });
+    });
+  }
+
+  _SurfacePresentation _resolvePresentation(
+    CreateSurface? createMsg,
+    List<A2uiMessage> messages,
+  ) {
     final JsonMap? theme = createMsg?.theme;
     final String? domain =
         _themeString(theme, 'domain') ?? widget._scenario?.domain;
     final TvSurfacePattern? pattern =
         _themePattern(theme?['pattern']) ?? widget._scenario?.pattern;
+    final TvSurfaceScale? themeScale =
+        _themeScale(theme?['scale']) ?? _themeScale(theme?['size']);
 
     if (domain == null || domain.isEmpty) {
       throw const FormatException('createSurface.theme.domain 이 필요합니다.');
@@ -281,9 +355,15 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       throw const FormatException('createSurface.theme.pattern 이 필요합니다.');
     }
 
+    final componentCount = _componentCount(messages);
+    final scale =
+        themeScale ??
+        _autoSurfaceScale(pattern: pattern, componentCount: componentCount);
+
     return _SurfacePresentation(
       domain: domain,
       pattern: pattern,
+      scale: scale,
       style: resolveSurfaceStyle(domain),
     );
   }
@@ -326,31 +406,45 @@ class _SurfacePresentation {
   const _SurfacePresentation({
     required this.domain,
     required this.pattern,
+    required this.scale,
     required this.style,
   });
 
   final String domain;
   final TvSurfacePattern pattern;
+  final TvSurfaceScale scale;
   final SurfaceStyle style;
 }
 
 class _OverlaySurfaceFrame extends StatelessWidget {
   const _OverlaySurfaceFrame({
-    required this.pattern,
+    required this.spec,
     required this.style,
+    required this.contentPadding,
+    required this.measuredContentSize,
     required this.child,
   });
 
-  final TvSurfacePattern pattern;
+  final _OverlayLayoutSpec spec;
   final SurfaceStyle style;
+  final EdgeInsets contentPadding;
+  final Size? measuredContentSize;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final spec = _OverlayLayoutSpec.resolve(
-      size: MediaQuery.sizeOf(context),
-      pattern: pattern,
-    );
+    final fittedWidth = measuredContentSize == null
+        ? spec.width
+        : (measuredContentSize!.width + contentPadding.horizontal).clamp(
+            spec.minWidth,
+            spec.maxWidth,
+          );
+    final fittedHeight = measuredContentSize == null
+        ? spec.height
+        : (measuredContentSize!.height + contentPadding.vertical).clamp(
+            spec.minHeight,
+            spec.maxHeight,
+          );
 
     return Stack(
       children: [
@@ -359,9 +453,11 @@ class _OverlaySurfaceFrame extends StatelessWidget {
             padding: spec.margin,
             child: Align(
               alignment: spec.alignment,
-              child: SizedBox(
-                width: spec.width,
-                height: spec.height,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                width: fittedWidth,
+                height: fittedHeight,
                 child: _GlassOverlayPanel(style: style, child: child),
               ),
             ),
@@ -377,17 +473,26 @@ class _OverlayLayoutSpec {
     required this.alignment,
     required this.width,
     required this.height,
+    required this.minWidth,
+    required this.maxWidth,
+    required this.minHeight,
+    required this.maxHeight,
     required this.margin,
   });
 
   final Alignment alignment;
   final double width;
   final double height;
+  final double minWidth;
+  final double maxWidth;
+  final double minHeight;
+  final double maxHeight;
   final EdgeInsets margin;
 
   static _OverlayLayoutSpec resolve({
     required Size size,
     required TvSurfacePattern pattern,
+    required TvSurfaceScale scale,
   }) {
     final smallScreen = size.width < 900;
     final compactTv =
@@ -407,6 +512,7 @@ class _OverlayLayoutSpec {
 
     late final Alignment alignment;
     late final double widthFactor;
+    late final double minWidth;
     late final double maxWidth;
     late final double heightFactor;
     late final double minHeight;
@@ -414,37 +520,117 @@ class _OverlayLayoutSpec {
     switch (pattern) {
       case TvSurfacePattern.immersive:
         alignment = Alignment.center;
-        widthFactor = smallScreen ? 0.94 : (compactTv ? 0.62 : 0.68);
-        maxWidth = compactTv ? 720 : 1040;
-        heightFactor = smallScreen ? 0.90 : (compactTv ? 0.96 : 0.94);
-        minHeight = 320;
+        switch (scale) {
+          case TvSurfaceScale.compact:
+            widthFactor = smallScreen ? 0.88 : (compactTv ? 0.50 : 0.56);
+            minWidth = 420;
+            maxWidth = compactTv ? 620 : 860;
+            heightFactor = smallScreen ? 0.78 : (compactTv ? 0.82 : 0.80);
+            minHeight = 280;
+          case TvSurfaceScale.standard:
+            widthFactor = smallScreen ? 0.94 : (compactTv ? 0.62 : 0.68);
+            minWidth = 520;
+            maxWidth = compactTv ? 720 : 1040;
+            heightFactor = smallScreen ? 0.90 : (compactTv ? 0.96 : 0.94);
+            minHeight = 320;
+          case TvSurfaceScale.expanded:
+            widthFactor = smallScreen ? 0.96 : (compactTv ? 0.72 : 0.78);
+            minWidth = 620;
+            maxWidth = compactTv ? 900 : 1280;
+            heightFactor = smallScreen ? 0.92 : (compactTv ? 0.98 : 0.96);
+            minHeight = 360;
+        }
       case TvSurfacePattern.sidePanel:
         alignment = smallScreen ? Alignment.center : Alignment.centerRight;
-        widthFactor = smallScreen ? 0.88 : (compactTv ? 0.38 : 0.42);
-        maxWidth = compactTv ? 440 : 700;
-        heightFactor = smallScreen ? 0.88 : (compactTv ? 0.94 : 0.94);
-        minHeight = 320;
+        switch (scale) {
+          case TvSurfaceScale.compact:
+            widthFactor = smallScreen ? 0.78 : (compactTv ? 0.30 : 0.34);
+            minWidth = 280;
+            maxWidth = compactTv ? 360 : 540;
+            heightFactor = smallScreen ? 0.74 : (compactTv ? 0.74 : 0.72);
+            minHeight = 260;
+          case TvSurfaceScale.standard:
+            widthFactor = smallScreen ? 0.88 : (compactTv ? 0.38 : 0.42);
+            minWidth = 320;
+            maxWidth = compactTv ? 440 : 700;
+            heightFactor = smallScreen ? 0.88 : (compactTv ? 0.94 : 0.94);
+            minHeight = 320;
+          case TvSurfaceScale.expanded:
+            widthFactor = smallScreen ? 0.92 : (compactTv ? 0.44 : 0.48);
+            minWidth = 360;
+            maxWidth = compactTv ? 520 : 780;
+            heightFactor = smallScreen ? 0.92 : (compactTv ? 0.96 : 0.96);
+            minHeight = 360;
+        }
       case TvSurfacePattern.centerCard:
         alignment = Alignment.center;
-        widthFactor = smallScreen ? 0.82 : (compactTv ? 0.36 : 0.40);
-        maxWidth = compactTv ? 440 : 640;
-        heightFactor = smallScreen ? 0.76 : (compactTv ? 0.80 : 0.80);
-        minHeight = 320;
+        switch (scale) {
+          case TvSurfaceScale.compact:
+            widthFactor = smallScreen ? 0.72 : (compactTv ? 0.28 : 0.32);
+            minWidth = 260;
+            maxWidth = compactTv ? 340 : 500;
+            heightFactor = smallScreen ? 0.58 : (compactTv ? 0.58 : 0.56);
+            minHeight = 220;
+          case TvSurfaceScale.standard:
+            widthFactor = smallScreen ? 0.82 : (compactTv ? 0.36 : 0.40);
+            minWidth = 320;
+            maxWidth = compactTv ? 440 : 640;
+            heightFactor = smallScreen ? 0.76 : (compactTv ? 0.80 : 0.80);
+            minHeight = 320;
+          case TvSurfaceScale.expanded:
+            widthFactor = smallScreen ? 0.88 : (compactTv ? 0.42 : 0.46);
+            minWidth = 360;
+            maxWidth = compactTv ? 520 : 760;
+            heightFactor = smallScreen ? 0.84 : (compactTv ? 0.86 : 0.84);
+            minHeight = 360;
+        }
       case TvSurfacePattern.topBanner:
         alignment = Alignment.topCenter;
-        widthFactor = smallScreen ? 0.94 : (compactTv ? 0.90 : 0.92);
-        maxWidth = compactTv ? 1080 : 1400;
-        heightFactor = smallScreen ? 0.30 : (compactTv ? 0.26 : 0.24);
-        minHeight = 170;
+        switch (scale) {
+          case TvSurfaceScale.compact:
+            widthFactor = smallScreen ? 0.88 : (compactTv ? 0.82 : 0.84);
+            minWidth = 520;
+            maxWidth = compactTv ? 900 : 1120;
+            heightFactor = smallScreen ? 0.22 : (compactTv ? 0.18 : 0.18);
+            minHeight = 140;
+          case TvSurfaceScale.standard:
+            widthFactor = smallScreen ? 0.94 : (compactTv ? 0.90 : 0.92);
+            minWidth = 640;
+            maxWidth = compactTv ? 1080 : 1400;
+            heightFactor = smallScreen ? 0.30 : (compactTv ? 0.26 : 0.24);
+            minHeight = 170;
+          case TvSurfaceScale.expanded:
+            widthFactor = smallScreen ? 0.96 : (compactTv ? 0.94 : 0.96);
+            minWidth = 760;
+            maxWidth = compactTv ? 1180 : 1520;
+            heightFactor = smallScreen ? 0.34 : (compactTv ? 0.30 : 0.28);
+            minHeight = 200;
+        }
       case TvSurfacePattern.bottomRibbon:
         alignment = Alignment.bottomCenter;
-        widthFactor = smallScreen ? 0.94 : (compactTv ? 0.90 : 0.92);
-        maxWidth = compactTv ? 1080 : 1440;
-        heightFactor = smallScreen ? 0.34 : (compactTv ? 0.34 : 0.32);
-        minHeight = 200;
+        switch (scale) {
+          case TvSurfaceScale.compact:
+            widthFactor = smallScreen ? 0.88 : (compactTv ? 0.84 : 0.86);
+            minWidth = 560;
+            maxWidth = compactTv ? 920 : 1180;
+            heightFactor = smallScreen ? 0.24 : (compactTv ? 0.24 : 0.22);
+            minHeight = 150;
+          case TvSurfaceScale.standard:
+            widthFactor = smallScreen ? 0.94 : (compactTv ? 0.90 : 0.92);
+            minWidth = 720;
+            maxWidth = compactTv ? 1080 : 1440;
+            heightFactor = smallScreen ? 0.34 : (compactTv ? 0.34 : 0.32);
+            minHeight = 200;
+          case TvSurfaceScale.expanded:
+            widthFactor = smallScreen ? 0.96 : (compactTv ? 0.94 : 0.96);
+            minWidth = 820;
+            maxWidth = compactTv ? 1180 : 1560;
+            heightFactor = smallScreen ? 0.40 : (compactTv ? 0.38 : 0.36);
+            minHeight = 230;
+        }
     }
 
-    final width = (availableWidth * widthFactor).clamp(360.0, maxWidth);
+    final width = (availableWidth * widthFactor).clamp(minWidth, maxWidth);
     final height = (availableHeight * heightFactor).clamp(
       minHeight,
       availableHeight,
@@ -454,8 +640,175 @@ class _OverlayLayoutSpec {
       alignment: alignment,
       width: width,
       height: height,
+      minWidth: minWidth,
+      maxWidth: maxWidth,
+      minHeight: minHeight,
+      maxHeight: availableHeight,
       margin: margin,
     );
+  }
+}
+
+class _OffstageSurfaceMeasurer extends StatelessWidget {
+  const _OffstageSurfaceMeasurer({
+    required this.spec,
+    required this.contentPadding,
+    required this.contentAlignment,
+    required this.onMeasured,
+    required this.child,
+  });
+
+  final _OverlayLayoutSpec spec;
+  final EdgeInsets contentPadding;
+  final Alignment contentAlignment;
+  final ValueChanged<Size> onMeasured;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final maxContentWidth = (spec.maxWidth - contentPadding.horizontal).clamp(
+      0.0,
+      spec.maxWidth,
+    );
+    final maxContentHeight = (spec.maxHeight - contentPadding.vertical).clamp(
+      0.0,
+      spec.maxHeight,
+    );
+
+    return Offstage(
+      child: Align(
+        alignment: spec.alignment,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: maxContentWidth,
+            maxHeight: maxContentHeight,
+          ),
+          child: Align(
+            alignment: contentAlignment,
+            widthFactor: 1,
+            heightFactor: 1,
+            child: _MeasureSize(onChange: onMeasured, child: child),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+enum TvSurfaceScale { compact, standard, expanded }
+
+TvSurfaceScale? _themeScale(Object? rawScale) {
+  return switch (rawScale) {
+    'compact' || 'small' || 'sm' => TvSurfaceScale.compact,
+    'expanded' || 'large' || 'lg' => TvSurfaceScale.expanded,
+    'standard' || 'default' || 'md' => TvSurfaceScale.standard,
+    _ => null,
+  };
+}
+
+int _componentCount(List<A2uiMessage> messages) {
+  var maxCount = 0;
+  for (final message in messages.whereType<UpdateComponents>()) {
+    if (message.components.length > maxCount) {
+      maxCount = message.components.length;
+    }
+  }
+  return maxCount;
+}
+
+TvSurfaceScale _autoSurfaceScale({
+  required TvSurfacePattern pattern,
+  required int componentCount,
+}) {
+  if (componentCount <= 0) {
+    return TvSurfaceScale.standard;
+  }
+
+  return switch (pattern) {
+    TvSurfacePattern.centerCard =>
+      componentCount <= 8
+          ? TvSurfaceScale.compact
+          : componentCount >= 18
+          ? TvSurfaceScale.expanded
+          : TvSurfaceScale.standard,
+    TvSurfacePattern.sidePanel =>
+      componentCount <= 10
+          ? TvSurfaceScale.compact
+          : componentCount >= 22
+          ? TvSurfaceScale.expanded
+          : TvSurfaceScale.standard,
+    TvSurfacePattern.topBanner =>
+      componentCount <= 6
+          ? TvSurfaceScale.compact
+          : componentCount >= 12
+          ? TvSurfaceScale.expanded
+          : TvSurfaceScale.standard,
+    TvSurfacePattern.bottomRibbon =>
+      componentCount <= 8
+          ? TvSurfaceScale.compact
+          : componentCount >= 16
+          ? TvSurfaceScale.expanded
+          : TvSurfaceScale.standard,
+    TvSurfacePattern.immersive =>
+      componentCount <= 10
+          ? TvSurfaceScale.compact
+          : componentCount >= 24
+          ? TvSurfaceScale.expanded
+          : TvSurfaceScale.standard,
+  };
+}
+
+Alignment _surfaceContentAlignment({
+  required TvSurfacePattern pattern,
+  required TvSurfaceScale scale,
+}) {
+  return switch (pattern) {
+    TvSurfacePattern.centerCard => Alignment.center,
+    TvSurfacePattern.sidePanel =>
+      scale == TvSurfaceScale.compact ? Alignment.center : Alignment.topCenter,
+    TvSurfacePattern.topBanner ||
+    TvSurfacePattern.bottomRibbon => Alignment.centerLeft,
+    TvSurfacePattern.immersive =>
+      scale == TvSurfaceScale.compact ? Alignment.center : Alignment.topCenter,
+  };
+}
+
+class _MeasureSize extends SingleChildRenderObjectWidget {
+  const _MeasureSize({required this.onChange, required super.child});
+
+  final ValueChanged<Size> onChange;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderMeasureSize(onChange);
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    covariant _RenderMeasureSize renderObject,
+  ) {
+    renderObject.onChange = onChange;
+  }
+}
+
+class _RenderMeasureSize extends RenderProxyBox {
+  _RenderMeasureSize(this.onChange);
+
+  ValueChanged<Size> onChange;
+  Size? _oldSize;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+    final newSize = child?.size;
+    if (newSize == null || newSize == _oldSize) {
+      return;
+    }
+    _oldSize = newSize;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      onChange(newSize);
+    });
   }
 }
 

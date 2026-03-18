@@ -95,6 +95,9 @@ Generate exactly three NDJSON lines (one JSON object per line):
 - `catalogId`: always `https://a2ui.org/specification/v0_9/standard_catalog.json`
 - `theme.domain`: the scenario domain
 - `theme.pattern`: one of `immersive`, `sidePanel`, `centerCard`, `topBanner`, `bottomRibbon`
+- `theme.scale`: optional. Use `compact` for sparse, narrow, or single-card
+  layouts that should not leave a large empty panel. Use `expanded` only when
+  the content is unusually dense.
 
 ### Line 2 — updateDataModel
 
@@ -125,6 +128,9 @@ Generate exactly three NDJSON lines (one JSON object per line):
 | Center Card | One key metric: stock check, delivery ETA | `centerCard` |
 | Top Banner | Urgent one-line alert: severe weather, breaking news | `topBanner` |
 | Bottom Ribbon | Ambient persistent: commute ETA, live score | `bottomRibbon` |
+
+If the chosen pattern still feels visually too large for the content, set
+`theme.scale` to `compact`.
 
 Background themes: `weather` → warm gradient, `news` → muted backdrop,
 `schedule` → cool backdrop, others → dark (#12212D).
