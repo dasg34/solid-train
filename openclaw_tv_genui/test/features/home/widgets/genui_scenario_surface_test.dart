@@ -14,13 +14,17 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final rawJson = File(
-      '${Directory.current.path}/assets/a2ui/finance.json',
+    final presentationJson = File(
+      '${Directory.current.path}/assets/presentation/finance_focus.json',
     ).readAsStringSync();
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(body: GenUiScenarioSurface.raw(rawJson: rawJson)),
+        home: Scaffold(
+          body: GenUiScenarioSurface.presentationRaw(
+            presentationJson: presentationJson,
+          ),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -45,13 +49,17 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final rawJson = File(
-      '${Directory.current.path}/assets/a2ui/finance.json',
+    final presentationJson = File(
+      '${Directory.current.path}/assets/presentation/finance_focus.json',
     ).readAsStringSync();
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(body: GenUiScenarioSurface.raw(rawJson: rawJson)),
+        home: Scaffold(
+          body: GenUiScenarioSurface.presentationRaw(
+            presentationJson: presentationJson,
+          ),
+        ),
       ),
     );
     await tester.pumpAndSettle();

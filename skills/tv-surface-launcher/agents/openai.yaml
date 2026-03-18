@@ -1,4 +1,4 @@
 interface:
   display_name: "TV Surface Launcher"
-  short_description: "Run tv_fetch, generate A2UI, save, and launch on TV"
-  default_prompt: "Use $tv-surface-launcher to turn this request into fetched data, validated A2UI NDJSON, a saved file, and a TV launch."
+  short_description: "Fetch TV data, build presentation JSON, and preview"
+  default_prompt: "Use $tv-surface-launcher to fetch data, generate presentation JSON, save it, and launch a local TV surface preview."

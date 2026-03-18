@@ -1,5 +1,5 @@
-class ReceivedA2uiPayload {
-  const ReceivedA2uiPayload({this.filePath, this.rawJson});
+class ReceivedPresentationPayload {
+  const ReceivedPresentationPayload({this.filePath, this.rawJson});
 
   final String? filePath;
   final String? rawJson;

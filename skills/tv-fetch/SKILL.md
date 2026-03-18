@@ -5,10 +5,10 @@ description: "TV 도메인 데이터를 가져올 때 사용하는 tv_fetch CLI 
 
 # tv_fetch CLI
 
-OpenClaw TV 파이프라인의 데이터 레이어. 정규화된 도메인 JSON을 생산하며, A2UI 생성이나 뷰어 실행은 하지 않는다.
+OpenClaw TV 파이프라인의 데이터 레이어. 정규화된 도메인 JSON을 생산하며, presentation JSON 생성이나 뷰어 실행은 하지 않는다.
 
 ```
-user request → tv_fetch (normalized JSON) → A2UI composition → viewer app
+user request → tv_fetch (normalized JSON) → presentation composition → viewer app
 ```
 
 ## 사용법
@@ -74,6 +74,6 @@ tv_fetch weather --source mock --format pretty
 └── ...
 ```
 
-## 다음 단계: A2UI 변환
+## 다음 단계: Presentation 변환
 
-tv_fetch 출력을 TV 화면으로 만들려면 `tv-a2ui-catalog` 스킬을 참고하여 A2UI v0.9 JSON으로 변환한다.
+tv_fetch 출력을 TV 화면으로 만들려면 `tv-a2ui-catalog` 스킬을 참고하여 presentation JSON으로 변환한다.

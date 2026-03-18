@@ -16,7 +16,7 @@ void Assert(bool condition, const std::string& message) {
 
 void TestParseCommand() {
   const char* argv[] = {
-      "tv_a2ui_launcher", "--file", "/tmp/a2ui.json", "--app-id",
+      "tv_a2ui_launcher", "--file", "/tmp/presentation.json", "--app-id",
       "com.example.openclaw_tv_genui", "--dry-run", "--format", "pretty"};
   const auto parsed =
       tv_a2ui_launcher::ParseCommand(8, const_cast<char**>(argv));
@@ -24,7 +24,8 @@ void TestParseCommand() {
          "launcher command should parse");
   const auto& command =
       std::get<tv_a2ui_launcher::LaunchCommand>(parsed);
-  Assert(command.input_file == "/tmp/a2ui.json", "input file should parse");
+  Assert(command.input_file == "/tmp/presentation.json",
+         "input file should parse");
   Assert(command.app_id == "com.example.openclaw_tv_genui",
          "app id should parse");
   Assert(command.dry_run, "dry-run should parse");
@@ -35,8 +36,10 @@ void TestParseCommand() {
 void TestPreparePayloadFromStdin() {
   tv_a2ui_launcher::LaunchCommand command;
   std::istringstream input(
-      "{\"createSurface\":{\"surfaceId\":\"demo\"}}\n"
-      "{\"updateDataModel\":{\"state\":{\"title\":\"hello\"}}}\n");
+      "{\"surfaceId\":\"finance_focus\","
+      "\"theme\":{\"domain\":\"finance\",\"pattern\":\"centerCard\"},"
+      "\"title\":\"삼성전자\","
+      "\"hero\":{\"label\":\"현재가\",\"value\":\"74,300원\"}}\n");
 
   const auto prepared = tv_a2ui_launcher::PreparePayload(command, input);
   Assert(std::holds_alternative<tv_a2ui_launcher::PersistedPayload>(prepared),
@@ -45,8 +48,9 @@ void TestPreparePayloadFromStdin() {
       std::get<tv_a2ui_launcher::PersistedPayload>(prepared);
   Assert(payload.used_stdin, "stdin flag should be true");
   Assert(payload.source_label == "stdin", "source label should identify stdin");
-  Assert(payload.json.find("\"surfaceId\":\"demo\"") != std::string::npos,
-         "prepared payload should keep the NDJSON content");
+  Assert(payload.json.find("\"surfaceId\":\"finance_focus\"") !=
+             std::string::npos,
+         "prepared payload should keep the presentation JSON content");
 }
 
 void TestDryRunLaunch() {
@@ -54,7 +58,11 @@ void TestDryRunLaunch() {
   command.dry_run = true;
 
   tv_a2ui_launcher::PersistedPayload payload{
-      .json = "{\"createSurface\":{\"surfaceId\":\"demo\"}}\n",
+      .json =
+          "{\"surfaceId\":\"weather_today\","
+          "\"theme\":{\"domain\":\"weather\",\"pattern\":\"immersive\"},"
+          "\"title\":\"서울 서초구\","
+          "\"hero\":{\"label\":\"현재 기온\",\"value\":\"-1°\"}}\n",
       .source_label = "stdin",
       .bytes = 42,
       .used_stdin = true,

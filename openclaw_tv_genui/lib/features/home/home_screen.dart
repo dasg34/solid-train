@@ -33,9 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
     orElse: () => scenarioCatalog.first,
   );
 
-  StreamSubscription<ReceivedA2uiPayload>? _appControlSub;
-  String? _externalFilePath;
-  String? _externalRawJson;
+  StreamSubscription<ReceivedPresentationPayload>? _appControlSub;
+  String? _externalPresentationFilePath;
+  String? _externalPresentationJson;
 
   @override
   void initState() {
@@ -51,11 +51,12 @@ class _HomeScreenState extends State<HomeScreen> {
       if (payload.hasRawJson) {
         AppLogger.info(
           'home',
-          'Switching to external raw JSON mode: ${payload.rawJson!.length} chars',
+          'Switching to external presentation JSON mode: '
+              '${payload.rawJson!.length} chars',
         );
         setState(() {
-          _externalRawJson = payload.rawJson;
-          _externalFilePath = null;
+          _externalPresentationJson = payload.rawJson;
+          _externalPresentationFilePath = null;
         });
         return;
       }
@@ -63,11 +64,11 @@ class _HomeScreenState extends State<HomeScreen> {
       if (payload.hasFilePath) {
         AppLogger.info(
           'home',
-          'Switching to external file mode: ${payload.filePath}',
+          'Switching to external presentation file mode: ${payload.filePath}',
         );
         setState(() {
-          _externalFilePath = payload.filePath;
-          _externalRawJson = null;
+          _externalPresentationFilePath = payload.filePath;
+          _externalPresentationJson = null;
         });
       }
     });
@@ -75,17 +76,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final activeSurface = _externalRawJson != null
-        ? GenUiScenarioSurface.raw(
+    final activeSurface = _externalPresentationJson != null
+        ? GenUiScenarioSurface.presentationRaw(
             key: ValueKey(
-              'raw:${_externalRawJson.hashCode}:${_externalRawJson!.length}',
+              'presentation-raw:'
+              '${_externalPresentationJson.hashCode}:'
+              '${_externalPresentationJson!.length}',
             ),
-            rawJson: _externalRawJson!,
+            presentationJson: _externalPresentationJson!,
           )
-        : _externalFilePath != null
-        ? GenUiScenarioSurface.file(
-            key: ValueKey(_externalFilePath),
-            filePath: _externalFilePath!,
+        : _externalPresentationFilePath != null
+        ? GenUiScenarioSurface.presentationFile(
+            key: ValueKey(_externalPresentationFilePath),
+            presentationFilePath: _externalPresentationFilePath!,
           )
         : GenUiScenarioSurface.scenario(
             key: const ValueKey('fallback-scenario'),

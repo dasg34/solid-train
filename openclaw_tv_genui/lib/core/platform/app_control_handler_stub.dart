@@ -1,11 +1,13 @@
 import 'dart:async';
 
-import 'received_a2ui_payload.dart';
+import 'received_presentation_payload.dart';
 
 class AppControlHandler {
-  final _payloadController = StreamController<ReceivedA2uiPayload>.broadcast();
+  final _payloadController =
+      StreamController<ReceivedPresentationPayload>.broadcast();
 
-  Stream<ReceivedA2uiPayload> get onPayloadReceived => _payloadController.stream;
+  Stream<ReceivedPresentationPayload> get onPayloadReceived =>
+      _payloadController.stream;
 
   void dispose() {
     _payloadController.close();

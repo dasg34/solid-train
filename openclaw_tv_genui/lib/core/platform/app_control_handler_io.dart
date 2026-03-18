@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:tizen_app_control/tizen_app_control.dart';
 
 import '../logging/app_logger.dart';
-import 'received_a2ui_payload.dart';
+import 'received_presentation_payload.dart';
 
 class AppControlHandler {
-  final _payloadController = StreamController<ReceivedA2uiPayload>.broadcast();
+  final _payloadController =
+      StreamController<ReceivedPresentationPayload>.broadcast();
 
-  Stream<ReceivedA2uiPayload> get onPayloadReceived => _payloadController.stream;
+  Stream<ReceivedPresentationPayload> get onPayloadReceived =>
+      _payloadController.stream;
 
   StreamSubscription<ReceivedAppControl>? _sub;
 
@@ -29,9 +31,9 @@ class AppControlHandler {
           if (rawJson is String && rawJson.trim().isNotEmpty) {
             AppLogger.info(
               'app_control',
-              'Forwarding raw A2UI JSON from AppControl: ${rawJson.length} chars',
+              'Forwarding presentation JSON from AppControl: ${rawJson.length} chars',
             );
-            _payloadController.add(ReceivedA2uiPayload(rawJson: rawJson));
+            _payloadController.add(ReceivedPresentationPayload(rawJson: rawJson));
             return;
           }
 
@@ -39,15 +41,17 @@ class AppControlHandler {
           if (filePath is String && filePath.isNotEmpty) {
             AppLogger.info(
               'app_control',
-              'Forwarding payload file from AppControl: $filePath',
+              'Forwarding presentation payload file from AppControl: $filePath',
             );
-            _payloadController.add(ReceivedA2uiPayload(filePath: filePath));
+            _payloadController.add(
+              ReceivedPresentationPayload(filePath: filePath),
+            );
             return;
           }
 
           AppLogger.warn(
             'app_control',
-            'Received AppControl without a usable "json" or "file" extra.',
+            'Received AppControl without a usable presentation "json" or "file" extra.',
           );
         },
         onError: (Object error, StackTrace stackTrace) {

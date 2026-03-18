@@ -86,14 +86,14 @@ std::variant<LaunchCommand, AppError> ParseCommand(int argc, char** argv) {
 std::string RenderHelp() {
   std::ostringstream stream;
   stream << "tv_a2ui_launcher\n"
-         << "Launch com.example.openclaw_tv_genui with raw A2UI NDJSON via Tizen App Control.\n\n"
+         << "Launch com.example.openclaw_tv_genui with presentation JSON via Tizen App Control.\n\n"
          << "Usage:\n"
-         << "  cat /tmp/a2ui.json | tv_a2ui_launcher\n"
-         << "  tv_a2ui_launcher --file /tmp/a2ui.json\n"
-         << "  tv_a2ui_launcher --file /tmp/a2ui.json --app-id com.example.openclaw_tv_genui\n"
-         << "  tv_a2ui_launcher --file /tmp/a2ui.json --dry-run --format pretty\n\n"
+         << "  cat /tmp/presentation.json | tv_a2ui_launcher\n"
+         << "  tv_a2ui_launcher --file /tmp/presentation.json\n"
+         << "  tv_a2ui_launcher --file /tmp/presentation.json --app-id com.example.openclaw_tv_genui\n"
+         << "  tv_a2ui_launcher --file /tmp/presentation.json --dry-run --format pretty\n\n"
          << "Options:\n"
-         << "  --file PATH         Use an existing NDJSON file instead of stdin\n"
+         << "  --file PATH         Use an existing presentation JSON file instead of stdin\n"
          << "  --app-id APP_ID     Target application ID (default: com.example.openclaw_tv_genui)\n"
          << "  --dry-run           Read the payload but do not send the launch request\n"
          << "  --format FORMAT     Output json or pretty (default: json)\n";

@@ -5,11 +5,11 @@ import 'package:genui/genui.dart';
 
 import '../../../core/a2ui/a2ui_payload_source.dart';
 import '../../../core/a2ui/chart_catalog_items.dart';
-import '../../../core/a2ui/file_payload_source.dart';
 import '../../../core/a2ui/layout_catalog_items.dart';
-import '../../../core/a2ui/parse_ndjson.dart';
 import '../../../core/a2ui/surface_style.dart';
 import '../../../core/logging/app_logger.dart';
+import '../../../core/presentation/presentation_file_payload_source.dart';
+import '../../../core/presentation/presentation_payload_decoder.dart';
 import '../models/scenario_entry.dart';
 
 // Skills emit this catalogId in their createSurface messages.
@@ -28,23 +28,29 @@ class GenUiScenarioSurface extends StatefulWidget {
     super.key,
   }) : _payloadSource = payloadSource,
        _scenario = scenario,
-       filePath = null,
-       rawJson = null;
+       presentationFilePath = null,
+       presentationJson = null;
 
-  const GenUiScenarioSurface.file({required this.filePath, super.key})
+  const GenUiScenarioSurface.presentationFile({
+    required this.presentationFilePath,
+    super.key,
+  })
     : _payloadSource = null,
       _scenario = null,
-      rawJson = null;
+      presentationJson = null;
 
-  const GenUiScenarioSurface.raw({required this.rawJson, super.key})
+  const GenUiScenarioSurface.presentationRaw({
+    required this.presentationJson,
+    super.key,
+  })
     : _payloadSource = null,
       _scenario = null,
-      filePath = null;
+      presentationFilePath = null;
 
   final A2uiPayloadSource? _payloadSource;
   final ScenarioEntry? _scenario;
-  final String? filePath;
-  final String? rawJson;
+  final String? presentationFilePath;
+  final String? presentationJson;
 
   @override
   State<GenUiScenarioSurface> createState() => _GenUiScenarioSurfaceState();
@@ -98,8 +104,8 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   @override
   void didUpdateWidget(covariant GenUiScenarioSurface oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.filePath != widget.filePath ||
-        oldWidget.rawJson != widget.rawJson ||
+    if (oldWidget.presentationFilePath != widget.presentationFilePath ||
+        oldWidget.presentationJson != widget.presentationJson ||
         oldWidget._scenario?.id != widget._scenario?.id) {
       AppLogger.debug(
         'surface',
@@ -122,10 +128,15 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
     try {
       final List<A2uiMessage> messages;
 
-      if (widget.rawJson != null) {
-        messages = parseNdjson(widget.rawJson!);
-      } else if (widget.filePath != null) {
-        messages = await FilePayloadSource().loadFile(widget.filePath!);
+      if (widget.presentationJson != null) {
+        messages = decodePresentationMessages(
+          widget.presentationJson!,
+          sourceLabel: 'app control json',
+        );
+      } else if (widget.presentationFilePath != null) {
+        messages = await PresentationFilePayloadSource().loadFile(
+          widget.presentationFilePath!,
+        );
       } else {
         messages = await widget._payloadSource!.load(widget._scenario!.id);
       }
@@ -197,11 +208,11 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   }
 
   String _activeTargetDescription() {
-    if (widget.rawJson != null) {
-      return 'raw-json:${widget.rawJson!.length}chars';
+    if (widget.presentationJson != null) {
+      return 'presentation-json:${widget.presentationJson!.length}chars';
     }
-    if (widget.filePath != null) {
-      return 'file:${widget.filePath}';
+    if (widget.presentationFilePath != null) {
+      return 'presentation-file:${widget.presentationFilePath}';
     }
     return 'scenario:${widget._scenario?.id ?? "unknown"}';
   }
@@ -297,15 +308,15 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
   @override
   Widget build(BuildContext context) {
     if (_hasError) {
-      final title = widget.rawJson != null
-          ? '외부 A2UI JSON을 불러올 수 없습니다.'
-          : widget.filePath != null
-          ? '외부 A2UI 파일을 불러올 수 없습니다.'
+      final title = widget.presentationJson != null
+          ? '외부 presentation JSON을 불러올 수 없습니다.'
+          : widget.presentationFilePath != null
+          ? '외부 presentation 파일을 불러올 수 없습니다.'
           : '시나리오를 불러올 수 없습니다.';
-      final detail = widget.rawJson != null
-          ? _errorDetail ?? '전달한 App Control JSON이 A2UI NDJSON인지 확인해 주세요.'
-          : widget.filePath != null
-          ? _errorDetail ?? '전달한 파일이 A2UI NDJSON인지 확인해 주세요.'
+      final detail = widget.presentationJson != null
+          ? _errorDetail ?? '전달한 App Control JSON이 presentation 객체인지 확인해 주세요.'
+          : widget.presentationFilePath != null
+          ? _errorDetail ?? '전달한 파일이 presentation JSON인지 확인해 주세요.'
           : '데이터 또는 템플릿 상태를 확인해 주세요.';
 
       return Center(

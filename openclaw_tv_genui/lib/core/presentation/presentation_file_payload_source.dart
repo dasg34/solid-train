@@ -3,66 +3,68 @@ import 'dart:io';
 import 'package:genui/genui.dart';
 
 import '../logging/app_logger.dart';
-import 'parse_ndjson.dart';
+import 'presentation_payload_decoder.dart';
 
-/// Loads A2UI messages from a local filesystem NDJSON file.
-class FilePayloadSource {
+/// Loads presentation JSON from a local filesystem path and converts it
+/// into deterministic A2UI messages.
+class PresentationFilePayloadSource {
   Future<List<A2uiMessage>> loadFile(String filePath) async {
-    AppLogger.debug('payload.file', 'Loading external A2UI file: $filePath');
+    AppLogger.debug(
+      'payload.presentation.file',
+      'Loading external presentation file: $filePath',
+    );
 
     try {
       final file = File(filePath);
       final exists = await file.exists();
       AppLogger.info(
-        'payload.file',
+        'payload.presentation.file',
         'External file check path=$filePath exists=$exists',
       );
       if (!exists) {
         AppLogger.error(
-          'payload.file',
-          'External A2UI file does not exist: $filePath',
+          'payload.presentation.file',
+          'External presentation file does not exist: $filePath',
         );
       }
 
       final raw = await file.readAsString();
       final preview = _buildContentPreview(raw);
       AppLogger.debug(
-        'payload.file',
+        'payload.presentation.file',
         'Read ${raw.length} characters from $filePath preview="$preview"',
       );
-      final messages = parseNdjson(raw);
-      if (messages.isEmpty) {
-        AppLogger.warn(
-          'payload.file',
-          'External A2UI file contains zero messages: $filePath',
-        );
-      }
+
+      final messages = decodePresentationMessages(
+        raw,
+        sourceLabel: 'file',
+      );
       AppLogger.info(
-        'payload.file',
-        'Loaded ${messages.length} A2UI messages from $filePath',
+        'payload.presentation.file',
+        'Built ${messages.length} A2UI messages from $filePath',
       );
       return messages;
     } on FormatException catch (error, stackTrace) {
       AppLogger.error(
-        'payload.file',
-        'External A2UI file has invalid message format: $filePath. '
-            'This usually means the file is normalized JSON, not renderable A2UI NDJSON.',
+        'payload.presentation.file',
+        'External presentation file has invalid format: $filePath. '
+            'This usually means the file is raw A2UI NDJSON, not presentation JSON.',
         error: error,
         stackTrace: stackTrace,
       );
       rethrow;
     } on FileSystemException catch (error, stackTrace) {
       AppLogger.error(
-        'payload.file',
-        'Filesystem error while loading external A2UI file: $filePath',
+        'payload.presentation.file',
+        'Filesystem error while loading external presentation file: $filePath',
         error: error,
         stackTrace: stackTrace,
       );
       rethrow;
     } catch (error, stackTrace) {
       AppLogger.error(
-        'payload.file',
-        'Failed to load external A2UI file: $filePath',
+        'payload.presentation.file',
+        'Failed to load external presentation file: $filePath',
         error: error,
         stackTrace: stackTrace,
       );

@@ -1,13 +1,10 @@
-import 'dart:convert';
-
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:genui/genui.dart';
 
 import '../a2ui/a2ui_payload_source.dart';
 import '../a2ui/json_file_payload_source.dart';
 import '../logging/app_logger.dart';
-import 'presentation_a2ui_builder.dart';
-import 'presentation_surface.dart';
+import 'presentation_payload_decoder.dart';
 
 typedef AssetStringLoader = Future<String> Function(String assetPath);
 
@@ -41,17 +38,7 @@ class PresentationAssetPayloadSource implements A2uiPayloadSource {
 
     try {
       final raw = await _loadAssetString(assetPath);
-      final decoded = jsonDecode(raw);
-      if (decoded is! Map) {
-        throw const FormatException(
-          'Presentation asset must decode to a JSON object.',
-        );
-      }
-
-      final surface = PresentationSurface.fromJson(
-        Map<String, Object?>.from(decoded),
-      );
-      final messages = buildPresentationMessages(surface);
+      final messages = decodePresentationMessages(raw, sourceLabel: 'asset');
       AppLogger.info(
         'payload.presentation',
         'Built ${messages.length} A2UI messages from $assetPath',

@@ -114,7 +114,7 @@ std::variant<PersistedPayload, AppError> PreparePayload(
     if (!HasContent(content)) {
       return MakeError(
           "empty_input",
-          "The specified input file does not contain A2UI payload data.",
+          "The specified input file does not contain presentation payload data.",
           command.input_file,
           3);
     }
@@ -131,7 +131,7 @@ std::variant<PersistedPayload, AppError> PreparePayload(
     return MakeError(
         "stdin_required",
         "No piped input was provided.",
-        "Pipe A2UI NDJSON into stdin or use --file PATH.",
+        "Pipe presentation JSON into stdin or use --file PATH.",
         2);
   }
 
@@ -139,8 +139,8 @@ std::variant<PersistedPayload, AppError> PreparePayload(
   if (!HasContent(content)) {
     return MakeError(
         "empty_stdin",
-        "Standard input did not contain A2UI payload data.",
-        "Pipe NDJSON into tv_a2ui_launcher or use --file PATH.",
+        "Standard input did not contain presentation payload data.",
+        "Pipe presentation JSON into tv_a2ui_launcher or use --file PATH.",
         3);
   }
 
@@ -206,7 +206,7 @@ std::variant<LaunchReport, AppError> LaunchPayload(
     destroy();
     return MakeError(
         "app_control_extra_data_failed",
-        "Failed to attach the raw A2UI JSON as extra data.",
+        "Failed to attach the presentation JSON as extra data.",
         "app_control_add_extra_data error=" + std::to_string(ret),
         4);
   }
