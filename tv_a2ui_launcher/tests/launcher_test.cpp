@@ -17,7 +17,7 @@ void Assert(bool condition, const std::string& message) {
 void TestParseCommand() {
   const char* argv[] = {
       "tv_a2ui_launcher", "--file", "/tmp/a2ui.json", "--app-id",
-      "com.example_tv_genui", "--dry-run", "--format", "pretty"};
+      "com.example.openclaw_tv_genui", "--dry-run", "--format", "pretty"};
   const auto parsed =
       tv_a2ui_launcher::ParseCommand(8, const_cast<char**>(argv));
   Assert(std::holds_alternative<tv_a2ui_launcher::LaunchCommand>(parsed),
@@ -25,7 +25,8 @@ void TestParseCommand() {
   const auto& command =
       std::get<tv_a2ui_launcher::LaunchCommand>(parsed);
   Assert(command.input_file == "/tmp/a2ui.json", "input file should parse");
-  Assert(command.app_id == "com.example_tv_genui", "app id should parse");
+  Assert(command.app_id == "com.example.openclaw_tv_genui",
+         "app id should parse");
   Assert(command.dry_run, "dry-run should parse");
   Assert(command.format == tv_a2ui_launcher::OutputFormat::kPretty,
          "format should parse");

@@ -1,7 +1,7 @@
 Name:       tv_a2ui_launcher
 Version:    0.1.0
 Release:    0
-Summary:    Launches com.example_tv_genui with piped A2UI payloads
+Summary:    Launches com.example.openclaw_tv_genui with piped A2UI payloads
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
 Source1001: packaging/%{name}.manifest
