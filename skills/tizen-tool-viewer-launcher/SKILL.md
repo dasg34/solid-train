@@ -18,7 +18,6 @@ Turn a short natural-language request into a prepared or previewed TV surface.
 This skill is presentation-first. It uses:
 
 - `tizen-tool-presentation-catalog` for the presentation JSON schema
-- `tizen-tool-presentation-validate` for payload validation
 
 ## Current Reality
 
@@ -39,11 +38,10 @@ This skill is presentation-first. It uses:
 3. Collect or accept structured domain data for the chosen scenario
 4. Generate one presentation JSON object using `tizen-tool-presentation-catalog`
 5. Save it to `/tmp/tv-presentation/<domain>-<timestamp>.json`
-6. Validate it with `tizen-tool-presentation-validate`
-7. Deliver it using one of these modes:
+6. Deliver it using one of these modes:
    - Local preview: preferred default today
    - Runtime handoff: send the presentation JSON to the TV app
-8. Report domain, source, assumptions, saved path, validation result, and
+7. Report domain, source, assumptions, saved path, and
    preview or handoff result
 
 ## Raw JSON Only
@@ -54,12 +52,6 @@ The saved payload must be one raw JSON object only.
 - Do NOT wrap the payload in Markdown fences.
 - Do NOT prefix the file with commentary or headings.
 - The first character of the file must be `{`.
-
-Validate saved payloads before preview or handoff:
-
-```bash
-tizen-tool-presentation-validate /tmp/tv-presentation/<domain>-<timestamp>.json --format pretty
-```
 
 ## Domain Routing
 
@@ -116,12 +108,11 @@ For examples, read:
 This is the default launch path today.
 
 1. Save the generated JSON to `/tmp/tv-presentation/<domain>-<timestamp>.json`
-2. Validate it with `tizen-tool-presentation-validate`
-3. If the user wants to see it in the app, mirror the JSON into
+2. If the user wants to see it in the app, mirror the JSON into
    `openclaw_tv_genui/assets/presentation/<scenario>.json`
-4. Reuse an existing scenario id when possible. Add a new scenario entry only
+3. Reuse an existing scenario id when possible. Add a new scenario entry only
    when needed.
-5. Preview with:
+4. Preview with:
 
 ```bash
 cd /Users/yohoho/work/openclaw_tv_genui
@@ -136,14 +127,13 @@ Do not commit preview asset changes unless the user explicitly asks.
 Use this when the user wants an external launch instead of local preview.
 
 1. Save the generated JSON to `/tmp/tv-presentation/<domain>-<timestamp>.json`
-2. Validate it with `tizen-tool-presentation-validate`
-3. Launch with:
+2. Launch with:
 
 ```bash
 tv_a2ui_launcher --file /tmp/tv-presentation/<domain>-<timestamp>.json
 ```
 
-4. Use `--dry-run --format pretty` when the user wants validation of the
+3. Use `--dry-run --format pretty` when the user wants to inspect the
    handoff without sending the launch request.
 
 The launcher name is historical. It now sends presentation JSON using App
@@ -156,6 +146,5 @@ After finishing the workflow, briefly tell the user:
 - Which domain and data source were used
 - Any follow-up assumptions made
 - Where the presentation JSON file was saved
-- Whether `tizen-tool-presentation-validate` passed, and any warnings if present
 - Whether local preview was started, and the preview URL if applicable
 - If handoff was blocked, what integration was missing

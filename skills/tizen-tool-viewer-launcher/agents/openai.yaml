@@ -1,4 +1,4 @@
 interface:
   display_name: "Tizen Tool Viewer Launcher"
-  short_description: "Prepare presentation JSON, validate it, and preview"
-  default_prompt: "Use $tizen-tool-viewer-launcher to prepare presentation JSON from structured source data, validate it with tizen-tool-presentation-validate, save it, and launch a local TV surface preview."
+  short_description: "Prepare presentation JSON and launch a preview"
+  default_prompt: "Use $tizen-tool-viewer-launcher to prepare presentation JSON from structured source data, save it, and launch a local TV surface preview."
