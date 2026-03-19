@@ -39,10 +39,12 @@ This skill is presentation-first. It uses:
 4. Fetch domain data: `tv_fetch <domain> [options] --format json`
 5. Generate one presentation JSON object using `tv-a2ui-catalog`
 6. Save it to `/tmp/tv-presentation/<domain>-<timestamp>.json`
-7. Deliver it using one of these modes:
+7. Validate it with `tv_presentation_validate`
+8. Deliver it using one of these modes:
    - Local preview: preferred default today
    - Runtime handoff: send the presentation JSON to the TV app
-8. Report domain, source, assumptions, saved path, and preview or handoff result
+9. Report domain, source, assumptions, saved path, validation result, and
+   preview or handoff result
 
 ## Raw JSON Only
 
@@ -52,6 +54,23 @@ The saved payload must be one raw JSON object only.
 - Do NOT wrap the payload in Markdown fences.
 - Do NOT prefix the file with commentary or headings.
 - The first character of the file must be `{`.
+
+Validate saved payloads before preview or handoff:
+
+```bash
+cd /Users/yohoho/work/tv_presentation_validate
+meson setup builddir
+meson compile -C builddir
+./builddir/tv_presentation_validate /tmp/tv-presentation/<domain>-<timestamp>.json --format pretty
+```
+
+If `builddir` already exists, use:
+
+```bash
+cd /Users/yohoho/work/tv_presentation_validate
+meson compile -C builddir
+./builddir/tv_presentation_validate /tmp/tv-presentation/<domain>-<timestamp>.json --format pretty
+```
 
 ## Domain Routing
 
@@ -114,11 +133,12 @@ For examples, read:
 This is the default launch path today.
 
 1. Save the generated JSON to `/tmp/tv-presentation/<domain>-<timestamp>.json`
-2. If the user wants to see it in the app, mirror the JSON into
+2. Validate it with `tv_presentation_validate`
+3. If the user wants to see it in the app, mirror the JSON into
    `openclaw_tv_genui/assets/presentation/<scenario>.json`
-3. Reuse an existing scenario id when possible. Add a new scenario entry only
+4. Reuse an existing scenario id when possible. Add a new scenario entry only
    when needed.
-4. Preview with:
+5. Preview with:
 
 ```bash
 cd /Users/yohoho/work/openclaw_tv_genui
@@ -133,13 +153,14 @@ Do not commit preview asset changes unless the user explicitly asks.
 Use this when the user wants an external launch instead of local preview.
 
 1. Save the generated JSON to `/tmp/tv-presentation/<domain>-<timestamp>.json`
-2. Launch with:
+2. Validate it with `tv_presentation_validate`
+3. Launch with:
 
 ```bash
 tv_a2ui_launcher --file /tmp/tv-presentation/<domain>-<timestamp>.json
 ```
 
-3. Use `--dry-run --format pretty` when the user wants validation of the
+4. Use `--dry-run --format pretty` when the user wants validation of the
    handoff without sending the launch request.
 
 The launcher name is historical. It now sends presentation JSON using App
@@ -152,5 +173,6 @@ After finishing the workflow, briefly tell the user:
 - Which domain and data source were used
 - Any follow-up assumptions made
 - Where the presentation JSON file was saved
+- Whether `tv_presentation_validate` passed, and any warnings if present
 - Whether local preview was started, and the preview URL if applicable
 - If handoff was blocked, what integration was missing
