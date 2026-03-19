@@ -1,5 +1,5 @@
 ---
-name: tv-surface-launcher
+name: tizen-tool-viewer-launcher
 description: >
   End-to-end TV surface orchestration for Korean natural-language display
   requests. Use this skill whenever the user wants to show something on the TV
@@ -10,7 +10,7 @@ description: >
   preview or app handoff.
 ---
 
-# TV Surface Launcher
+# Tizen Tool Viewer Launcher
 
 Turn a short Korean utterance into a prepared or previewed TV surface.
 
