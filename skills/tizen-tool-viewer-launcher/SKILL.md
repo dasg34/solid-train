@@ -1,10 +1,11 @@
 ---
 name: tizen-tool-viewer-launcher
 description: >
-  End-to-end TV surface orchestration for Korean natural-language display
+  End-to-end TV surface orchestration for natural-language display
   requests. Use this skill whenever the user wants to show something on the TV
   screen — '날씨 보여줘', '뉴스 알려줘', '주식 확인', '출근길 띄워줘', '오늘
-  브리핑해줘', or any Korean request that implies preparing domain data and
+  브리핑해줘', 'show me the weather', 'show my commute', or any request that
+  implies preparing domain data and
   rendering it on a TV surface. This skill handles the presentation-first
   pipeline: scenario inference → structured source data → presentation JSON → save → local
   preview or app handoff.
@@ -12,7 +13,7 @@ description: >
 
 # Tizen Tool Viewer Launcher
 
-Turn a short Korean utterance into a prepared or previewed TV surface.
+Turn a short natural-language request into a prepared or previewed TV surface.
 
 This skill is presentation-first. It uses:
 
@@ -32,9 +33,9 @@ This skill is presentation-first. It uses:
 
 ## Workflow
 
-1. Infer the scenario from the noun phrase, not from verbs like 보여줘/알려줘.
+1. Infer the scenario from the request intent and noun phrases, not from generic display verbs alone.
 2. If the scenario is unclear or a required fetch input is missing, ask one
-   short Korean follow-up question. Ask only for the single missing piece.
+   short follow-up question. Ask only for the single missing piece.
 3. Collect or accept structured domain data for the chosen scenario
 4. Generate one presentation JSON object using `tizen-tool-presentation-catalog`
 5. Save it to `/tmp/tv-presentation/<domain>-<timestamp>.json`
@@ -62,9 +63,9 @@ tizen-tool-presentation-validate /tmp/tv-presentation/<domain>-<timestamp>.json 
 
 ## Domain Routing
 
-Map Korean noun phrases to domains:
+Map request phrases to domains:
 
-| Korean triggers | Domain |
+| Example triggers | Domain |
 |---|---|
 | 날씨, 기온, 비, 강수, 체감온도 | `weather` |
 | 뉴스, 헤드라인, 속보 | `news` |
@@ -81,6 +82,8 @@ Map Korean noun phrases to domains:
 | 쇼핑, 비교, 추천 비교 | `shopping` |
 | 스마트홈, 집 상태, 문 잠김, 실내 온도 | `smart-home` |
 | 웰니스, 운동, 수면, 스트레칭 | `wellness` |
+
+The trigger examples are illustrative, not language-limited.
 
 If no domain is clear, ask one short clarification question.
 
@@ -99,7 +102,6 @@ Generate the final surface payload with `tizen-tool-presentation-catalog`.
 - One strong hero metric is better than many competing numbers.
 - Add `metrics`, `facts`, `chart`, and `alert` only when they materially help.
 - Prefer stable `surfaceId` values such as `weather_today` or `finance_focus`.
-- Keep Korean locale assumptions: `ko-KR`, `Asia/Seoul`.
 - Do not emit footer fields or low-level component trees.
 
 For examples, read:
