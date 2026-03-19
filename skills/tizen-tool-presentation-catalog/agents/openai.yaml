@@ -4,4 +4,5 @@ interface:
   default_prompt: |
     Use this skill to learn how to generate valid presentation JSON for the TV app.
     The app converts this semantic JSON into deterministic A2UI internally.
-    Contains output rules, field schema, TV UX principles, and reference examples.
+    Contains output rules, field schema, TV UX principles, validation guidance,
+    and reference examples.
