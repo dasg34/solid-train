@@ -299,9 +299,13 @@ ValidationReport Validate(std::string_view content,
   }
 
   // metrics and facts
-  for (const auto [field_name, counter] :
-       {std::pair<std::string_view, int*>("metrics", &report.metric_count),
-        std::pair<std::string_view, int*>("facts", &report.fact_count)}) {
+  const std::array<std::pair<std::string_view, int*>, 2> metric_fields = {{
+      std::pair<std::string_view, int*>("metrics", &report.metric_count),
+      std::pair<std::string_view, int*>("facts", &report.fact_count),
+  }};
+  for (const auto& metric_field : metric_fields) {
+    const std::string_view field_name = metric_field.first;
+    int* const counter = metric_field.second;
     auto list = payload.At(field_name);
     if (list.IsNull()) {
       AddPass(report.checks, std::string(field_name),
