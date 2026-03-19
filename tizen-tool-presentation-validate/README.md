@@ -45,5 +45,3 @@ Packaging files are in `packaging/`.
 - `packaging/tizen-tool-presentation-validate.spec`
 - `packaging/tizen-tool-presentation-validate.manifest`
 
-The packaging layout mirrors `tv_a2ui_validate` so it can be built in the same
-Tizen native CLI environment.
