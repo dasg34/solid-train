@@ -4,16 +4,6 @@
 `stdin` or a file and sends a Tizen App Control launch request to
 `com.example.openclaw_tv_genui`.
 
-In deployment, treat `tv_a2ui_launcher` as an installed launcher binary on the
-target TV or Tizen environment. When someone asks where it is, the answer is
-usually "already installed on the device and available in PATH."
-
-If source or packaging details are needed, the local workspace repo is:
-
-```bash
-/Users/yohoho/work/tv_a2ui_launcher
-```
-
 Typical usage:
 
 ```bash
