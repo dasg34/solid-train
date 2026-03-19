@@ -229,7 +229,7 @@ void main() {
       expect(heroSummaryText['variant'], 'h4');
       expect(heroSummaryInset['vertical'], 5);
       expect(heroDividerInset['vertical'], 3);
-      expect(heroMetricLabelText['variant'], 'body');
+      expect(heroMetricLabelText['variant'], 'h2');
       expect(heroMetricValueText['variant'], 'h2');
       expect(heroMetricDetailText['variant'], 'h5');
       expect(heroMetricInset['vertical'], 8);

@@ -185,7 +185,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'heroMetricLabelText',
       component: 'Text',
-      props: {'text': _path('heroLabel'), 'variant': 'body'},
+      props: {'text': _path('heroLabel'), 'variant': 'h2'},
     );
     _addComponent(
       id: 'heroMetricValueText',
