@@ -1,4 +1,4 @@
-#include "tv_a2ui_launcher/launcher.hpp"
+#include "tizen_tool_viewer_launch/launcher.hpp"
 
 #include <cctype>
 #include <chrono>
@@ -18,7 +18,7 @@
 #define TV_A2UI_LAUNCHER_HAS_APP_CONTROL 0
 #endif
 
-namespace tv_a2ui_launcher {
+namespace tizen_tool_viewer_launch {
 
 namespace {
 
@@ -203,7 +203,7 @@ std::variant<PersistedPayload, AppError> PreparePayload(
     return MakeError(
         "empty_stdin",
         "Standard input did not contain presentation payload data.",
-        "Pipe presentation JSON into tv_a2ui_launcher or use --file PATH.",
+        "Pipe presentation JSON into tizen-tool-viewer-launch or use --file PATH.",
         3);
   }
 
@@ -309,4 +309,4 @@ std::string RenderError(const AppError& error, OutputFormat format) {
   return out.str();
 }
 
-}  // namespace tv_a2ui_launcher
+}  // namespace tizen_tool_viewer_launch

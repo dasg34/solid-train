@@ -5,10 +5,10 @@
 #include <string>
 #include <variant>
 
-#include "tv_a2ui_launcher/cli.hpp"
-#include "tv_a2ui_launcher/error.hpp"
+#include "tizen_tool_viewer_launch/cli.hpp"
+#include "tizen_tool_viewer_launch/error.hpp"
 
-namespace tv_a2ui_launcher {
+namespace tizen_tool_viewer_launch {
 
 struct PersistedPayload {
   std::string json;
@@ -36,4 +36,4 @@ std::variant<LaunchReport, AppError> LaunchPayload(
 std::string RenderReport(const LaunchReport& report, OutputFormat format);
 std::string RenderError(const AppError& error, OutputFormat format);
 
-}  // namespace tv_a2ui_launcher
+}  // namespace tizen_tool_viewer_launch

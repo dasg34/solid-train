@@ -22,8 +22,7 @@ This skill is presentation-first. It uses:
 
 ## Current Reality
 
-- `tv_a2ui_launcher` is a historical name, but it now transports presentation
-  JSON to the app.
+- `tizen-tool-viewer-launch` transports presentation JSON to the TV app.
 
 ## Workflow
 
@@ -80,14 +79,13 @@ Use runtime handoff for delivery.
 2. Launch with:
 
 ```bash
-tv_a2ui_launcher --file /tmp/tv-presentation/<domain>-<timestamp>.json
+tizen-tool-viewer-launch --file /tmp/tv-presentation/<domain>-<timestamp>.json
 ```
 
 3. Use `--dry-run --format pretty` when the user wants to inspect the
    handoff without sending the launch request.
 
-The launcher name is historical. It now sends presentation JSON using App
-Control extra data key `json`.
+The launcher sends presentation JSON using App Control extra data key `json`.
 
 ## Response Contract
 

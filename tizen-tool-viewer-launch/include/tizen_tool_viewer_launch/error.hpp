@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace tv_a2ui_launcher {
+namespace tizen_tool_viewer_launch {
 
 struct AppError {
   std::string code;
@@ -11,4 +11,4 @@ struct AppError {
   int exit_code = 1;
 };
 
-}  // namespace tv_a2ui_launcher
+}  // namespace tizen_tool_viewer_launch

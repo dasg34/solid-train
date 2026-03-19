@@ -1,8 +1,8 @@
-#include "tv_a2ui_launcher/cli.hpp"
+#include "tizen_tool_viewer_launch/cli.hpp"
 
 #include <sstream>
 
-namespace tv_a2ui_launcher {
+namespace tizen_tool_viewer_launch {
 
 namespace {
 
@@ -72,7 +72,7 @@ std::variant<LaunchCommand, AppError> ParseCommand(int argc, char** argv) {
     }
     return InvalidArguments(
         "Unsupported launcher option.",
-        "Use tv_a2ui_launcher [--file PATH] "
+        "Use tizen-tool-viewer-launch [--file PATH] "
         "[--app-id APP_ID] [--dry-run] [--format json|pretty].");
   }
 
@@ -85,13 +85,13 @@ std::variant<LaunchCommand, AppError> ParseCommand(int argc, char** argv) {
 
 std::string RenderHelp() {
   std::ostringstream stream;
-  stream << "tv_a2ui_launcher\n"
+  stream << "tizen-tool-viewer-launch\n"
          << "Launch com.example.tizen_tool_viewer with presentation JSON via Tizen App Control.\n\n"
          << "Usage:\n"
-         << "  cat /tmp/presentation.json | tv_a2ui_launcher\n"
-         << "  tv_a2ui_launcher --file /tmp/presentation.json\n"
-         << "  tv_a2ui_launcher --file /tmp/presentation.json --app-id com.example.tizen_tool_viewer\n"
-         << "  tv_a2ui_launcher --file /tmp/presentation.json --dry-run --format pretty\n\n"
+         << "  cat /tmp/presentation.json | tizen-tool-viewer-launch\n"
+         << "  tizen-tool-viewer-launch --file /tmp/presentation.json\n"
+         << "  tizen-tool-viewer-launch --file /tmp/presentation.json --app-id com.example.tizen_tool_viewer\n"
+         << "  tizen-tool-viewer-launch --file /tmp/presentation.json --dry-run --format pretty\n\n"
          << "Options:\n"
          << "  --file PATH         Use an existing presentation JSON file instead of stdin\n"
          << "  --app-id APP_ID     Target application ID (default: com.example.tizen_tool_viewer)\n"
@@ -104,4 +104,4 @@ std::string_view ToString(OutputFormat format) {
   return format == OutputFormat::kPretty ? "pretty" : "json";
 }
 
-}  // namespace tv_a2ui_launcher
+}  // namespace tizen_tool_viewer_launch

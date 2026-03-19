@@ -1,5 +1,5 @@
 project(
-  'tv_a2ui_launcher',
+  'tizen-tool-viewer-launch',
   'cpp',
   version: '0.1.0',
   default_options: [
@@ -18,7 +18,7 @@ endif
 launcher_includes = include_directories('include')
 
 launcher_lib = static_library(
-  'tv_a2ui_launcher_lib',
+  'tizen_tool_viewer_launch_lib',
   [
     'src/cli.cpp',
     'src/launcher.cpp',
@@ -28,7 +28,7 @@ launcher_lib = static_library(
 )
 
 executable(
-  'tv_a2ui_launcher',
+  'tizen-tool-viewer-launch',
   'src/main.cpp',
   include_directories: launcher_includes,
   link_with: launcher_lib,
@@ -36,10 +36,10 @@ executable(
 )
 
 launcher_tests = executable(
-  'tv_a2ui_launcher_tests',
+  'tizen-tool-viewer-launch_tests',
   'tests/launcher_test.cpp',
   include_directories: launcher_includes,
   link_with: launcher_lib,
 )
 
-test('tv_a2ui_launcher_tests', launcher_tests)
+test('tizen-tool-viewer-launch_tests', launcher_tests)

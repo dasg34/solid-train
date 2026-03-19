@@ -2,8 +2,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "tv_a2ui_launcher/cli.hpp"
-#include "tv_a2ui_launcher/launcher.hpp"
+#include "tizen_tool_viewer_launch/cli.hpp"
+#include "tizen_tool_viewer_launch/launcher.hpp"
 
 namespace {
 
@@ -16,36 +16,37 @@ void Assert(bool condition, const std::string& message) {
 
 void TestParseCommand() {
   const char* argv[] = {
-      "tv_a2ui_launcher", "--file", "/tmp/presentation.json", "--app-id",
+      "tizen-tool-viewer-launch", "--file", "/tmp/presentation.json", "--app-id",
       "com.example.tizen_tool_viewer", "--dry-run", "--format", "pretty"};
   const auto parsed =
-      tv_a2ui_launcher::ParseCommand(8, const_cast<char**>(argv));
-  Assert(std::holds_alternative<tv_a2ui_launcher::LaunchCommand>(parsed),
+      tizen_tool_viewer_launch::ParseCommand(8, const_cast<char**>(argv));
+  Assert(std::holds_alternative<tizen_tool_viewer_launch::LaunchCommand>(parsed),
          "launcher command should parse");
   const auto& command =
-      std::get<tv_a2ui_launcher::LaunchCommand>(parsed);
+      std::get<tizen_tool_viewer_launch::LaunchCommand>(parsed);
   Assert(command.input_file == "/tmp/presentation.json",
          "input file should parse");
   Assert(command.app_id == "com.example.tizen_tool_viewer",
          "app id should parse");
   Assert(command.dry_run, "dry-run should parse");
-  Assert(command.format == tv_a2ui_launcher::OutputFormat::kPretty,
+  Assert(command.format == tizen_tool_viewer_launch::OutputFormat::kPretty,
          "format should parse");
 }
 
 void TestPreparePayloadFromStdin() {
-  tv_a2ui_launcher::LaunchCommand command;
+  tizen_tool_viewer_launch::LaunchCommand command;
   std::istringstream input(
       "{\"surfaceId\":\"finance_focus\","
       "\"theme\":{\"domain\":\"finance\",\"pattern\":\"centerCard\"},"
       "\"title\":\"삼성전자\","
       "\"hero\":{\"label\":\"현재가\",\"value\":\"74,300원\"}}\n");
 
-  const auto prepared = tv_a2ui_launcher::PreparePayload(command, input);
-  Assert(std::holds_alternative<tv_a2ui_launcher::PersistedPayload>(prepared),
+  const auto prepared = tizen_tool_viewer_launch::PreparePayload(command, input);
+  Assert(
+      std::holds_alternative<tizen_tool_viewer_launch::PersistedPayload>(prepared),
          "payload should persist");
   const auto& payload =
-      std::get<tv_a2ui_launcher::PersistedPayload>(prepared);
+      std::get<tizen_tool_viewer_launch::PersistedPayload>(prepared);
   Assert(payload.used_stdin, "stdin flag should be true");
   Assert(payload.source_label == "stdin", "source label should identify stdin");
   Assert(payload.json.find("\"surfaceId\":\"finance_focus\"") !=
@@ -54,10 +55,10 @@ void TestPreparePayloadFromStdin() {
 }
 
 void TestDryRunLaunch() {
-  tv_a2ui_launcher::LaunchCommand command;
+  tizen_tool_viewer_launch::LaunchCommand command;
   command.dry_run = true;
 
-  tv_a2ui_launcher::PersistedPayload payload{
+  tizen_tool_viewer_launch::PersistedPayload payload{
       .json =
           "{\"surfaceId\":\"weather_today\","
           "\"theme\":{\"domain\":\"weather\",\"pattern\":\"immersive\"},"
@@ -68,11 +69,11 @@ void TestDryRunLaunch() {
       .used_stdin = true,
   };
 
-  const auto launched = tv_a2ui_launcher::LaunchPayload(command, payload);
-  Assert(std::holds_alternative<tv_a2ui_launcher::LaunchReport>(launched),
+  const auto launched = tizen_tool_viewer_launch::LaunchPayload(command, payload);
+  Assert(std::holds_alternative<tizen_tool_viewer_launch::LaunchReport>(launched),
          "dry-run launch should not fail");
   const auto& report =
-      std::get<tv_a2ui_launcher::LaunchReport>(launched);
+      std::get<tizen_tool_viewer_launch::LaunchReport>(launched);
   Assert(!report.launched, "dry-run should not send launch request");
   Assert(report.bytes == 42, "report should preserve byte count");
   Assert(report.source_label == "stdin", "report should preserve source label");
@@ -88,6 +89,6 @@ int main() {
   TestParseCommand();
   TestPreparePayloadFromStdin();
   TestDryRunLaunch();
-  std::cout << "tv_a2ui_launcher_tests passed\n";
+  std::cout << "tizen-tool-viewer-launch_tests passed\n";
   return 0;
 }

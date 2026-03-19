@@ -4,9 +4,9 @@
 #include <string_view>
 #include <variant>
 
-#include "tv_a2ui_launcher/error.hpp"
+#include "tizen_tool_viewer_launch/error.hpp"
 
-namespace tv_a2ui_launcher {
+namespace tizen_tool_viewer_launch {
 
 enum class OutputFormat { kJson, kPretty };
 
@@ -21,4 +21,4 @@ std::variant<LaunchCommand, AppError> ParseCommand(int argc, char** argv);
 std::string RenderHelp();
 std::string_view ToString(OutputFormat format);
 
-}  // namespace tv_a2ui_launcher
+}  // namespace tizen_tool_viewer_launch

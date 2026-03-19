@@ -1,16 +1,16 @@
-# tv_a2ui_launcher
+# tizen-tool-viewer-launch
 
-`tv_a2ui_launcher` is a small native CLI that reads presentation JSON from
+`tizen-tool-viewer-launch` is a small native CLI that reads presentation JSON from
 `stdin` or a file and sends a Tizen App Control launch request to
 `com.example.tizen_tool_viewer`.
 
 Typical usage:
 
 ```bash
-cat /tmp/presentation.json | tv_a2ui_launcher
-tv_a2ui_launcher --file /tmp/presentation.json
-tv_a2ui_launcher --file /tmp/presentation.json --app-id com.example.tizen_tool_viewer
-tv_a2ui_launcher --file /tmp/presentation.json --dry-run --format pretty
+cat /tmp/presentation.json | tizen-tool-viewer-launch
+tizen-tool-viewer-launch --file /tmp/presentation.json
+tizen-tool-viewer-launch --file /tmp/presentation.json --app-id com.example.tizen_tool_viewer
+tizen-tool-viewer-launch --file /tmp/presentation.json --dry-run --format pretty
 ```
 
 Behavior:

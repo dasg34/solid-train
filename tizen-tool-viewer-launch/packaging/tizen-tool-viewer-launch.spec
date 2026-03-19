@@ -1,4 +1,4 @@
-Name:       tv_a2ui_launcher
+Name:       tizen-tool-viewer-launch
 Version:    0.1.0
 Release:    0
 Summary:    Launches com.example.tizen_tool_viewer with piped presentation payloads
@@ -10,7 +10,7 @@ BuildRequires: ninja
 BuildRequires: pkgconfig(capi-appfw-app-control)
 
 %description
-tv_a2ui_launcher is a native CLI that reads presentation JSON from stdin or a
+tizen-tool-viewer-launch is a native CLI that reads presentation JSON from stdin or a
 local file, persists it, and sends a Tizen App Control launch request to the
 target TV renderer application.
 
@@ -28,4 +28,4 @@ DESTDIR=%{buildroot} meson install -C builddir --no-rebuild
 
 %files
 %defattr(-,root,root,-)
-%{_bindir}/tv_a2ui_launcher
+%{_bindir}/tizen-tool-viewer-launch
