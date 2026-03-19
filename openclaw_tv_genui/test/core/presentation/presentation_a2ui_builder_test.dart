@@ -123,6 +123,12 @@ void main() {
       final alertInset = components.firstWhere(
         (component) => component['id'] == 'alertInset',
       );
+      final metricWrap = components.firstWhere(
+        (component) => component['id'] == 'metricWrap',
+      );
+      final factWrap = components.firstWhere(
+        (component) => component['id'] == 'factWrap',
+      );
 
       expect(theme['scale'], 'standard');
       expect(value['chartTitle'], '장중 추이');
@@ -135,15 +141,19 @@ void main() {
       expect(factInset['all'], 14);
       expect(chartInset['all'], 16);
       expect(alertInset['all'], 16);
+      expect(metricWrap['component'], 'Masonry');
+      expect(metricWrap['maxCrossAxisExtent'], 260);
+      expect(metricWrap['crossAxisSpacing'], 16);
+      expect(metricWrap['mainAxisSpacing'], 16);
+      expect(factWrap['component'], 'Masonry');
+      expect(factWrap['maxCrossAxisExtent'], 260);
       expect(
         components.any((component) => component['component'] == 'LineChart'),
         isTrue,
       );
       expect(
-        components
-            .where((component) => component['component'] == 'Wrap')
-            .length,
-        2,
+        components.where((component) => component['component'] == 'Wrap'),
+        isEmpty,
       );
 
       final messages = buildPresentationMessages(surface);

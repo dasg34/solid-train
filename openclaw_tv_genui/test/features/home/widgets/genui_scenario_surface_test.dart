@@ -64,19 +64,20 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final scrollableState = tester.state<ScrollableState>(
-      find.byType(Scrollable),
+    final scrollView = tester.widget<SingleChildScrollView>(
+      find.byType(SingleChildScrollView),
     );
-    expect(scrollableState.position.pixels, 0);
+    final controller = scrollView.controller!;
+    expect(controller.position.pixels, 0);
 
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.pumpAndSettle();
 
-    expect(scrollableState.position.pixels, greaterThan(0));
+    expect(controller.position.pixels, greaterThan(0));
 
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
     await tester.pumpAndSettle();
 
-    expect(scrollableState.position.pixels, lessThanOrEqualTo(1));
+    expect(controller.position.pixels, lessThanOrEqualTo(1));
   });
 }

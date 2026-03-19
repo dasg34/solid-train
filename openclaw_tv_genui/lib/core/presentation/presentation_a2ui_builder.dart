@@ -27,11 +27,12 @@ class _PresentationA2uiBuilder {
   final Map<String, Object?> _data = {};
   final List<String> _rootChildren = [];
 
-  bool get _isSidePanel => surface.theme.pattern == 'sidePanel';
   double get _smallCardInsetAll => 14;
   double get _featureCardInsetAll => 16;
-  double get _sidePanelMasonryExtent => 220;
-  double get _sidePanelMasonrySpacing => 12;
+  double get _masonryExtent =>
+      surface.theme.pattern == 'sidePanel' ? 220 : 260;
+  double get _masonrySpacing =>
+      surface.theme.pattern == 'sidePanel' ? 12 : 16;
 
   List<Map<String, Object?>> build() {
     _bindSurfaceData();
@@ -296,15 +297,13 @@ class _PresentationA2uiBuilder {
 
     return _addComponent(
       id: 'metricWrap',
-      component: _isSidePanel ? 'Masonry' : 'Wrap',
-      props: _isSidePanel
-          ? {
-              'children': metricCardIds,
-              'maxCrossAxisExtent': _sidePanelMasonryExtent,
-              'crossAxisSpacing': _sidePanelMasonrySpacing,
-              'mainAxisSpacing': _sidePanelMasonrySpacing,
-            }
-          : {'children': metricCardIds, 'spacing': 18, 'runSpacing': 18},
+      component: 'Masonry',
+      props: {
+        'children': metricCardIds,
+        'maxCrossAxisExtent': _masonryExtent,
+        'crossAxisSpacing': _masonrySpacing,
+        'mainAxisSpacing': _masonrySpacing,
+      },
     );
   }
 
@@ -448,15 +447,13 @@ class _PresentationA2uiBuilder {
 
     return _addComponent(
       id: 'factWrap',
-      component: _isSidePanel ? 'Masonry' : 'Wrap',
-      props: _isSidePanel
-          ? {
-              'children': factCardIds,
-              'maxCrossAxisExtent': _sidePanelMasonryExtent,
-              'crossAxisSpacing': _sidePanelMasonrySpacing,
-              'mainAxisSpacing': _sidePanelMasonrySpacing,
-            }
-          : {'children': factCardIds, 'spacing': 18, 'runSpacing': 18},
+      component: 'Masonry',
+      props: {
+        'children': factCardIds,
+        'maxCrossAxisExtent': _masonryExtent,
+        'crossAxisSpacing': _masonrySpacing,
+        'mainAxisSpacing': _masonrySpacing,
+      },
     );
   }
 
