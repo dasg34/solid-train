@@ -61,9 +61,6 @@ Validate saved payloads before preview or handoff:
 tizen-tool-presentation-validate /tmp/tv-presentation/<domain>-<timestamp>.json --format pretty
 ```
 
-Assume `tizen-tool-presentation-validate` is already installed and available on
-`PATH`. Do not rebuild it during the normal skill flow.
-
 ## Domain Routing
 
 Map Korean noun phrases to domains:

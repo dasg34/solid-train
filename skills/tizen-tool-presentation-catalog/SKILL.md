@@ -46,9 +46,6 @@ cat /tmp/tv-presentation/<domain>-<timestamp>.json | \
 Validation is not part of the JSON payload itself. Do not mention validator
 commands inside the output JSON.
 
-Assume `tizen-tool-presentation-validate` is already installed and available on
-`PATH`.
-
 ## Missing Information Rule
 
 Do not invent required rendering inputs.

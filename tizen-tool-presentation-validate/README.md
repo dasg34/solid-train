@@ -6,9 +6,6 @@ presentation JSON payload used by `openclaw_tv_genui`.
 It checks the semantic presentation object before the Flutter app converts it
 into deterministic A2UI.
 
-The normal usage assumption is that `tizen-tool-presentation-validate` is
-already installed and available on `PATH`.
-
 ## What it validates
 
 - Raw JSON object only
