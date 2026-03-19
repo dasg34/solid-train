@@ -1,11 +1,11 @@
 {
-    "name": "openclaw_tv_genui",
-    "short_name": "openclaw_tv_genui",
+    "name": "tizen-tool-viewer",
+    "short_name": "tizen-tool-viewer",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Samsung Tizen TV presentation viewer.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

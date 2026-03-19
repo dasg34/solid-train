@@ -2,14 +2,14 @@
 
 `tv_a2ui_launcher` is a small native CLI that reads presentation JSON from
 `stdin` or a file and sends a Tizen App Control launch request to
-`com.example.openclaw_tv_genui`.
+`com.example.tizen_tool_viewer`.
 
 Typical usage:
 
 ```bash
 cat /tmp/presentation.json | tv_a2ui_launcher
 tv_a2ui_launcher --file /tmp/presentation.json
-tv_a2ui_launcher --file /tmp/presentation.json --app-id com.example.openclaw_tv_genui
+tv_a2ui_launcher --file /tmp/presentation.json --app-id com.example.tizen_tool_viewer
 tv_a2ui_launcher --file /tmp/presentation.json --dry-run --format pretty
 ```
 
@@ -19,7 +19,7 @@ Behavior:
 - `--file` can be used instead of piping
 - the launcher sends the raw presentation JSON text using App Control extra
   data key `json`
-- the target app ID defaults to `com.example.openclaw_tv_genui`
+- the target app ID defaults to `com.example.tizen_tool_viewer`
 - on Tizen, the launcher replays the same launch request once after a short
   delay to improve cold-start delivery when the Flutter app is still booting
 

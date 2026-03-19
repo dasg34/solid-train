@@ -17,7 +17,7 @@ class OpenclawTvApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'OpenClaw TV GenUI',
+      title: 'tizen-tool-viewer',
       locale: const Locale('ko', 'KR'),
       supportedLocales: const [Locale('ko', 'KR'), Locale('en', 'US')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,

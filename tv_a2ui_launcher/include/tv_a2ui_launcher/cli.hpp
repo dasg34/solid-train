@@ -11,7 +11,7 @@ namespace tv_a2ui_launcher {
 enum class OutputFormat { kJson, kPretty };
 
 struct LaunchCommand {
-  std::string app_id = "com.example.openclaw_tv_genui";
+  std::string app_id = "com.example.tizen_tool_viewer";
   std::string input_file;
   OutputFormat format = OutputFormat::kJson;
   bool dry_run = false;
