@@ -27,12 +27,11 @@ class _PresentationA2uiBuilder {
   final Map<String, Object?> _data = {};
   final List<String> _rootChildren = [];
 
+  String get _forcedPattern => 'sidePanel';
   double get _smallCardInsetAll => 14;
   double get _featureCardInsetAll => 16;
-  double get _masonryExtent =>
-      surface.theme.pattern == 'sidePanel' ? 220 : 260;
-  double get _masonrySpacing =>
-      surface.theme.pattern == 'sidePanel' ? 12 : 16;
+  double get _masonryExtent => 220;
+  double get _masonrySpacing => 12;
 
   List<Map<String, Object?>> build() {
     _bindSurfaceData();
@@ -67,7 +66,7 @@ class _PresentationA2uiBuilder {
           'catalogId': presentationCatalogId,
           'theme': {
             'domain': surface.theme.domain,
-            'pattern': surface.theme.pattern,
+            'pattern': _forcedPattern,
             'scale': surface.theme.scale ?? _defaultScale(),
           },
         },

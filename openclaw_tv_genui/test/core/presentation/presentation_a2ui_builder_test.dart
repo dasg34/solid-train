@@ -38,6 +38,7 @@ void main() {
       );
 
       expect(theme['scale'], 'compact');
+      expect(theme['pattern'], 'sidePanel');
       expect(value['heroValue'], '74,300원');
       expect(root['children'], ['heroCard']);
       expect(heroMetricDetailText['variant'], 'caption');
@@ -131,6 +132,7 @@ void main() {
       );
 
       expect(theme['scale'], 'standard');
+      expect(theme['pattern'], 'sidePanel');
       expect(value['chartTitle'], '장중 추이');
       expect(value['chartValues'], [74200.0, 73900.0, 74100.0, 74300.0]);
       expect(heroSummaryText['variant'], 'body');
@@ -142,11 +144,11 @@ void main() {
       expect(chartInset['all'], 16);
       expect(alertInset['all'], 16);
       expect(metricWrap['component'], 'Masonry');
-      expect(metricWrap['maxCrossAxisExtent'], 260);
-      expect(metricWrap['crossAxisSpacing'], 16);
-      expect(metricWrap['mainAxisSpacing'], 16);
+      expect(metricWrap['maxCrossAxisExtent'], 220);
+      expect(metricWrap['crossAxisSpacing'], 12);
+      expect(metricWrap['mainAxisSpacing'], 12);
       expect(factWrap['component'], 'Masonry');
-      expect(factWrap['maxCrossAxisExtent'], 260);
+      expect(factWrap['maxCrossAxisExtent'], 220);
       expect(
         components.any((component) => component['component'] == 'LineChart'),
         isTrue,
