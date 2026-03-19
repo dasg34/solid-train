@@ -1,11 +1,13 @@
 #include "tv_a2ui_launcher/launcher.hpp"
 
 #include <cctype>
+#include <chrono>
 #include <fstream>
 #include <iomanip>
 #include <optional>
 #include <sstream>
 #include <string_view>
+#include <thread>
 
 #include <unistd.h>
 
@@ -80,6 +82,8 @@ bool HasContent(std::string_view value) {
 }
 
 #if TV_A2UI_LAUNCHER_HAS_APP_CONTROL
+constexpr int kColdStartReplayDelayMs = 700;
+
 std::optional<std::string> TizenErrorHint(int code) {
   switch (code) {
     case APP_CONTROL_ERROR_APP_NOT_FOUND:
@@ -93,6 +97,65 @@ std::optional<std::string> TizenErrorHint(int code) {
     default:
       return std::nullopt;
   }
+}
+
+std::optional<AppError> SendLaunchRequest(std::string_view app_id,
+                                          std::string_view payload_json) {
+  app_control_h app_control = nullptr;
+  int ret = app_control_create(&app_control);
+  if (ret != APP_CONTROL_ERROR_NONE || app_control == nullptr) {
+    return MakeError(
+        "app_control_create_failed",
+        "Failed to create a Tizen App Control handle.",
+        "app_control_create error=" + std::to_string(ret),
+        4);
+  }
+
+  auto destroy = [&]() { app_control_destroy(app_control); };
+
+  ret = app_control_set_operation(app_control, APP_CONTROL_OPERATION_DEFAULT);
+  if (ret != APP_CONTROL_ERROR_NONE) {
+    destroy();
+    return MakeError(
+        "app_control_operation_failed",
+        "Failed to configure the App Control operation.",
+        "app_control_set_operation error=" + std::to_string(ret),
+        4);
+  }
+
+  ret = app_control_set_app_id(app_control, std::string(app_id).c_str());
+  if (ret != APP_CONTROL_ERROR_NONE) {
+    destroy();
+    return MakeError(
+        "app_control_app_id_failed",
+        "Failed to set the target application ID.",
+        "app_control_set_app_id error=" + std::to_string(ret),
+        4);
+  }
+
+  ret = app_control_add_extra_data(
+      app_control, "json", std::string(payload_json).c_str());
+  if (ret != APP_CONTROL_ERROR_NONE) {
+    destroy();
+    return MakeError(
+        "app_control_extra_data_failed",
+        "Failed to attach the presentation JSON as extra data.",
+        "app_control_add_extra_data error=" + std::to_string(ret),
+        4);
+  }
+
+  ret = app_control_send_launch_request(app_control, nullptr, nullptr);
+  destroy();
+  if (ret != APP_CONTROL_ERROR_NONE) {
+    return MakeError(
+        "app_control_launch_failed",
+        "The Tizen launch request failed.",
+        TizenErrorHint(ret).value_or(
+            "app_control_send_launch_request error=" + std::to_string(ret)),
+        4);
+  }
+
+  return std::nullopt;
 }
 #endif
 
@@ -160,6 +223,8 @@ std::variant<LaunchReport, AppError> LaunchPayload(
       .bytes = payload.bytes,
       .used_stdin = payload.used_stdin,
       .platform_supported = TV_A2UI_LAUNCHER_HAS_APP_CONTROL != 0,
+      .replayed_after_launch = false,
+      .replay_delay_ms = 0,
       .message = command.dry_run ? "Dry run: launch request not sent."
                                  : "Launch request sent.",
   };
@@ -169,60 +234,23 @@ std::variant<LaunchReport, AppError> LaunchPayload(
   }
 
 #if TV_A2UI_LAUNCHER_HAS_APP_CONTROL
-  app_control_h app_control = nullptr;
-  int ret = app_control_create(&app_control);
-  if (ret != APP_CONTROL_ERROR_NONE || app_control == nullptr) {
-    return MakeError(
-        "app_control_create_failed",
-        "Failed to create a Tizen App Control handle.",
-        "app_control_create error=" + std::to_string(ret),
-        4);
+  if (const auto error =
+          SendLaunchRequest(command.app_id, payload.json)) {
+    return *error;
   }
 
-  auto destroy = [&]() { app_control_destroy(app_control); };
-
-  ret = app_control_set_operation(app_control, APP_CONTROL_OPERATION_DEFAULT);
-  if (ret != APP_CONTROL_ERROR_NONE) {
-    destroy();
-    return MakeError(
-        "app_control_operation_failed",
-        "Failed to configure the App Control operation.",
-        "app_control_set_operation error=" + std::to_string(ret),
-        4);
-  }
-
-  ret = app_control_set_app_id(app_control, command.app_id.c_str());
-  if (ret != APP_CONTROL_ERROR_NONE) {
-    destroy();
-    return MakeError(
-        "app_control_app_id_failed",
-        "Failed to set the target application ID.",
-        "app_control_set_app_id error=" + std::to_string(ret),
-        4);
-  }
-
-  ret = app_control_add_extra_data(app_control, "json", payload.json.c_str());
-  if (ret != APP_CONTROL_ERROR_NONE) {
-    destroy();
-    return MakeError(
-        "app_control_extra_data_failed",
-        "Failed to attach the presentation JSON as extra data.",
-        "app_control_add_extra_data error=" + std::to_string(ret),
-        4);
-  }
-
-  ret = app_control_send_launch_request(app_control, nullptr, nullptr);
-  destroy();
-  if (ret != APP_CONTROL_ERROR_NONE) {
-    return MakeError(
-        "app_control_launch_failed",
-        "The Tizen launch request failed.",
-        TizenErrorHint(ret).value_or(
-            "app_control_send_launch_request error=" + std::to_string(ret)),
-        4);
+  std::this_thread::sleep_for(
+      std::chrono::milliseconds(kColdStartReplayDelayMs));
+  if (const auto error =
+          SendLaunchRequest(command.app_id, payload.json)) {
+    return *error;
   }
 
   report.launched = true;
+  report.replayed_after_launch = true;
+  report.replay_delay_ms = kColdStartReplayDelayMs;
+  report.message =
+      "Launch request sent and replayed once for cold-start handoff.";
   return report;
 #else
   return MakeError(
@@ -248,6 +276,9 @@ std::string RenderReport(const LaunchReport& report, OutputFormat format) {
       << indent << "\"bytes\": " << report.bytes << "," << newline
       << indent << "\"used_stdin\": " << (report.used_stdin ? "true" : "false") << "," << newline
       << indent << "\"launched\": " << (report.launched ? "true" : "false") << "," << newline
+      << indent << "\"replayed_after_launch\": "
+      << (report.replayed_after_launch ? "true" : "false") << "," << newline
+      << indent << "\"replay_delay_ms\": " << report.replay_delay_ms << "," << newline
       << indent << "\"platform_supported\": "
       << (report.platform_supported ? "true" : "false") << "," << newline
       << indent << "\"message\": \"" << EscapeJson(report.message) << "\""

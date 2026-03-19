@@ -76,6 +76,10 @@ void TestDryRunLaunch() {
   Assert(!report.launched, "dry-run should not send launch request");
   Assert(report.bytes == 42, "report should preserve byte count");
   Assert(report.source_label == "stdin", "report should preserve source label");
+  Assert(!report.replayed_after_launch,
+         "dry-run should not mark cold-start replay");
+  Assert(report.replay_delay_ms == 0,
+         "dry-run should not report replay delay");
 }
 
 }  // namespace

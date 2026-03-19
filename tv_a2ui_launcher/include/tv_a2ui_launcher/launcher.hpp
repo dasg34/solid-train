@@ -24,6 +24,8 @@ struct LaunchReport {
   bool used_stdin = false;
   bool launched = false;
   bool platform_supported = false;
+  bool replayed_after_launch = false;
+  int replay_delay_ms = 0;
   std::string message;
 };
 

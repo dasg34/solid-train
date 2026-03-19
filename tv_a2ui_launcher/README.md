@@ -20,6 +20,8 @@ Behavior:
 - the launcher sends the raw presentation JSON text using App Control extra
   data key `json`
 - the target app ID defaults to `com.example.openclaw_tv_genui`
+- on Tizen, the launcher replays the same launch request once after a short
+  delay to improve cold-start delivery when the Flutter app is still booting
 
 On non-Tizen environments, the project builds with a stub launcher so local
 development and tests can run without `app_control.h`.
