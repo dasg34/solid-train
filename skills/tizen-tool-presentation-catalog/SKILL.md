@@ -99,6 +99,8 @@ Rules:
 - `values` must be a numeric array with at least 2 points
 - if `labels` is present, it must match `values` length
 - prefer 4-8 points for TV readability
+- prefer adding `chart` whenever numeric trend, sequence, or comparison data exists
+- prefer `chart` over expanding too many `metrics` or `facts`
 
 ### Alert
 
@@ -117,13 +119,14 @@ Add optional fields only when the source data or user request requires them.
 - `summary`: include only when there is a useful one-line description
 - `metrics`: include when there are supporting `{label, value}` pairs
 - `facts`: include when there are additional short fact pairs
-- `chart`: include when ordered numeric data exists
+- `chart`: actively include when ordered numeric data, time-series data, or category comparison data exists
 - `alert`: include when there is a warning, caveat, or operational notice
 
 Do not force optional fields to appear.
 
 - Sparse requests such as "삼성전자만 보여줘" can be just `title + hero`
 - Richer requests can add `metrics`, `chart`, `facts`, and `alert`
+- If both `chart` and extra `metrics`/`facts` are possible, prefer keeping the `chart`
 
 ## What Not To Output
 
