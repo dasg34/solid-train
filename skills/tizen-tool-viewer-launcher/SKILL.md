@@ -4,9 +4,9 @@ description: >
   End-to-end TV surface orchestration for Korean natural-language display
   requests. Use this skill whenever the user wants to show something on the TV
   screen — '날씨 보여줘', '뉴스 알려줘', '주식 확인', '출근길 띄워줘', '오늘
-  브리핑해줘', or any Korean request that implies fetching domain data and
+  브리핑해줘', or any Korean request that implies preparing domain data and
   rendering it on a TV surface. This skill handles the presentation-first
-  pipeline: scenario inference → tv_fetch → presentation JSON → save → local
+  pipeline: scenario inference → structured source data → presentation JSON → save → local
   preview or app handoff.
 ---
 
@@ -16,8 +16,8 @@ Turn a short Korean utterance into a prepared or previewed TV surface.
 
 This skill is presentation-first. It uses:
 
-- `tv-fetch` for normalized domain data
 - `tizen-tool-presentation-catalog` for the presentation JSON schema
+- `tizen-tool-presentation-validate` for payload validation
 
 ## Current Reality
 
@@ -35,15 +35,14 @@ This skill is presentation-first. It uses:
 1. Infer the scenario from the noun phrase, not from verbs like 보여줘/알려줘.
 2. If the scenario is unclear or a required fetch input is missing, ask one
    short Korean follow-up question. Ask only for the single missing piece.
-3. Inspect the fetch contract: `tv_fetch describe <domain> --format pretty`
-4. Fetch domain data: `tv_fetch <domain> [options] --format json`
-5. Generate one presentation JSON object using `tizen-tool-presentation-catalog`
-6. Save it to `/tmp/tv-presentation/<domain>-<timestamp>.json`
-7. Validate it with `tizen-tool-presentation-validate`
-8. Deliver it using one of these modes:
+3. Collect or accept structured domain data for the chosen scenario
+4. Generate one presentation JSON object using `tizen-tool-presentation-catalog`
+5. Save it to `/tmp/tv-presentation/<domain>-<timestamp>.json`
+6. Validate it with `tizen-tool-presentation-validate`
+7. Deliver it using one of these modes:
    - Local preview: preferred default today
    - Runtime handoff: send the presentation JSON to the TV app
-9. Report domain, source, assumptions, saved path, validation result, and
+8. Report domain, source, assumptions, saved path, validation result, and
    preview or handoff result
 
 ## Raw JSON Only
@@ -85,20 +84,13 @@ Map Korean noun phrases to domains:
 
 If no domain is clear, ask one short clarification question.
 
-## Fetch Rules
+## Source Data Rules
 
-`tv_fetch` is a self-describing CLI. When unsure about domain options:
-
-```bash
-tv_fetch describe --format pretty
-tv_fetch describe <domain> --format pretty
-```
-
-- Always fetch with `--format json` for pipeline use.
+- Structured source data may come from any suitable upstream system.
 - Do not invent personal inputs such as location, route, watchlist, calendar,
   or flight data.
-- Ask at most one short follow-up question per turn.
-- Use `--source mock` for demo flows when appropriate.
+- Ask at most one short follow-up question per turn when a required input is missing.
+- Preserve source semantics when mapping upstream data into presentation JSON.
 
 ## Presentation Rules
 
