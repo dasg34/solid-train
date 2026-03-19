@@ -28,6 +28,8 @@ class _PresentationA2uiBuilder {
   final List<String> _rootChildren = [];
 
   bool get _isSidePanel => surface.theme.pattern == 'sidePanel';
+  double get _smallCardInsetAll => _isSidePanel ? 16 : 20;
+  double get _featureCardInsetAll => _isSidePanel ? 18 : 24;
 
   List<Map<String, Object?>> build() {
     _bindSurfaceData();
@@ -307,7 +309,7 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: insetId,
         component: 'Inset',
-        props: {'child': columnId, 'all': 20},
+        props: {'child': columnId, 'all': _smallCardInsetAll},
       );
       metricCardIds.add(
         _addComponent(id: cardId, component: 'Card', props: {'child': insetId}),
@@ -401,7 +403,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'chartInset',
       component: 'Inset',
-      props: {'child': 'chartColumn', 'all': 24},
+      props: {'child': 'chartColumn', 'all': _featureCardInsetAll},
     );
     return _addComponent(
       id: 'chartCard',
@@ -452,7 +454,7 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: insetId,
         component: 'Inset',
-        props: {'child': columnId, 'all': 20},
+        props: {'child': columnId, 'all': _smallCardInsetAll},
       );
       factCardIds.add(
         _addComponent(id: cardId, component: 'Card', props: {'child': insetId}),
@@ -510,7 +512,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'alertInset',
       component: 'Inset',
-      props: {'child': 'alertColumn', 'all': 24},
+      props: {'child': 'alertColumn', 'all': _featureCardInsetAll},
     );
     return _addComponent(
       id: 'alertCard',

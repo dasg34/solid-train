@@ -120,6 +120,16 @@ void main() {
           'value': '08:10',
           'detail': '지금부터 12분 후',
         },
+        'metrics': [
+          {'label': '예상 소요', 'value': '42분'},
+        ],
+        'facts': [
+          {'label': '대중교통', 'value': '42분'},
+        ],
+        'alert': {
+          'title': '실시간 변동 주의',
+          'summary': '짧은 시간에도 바뀔 수 있습니다.',
+        },
       });
 
       final document = buildPresentationDocument(surface);
@@ -155,6 +165,15 @@ void main() {
       final heroInset = components.firstWhere(
         (component) => component['id'] == 'heroInset',
       );
+      final metricInset = components.firstWhere(
+        (component) => component['id'] == 'metric1Inset',
+      );
+      final factInset = components.firstWhere(
+        (component) => component['id'] == 'fact1Inset',
+      );
+      final alertInset = components.firstWhere(
+        (component) => component['id'] == 'alertInset',
+      );
 
       expect(heroTitleText['variant'], 'h2');
       expect(heroSummaryText['variant'], 'body');
@@ -165,6 +184,9 @@ void main() {
       expect(heroMetricDetailText['variant'], 'body');
       expect(heroMetricInset['vertical'], 10);
       expect(heroInset['all'], 22);
+      expect(metricInset['all'], 16);
+      expect(factInset['all'], 16);
+      expect(alertInset['all'], 18);
       expect(
         components.any((component) => component['id'] == 'heroDivider'),
         isTrue,
