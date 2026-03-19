@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:genui/genui.dart';
 import 'package:json_schema_builder/json_schema_builder.dart';
 
@@ -63,6 +64,31 @@ final _wrapSchema = S.object(
   required: ['children'],
 );
 
+final _masonrySchema = S.object(
+  description:
+      'A non-scrollable masonry layout that packs variable-height cards more tightly than Wrap.',
+  properties: {
+    'children': A2uiSchemas.componentArrayReference(
+      description:
+          'An explicit list of widget IDs that will be placed into the masonry grid.',
+    ),
+    'maxCrossAxisExtent': S.number(
+      description:
+          'Maximum width of each tile before an additional column is added.',
+      minimum: 1,
+    ),
+    'crossAxisSpacing': S.number(
+      description: 'Horizontal spacing between columns in logical pixels.',
+      minimum: 0,
+    ),
+    'mainAxisSpacing': S.number(
+      description: 'Vertical spacing between tiles in logical pixels.',
+      minimum: 0,
+    ),
+  },
+  required: ['children', 'maxCrossAxisExtent'],
+);
+
 extension type _InsetData.fromMap(JsonMap _json) {
   String get child => _json['child'] as String;
   double? get all => (_json['all'] as num?)?.toDouble();
@@ -77,6 +103,16 @@ extension type _WrapData.fromMap(JsonMap _json) {
   String? get alignment => _json['alignment'] as String?;
   String? get runAlignment => _json['runAlignment'] as String?;
   String? get crossAlign => _json['crossAlign'] as String?;
+}
+
+extension type _MasonryData.fromMap(JsonMap _json) {
+  Object? get children => _json['children'];
+  double get maxCrossAxisExtent =>
+      (_json['maxCrossAxisExtent'] as num?)?.toDouble() ?? 240;
+  double get crossAxisSpacing =>
+      (_json['crossAxisSpacing'] as num?)?.toDouble() ?? 16;
+  double get mainAxisSpacing =>
+      (_json['mainAxisSpacing'] as num?)?.toDouble() ?? 16;
 }
 
 WrapAlignment _parseWrapAlignment(String? alignment) => switch (alignment) {
@@ -188,6 +224,80 @@ final flowingWrap = CatalogItem(
                 itemContext.buildChild(componentId, itemContext.dataContext),
           )
           .toList(),
+    );
+  },
+);
+
+final masonryFlow = CatalogItem(
+  name: 'Masonry',
+  dataSchema: _masonrySchema,
+  exampleData: [
+    () => '''
+      [
+        {
+          "id": "root",
+          "component": "Masonry",
+          "maxCrossAxisExtent": 220,
+          "crossAxisSpacing": 12,
+          "mainAxisSpacing": 12,
+          "children": ["card1", "card2", "card3"]
+        },
+        {
+          "id": "card1",
+          "component": "Card",
+          "child": "text1"
+        },
+        {
+          "id": "text1",
+          "component": "Text",
+          "text": "Short"
+        },
+        {
+          "id": "card2",
+          "component": "Card",
+          "child": "text2"
+        },
+        {
+          "id": "text2",
+          "component": "Text",
+          "text": "A taller card with more lines of content for masonry packing."
+        },
+        {
+          "id": "card3",
+          "component": "Card",
+          "child": "text3"
+        },
+        {
+          "id": "text3",
+          "component": "Text",
+          "text": "Medium"
+        }
+      ]
+    ''',
+  ],
+  widgetBuilder: (itemContext) {
+    final masonryData = _MasonryData.fromMap(itemContext.data as JsonMap);
+    final childIds = (masonryData.children as List<Object?>?)
+        ?.map((child) => child.toString())
+        .toList();
+    if (childIds == null || childIds.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return MasonryGridView.extent(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      maxCrossAxisExtent: masonryData.maxCrossAxisExtent,
+      mainAxisSpacing: masonryData.mainAxisSpacing,
+      crossAxisSpacing: masonryData.crossAxisSpacing,
+      itemCount: childIds.length,
+      itemBuilder: (context, index) {
+        return itemContext.buildChild(
+          childIds[index],
+          itemContext.dataContext,
+        );
+      },
     );
   },
 );

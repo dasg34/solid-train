@@ -168,8 +168,14 @@ void main() {
       final metricInset = components.firstWhere(
         (component) => component['id'] == 'metric1Inset',
       );
+      final metricWrap = components.firstWhere(
+        (component) => component['id'] == 'metricWrap',
+      );
       final factInset = components.firstWhere(
         (component) => component['id'] == 'fact1Inset',
+      );
+      final factWrap = components.firstWhere(
+        (component) => component['id'] == 'factWrap',
       );
       final alertInset = components.firstWhere(
         (component) => component['id'] == 'alertInset',
@@ -184,7 +190,13 @@ void main() {
       expect(heroMetricDetailText['variant'], 'body');
       expect(heroMetricInset['vertical'], 10);
       expect(heroInset['all'], 22);
+      expect(metricWrap['component'], 'Masonry');
+      expect(metricWrap['maxCrossAxisExtent'], 220);
+      expect(metricWrap['crossAxisSpacing'], 12);
+      expect(metricWrap['mainAxisSpacing'], 12);
       expect(metricInset['all'], 16);
+      expect(factWrap['component'], 'Masonry');
+      expect(factWrap['maxCrossAxisExtent'], 220);
       expect(factInset['all'], 16);
       expect(alertInset['all'], 18);
       expect(

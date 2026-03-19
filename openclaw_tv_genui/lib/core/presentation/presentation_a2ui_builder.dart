@@ -30,6 +30,8 @@ class _PresentationA2uiBuilder {
   bool get _isSidePanel => surface.theme.pattern == 'sidePanel';
   double get _smallCardInsetAll => _isSidePanel ? 16 : 20;
   double get _featureCardInsetAll => _isSidePanel ? 18 : 24;
+  double get _sidePanelMasonryExtent => 220;
+  double get _sidePanelMasonrySpacing => 12;
 
   List<Map<String, Object?>> build() {
     _bindSurfaceData();
@@ -318,8 +320,15 @@ class _PresentationA2uiBuilder {
 
     return _addComponent(
       id: 'metricWrap',
-      component: 'Wrap',
-      props: {'children': metricCardIds, 'spacing': 18, 'runSpacing': 18},
+      component: _isSidePanel ? 'Masonry' : 'Wrap',
+      props: _isSidePanel
+          ? {
+              'children': metricCardIds,
+              'maxCrossAxisExtent': _sidePanelMasonryExtent,
+              'crossAxisSpacing': _sidePanelMasonrySpacing,
+              'mainAxisSpacing': _sidePanelMasonrySpacing,
+            }
+          : {'children': metricCardIds, 'spacing': 18, 'runSpacing': 18},
     );
   }
 
@@ -463,8 +472,15 @@ class _PresentationA2uiBuilder {
 
     return _addComponent(
       id: 'factWrap',
-      component: 'Wrap',
-      props: {'children': factCardIds, 'spacing': 18, 'runSpacing': 18},
+      component: _isSidePanel ? 'Masonry' : 'Wrap',
+      props: _isSidePanel
+          ? {
+              'children': factCardIds,
+              'maxCrossAxisExtent': _sidePanelMasonryExtent,
+              'crossAxisSpacing': _sidePanelMasonrySpacing,
+              'mainAxisSpacing': _sidePanelMasonrySpacing,
+            }
+          : {'children': factCardIds, 'spacing': 18, 'runSpacing': 18},
     );
   }
 
