@@ -27,6 +27,8 @@ class _PresentationA2uiBuilder {
   final Map<String, Object?> _data = {};
   final List<String> _rootChildren = [];
 
+  bool get _isSidePanel => surface.theme.pattern == 'sidePanel';
+
   List<Map<String, Object?>> build() {
     _bindSurfaceData();
 
@@ -150,7 +152,10 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'heroTitleText',
       component: 'Text',
-      props: {'text': _path('title'), 'variant': 'h1'},
+      props: {
+        'text': _path('title'),
+        'variant': _isSidePanel ? 'h2' : 'h1',
+      },
     );
 
     final heroChildren = <String>['heroTitleText'];
@@ -159,27 +164,41 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: 'heroSummaryText',
         component: 'Text',
-        props: {'text': _path('summary'), 'variant': 'h4'},
+        props: {
+          'text': _path('summary'),
+          'variant': _isSidePanel ? 'body' : 'h4',
+        },
       );
       _addComponent(
         id: 'heroSummaryInset',
         component: 'Inset',
-        props: {'child': 'heroSummaryText', 'vertical': 10},
+        props: {
+          'child': 'heroSummaryText',
+          'vertical': _isSidePanel ? 6 : 10,
+        },
       );
       heroChildren.add('heroSummaryInset');
-      _addComponent(id: 'heroDivider', component: 'Divider', props: const {});
-      heroChildren.add('heroDivider');
+      if (!_isSidePanel) {
+        _addComponent(id: 'heroDivider', component: 'Divider', props: const {});
+        heroChildren.add('heroDivider');
+      }
     }
 
     _addComponent(
       id: 'heroMetricLabelText',
       component: 'Text',
-      props: {'text': _path('heroLabel'), 'variant': 'body'},
+      props: {
+        'text': _path('heroLabel'),
+        'variant': _isSidePanel ? 'caption' : 'body',
+      },
     );
     _addComponent(
       id: 'heroMetricValueText',
       component: 'Text',
-      props: {'text': _path('heroValue'), 'variant': 'h1'},
+      props: {
+        'text': _path('heroValue'),
+        'variant': _isSidePanel ? 'h2' : 'h1',
+      },
     );
 
     final heroMetricChildren = <String>[
@@ -191,7 +210,10 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: 'heroMetricDetailText',
         component: 'Text',
-        props: {'text': _path('heroDetail'), 'variant': 'h4'},
+        props: {
+          'text': _path('heroDetail'),
+          'variant': _isSidePanel ? 'body' : 'h4',
+        },
       );
       heroMetricChildren.add('heroMetricDetailText');
     }
@@ -204,7 +226,10 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'heroMetricInset',
       component: 'Inset',
-      props: {'child': 'heroMetricColumn', 'vertical': 14},
+      props: {
+        'child': 'heroMetricColumn',
+        'vertical': _isSidePanel ? 10 : 14,
+      },
     );
     heroChildren.add('heroMetricInset');
 
@@ -225,7 +250,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'heroInset',
       component: 'Inset',
-      props: {'child': 'heroColumn', 'all': 28},
+      props: {'child': 'heroColumn', 'all': _isSidePanel ? 22 : 28},
     );
     return _addComponent(
       id: 'heroCard',

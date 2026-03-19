@@ -108,5 +108,63 @@ void main() {
       expect(messages[1], isA<UpdateDataModel>());
       expect(messages[2], isA<UpdateComponents>());
     });
+
+    test('tightens hero card typography and spacing for side panels', () {
+      final surface = PresentationSurface.fromJson({
+        'surfaceId': 'commute',
+        'theme': {'domain': 'commute', 'pattern': 'sidePanel'},
+        'title': '출근길 브리핑',
+        'summary': '추천 출발 시각을 먼저 보여줍니다.',
+        'hero': {
+          'label': '추천 출발',
+          'value': '08:10',
+          'detail': '지금부터 12분 후',
+        },
+      });
+
+      final document = buildPresentationDocument(surface);
+      final updateComponents =
+          document[2]['updateComponents']! as Map<String, Object?>;
+      final components = (updateComponents['components']! as List<Object?>)
+          .cast<Map<String, Object?>>();
+
+      final heroTitleText = components.firstWhere(
+        (component) => component['id'] == 'heroTitleText',
+      );
+      final heroSummaryText = components.firstWhere(
+        (component) => component['id'] == 'heroSummaryText',
+      );
+      final heroSummaryInset = components.firstWhere(
+        (component) => component['id'] == 'heroSummaryInset',
+      );
+      final heroMetricLabelText = components.firstWhere(
+        (component) => component['id'] == 'heroMetricLabelText',
+      );
+      final heroMetricValueText = components.firstWhere(
+        (component) => component['id'] == 'heroMetricValueText',
+      );
+      final heroMetricDetailText = components.firstWhere(
+        (component) => component['id'] == 'heroMetricDetailText',
+      );
+      final heroMetricInset = components.firstWhere(
+        (component) => component['id'] == 'heroMetricInset',
+      );
+      final heroInset = components.firstWhere(
+        (component) => component['id'] == 'heroInset',
+      );
+
+      expect(heroTitleText['variant'], 'h2');
+      expect(heroSummaryText['variant'], 'body');
+      expect(heroSummaryInset['vertical'], 6);
+      expect(heroMetricLabelText['variant'], 'caption');
+      expect(heroMetricValueText['variant'], 'h2');
+      expect(heroMetricDetailText['variant'], 'body');
+      expect(heroMetricInset['vertical'], 10);
+      expect(heroInset['all'], 22);
+      expect(
+        components.any((component) => component['id'] == 'heroDivider'),
+        isFalse,
+      );
+    });
   });
 }
