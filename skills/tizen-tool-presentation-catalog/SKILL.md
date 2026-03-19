@@ -2,24 +2,23 @@
 name: tizen-tool-presentation-catalog
 description: >
   Use this skill when generating presentation JSON for the Samsung Tizen TV
-  app. The LLM should output semantic TV presentation data, not raw A2UI
-  NDJSON. The app converts this JSON into deterministic A2UI.
+  app. The LLM should output one semantic TV presentation JSON object. The app
+  handles the final rendering internally.
 ---
 
 # Tizen Tool Presentation Catalog
 
 This skill defines the preferred LLM output for the OpenClaw TV app.
 
-The LLM does NOT generate `createSurface`, `updateDataModel`, or
-`updateComponents`. The LLM outputs one presentation JSON object, and the app
-converts it into deterministic A2UI internally.
+The LLM outputs one presentation JSON object only. The app handles the final
+UI assembly internally.
 
 ## Output Rule
 
 Emit one raw JSON object only.
 
 - Do NOT output NDJSON.
-- Do NOT output `createSurface`, `updateDataModel`, or `updateComponents`.
+- Do NOT output protocol envelopes, component updates, or low-level layout trees.
 - Do NOT wrap the payload in Markdown fences.
 - Do NOT add prose before or after the JSON.
 - The first character must be `{`.
@@ -138,7 +137,7 @@ Do not force every optional field to appear.
 
 ## What Not To Output
 
-- Raw A2UI NDJSON
+- Protocol envelopes or NDJSON
 - Low-level component trees
 - Footer text blocks
 - Hidden implementation details such as icon names or chart colors
@@ -179,10 +178,3 @@ Do not force every optional field to appear.
   }
 }
 ```
-
-## References
-
-See `references/examples/` for validated presentation JSON:
-
-- `weather_today.json`
-- `finance_focus.json`
