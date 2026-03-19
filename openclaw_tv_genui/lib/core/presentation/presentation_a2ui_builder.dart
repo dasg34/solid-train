@@ -205,7 +205,7 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: 'heroMetricDetailText',
         component: 'Text',
-        props: {'text': _path('heroDetail'), 'variant': 'h5'},
+        props: {'text': _path('heroDetail'), 'variant': 'h4'},
       );
       heroMetricChildren.add('heroMetricDetailText');
     }
@@ -218,7 +218,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'heroMetricInset',
       component: 'Inset',
-      props: {'child': 'heroMetricColumn', 'vertical': 8},
+      props: {'child': 'heroMetricColumn', 'vertical': 4},
     );
     heroChildren.add('heroMetricInset');
 

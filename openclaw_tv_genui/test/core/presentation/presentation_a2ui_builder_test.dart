@@ -40,8 +40,8 @@ void main() {
       expect(theme['scale'], 'compact');
       expect(value['heroValue'], '74,300원');
       expect(root['children'], ['heroCard']);
-      expect(heroMetricDetailText['variant'], 'h5');
-      expect(heroMetricInset['vertical'], 8);
+      expect(heroMetricDetailText['variant'], 'h4');
+      expect(heroMetricInset['vertical'], 4);
       expect(heroInset['all'], 18);
       expect(
         components.where((component) => component['component'] == 'LineChart'),
@@ -231,8 +231,8 @@ void main() {
       expect(heroDividerInset['vertical'], 3);
       expect(heroMetricLabelText['variant'], 'h2');
       expect(heroMetricValueText['variant'], 'h2');
-      expect(heroMetricDetailText['variant'], 'h5');
-      expect(heroMetricInset['vertical'], 8);
+      expect(heroMetricDetailText['variant'], 'h4');
+      expect(heroMetricInset['vertical'], 4);
       expect(heroInset['all'], 18);
       expect(metricWrap['component'], 'Masonry');
       expect(metricWrap['maxCrossAxisExtent'], 220);
