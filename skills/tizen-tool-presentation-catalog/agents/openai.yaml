@@ -4,4 +4,4 @@ interface:
   default_prompt: |
     Use this skill to learn how to generate valid presentation JSON for the TV app.
     The app handles final rendering internally.
-    Contains output rules, field schema, TV UX principles, and validation guidance.
+    Contains output rules, field schema, field selection rules, and validation guidance.

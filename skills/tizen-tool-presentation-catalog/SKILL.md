@@ -110,30 +110,20 @@ Rules:
 }
 ```
 
-## Selection Guidance
+## Field Selection Rules
 
-Use the model conservatively.
+Add optional fields only when the source data or user request requires them.
 
-- `summary`: only when one short sentence improves understanding
-- `metrics`: for compact supporting numbers such as humidity, change, count,
-  ETA, or category totals
-- `facts`: for short fact cards that are not the main metric
-- `chart`: when ordered numeric data materially improves the screen
-- `alert`: when there is a warning, trust caveat, or operational notice
+- `summary`: include only when there is a useful one-line description
+- `metrics`: include when there are supporting `{label, value}` pairs
+- `facts`: include when there are additional short fact pairs
+- `chart`: include when ordered numeric data exists
+- `alert`: include when there is a warning, caveat, or operational notice
 
-Do not force every optional field to appear.
+Do not force optional fields to appear.
 
 - Sparse requests such as "삼성전자만 보여줘" can be just `title + hero`
 - Richer requests can add `metrics`, `chart`, `facts`, and `alert`
-
-## TV UX Rules
-
-- Design for a 10-foot experience
-- Use one strong hero metric, not many competing ones
-- Keep text short and glanceable
-- Prefer a small number of meaningful blocks
-- Avoid walls of prose and dense dashboards
-- Korean locale first: `ko-KR`, `Asia/Seoul`
 
 ## What Not To Output
 
