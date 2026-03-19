@@ -62,18 +62,6 @@ tv_fetch commute --origin '망포역' --destination '서초구청' --format pret
 tv_fetch weather --source mock --format pretty
 ```
 
-## 시나리오 참고 문서
-
-각 시나리오의 feasibility 분석과 live data 소스 문서:
-
-```
-/Users/yohoho/work/skills/tv-scenario-references/
-├── scenario-feasibility-matrix.md
-├── weather-briefing/feasibility.md, live-data.md
-├── news-briefing/feasibility.md, live-data.md
-└── ...
-```
-
 ## 다음 단계: Presentation 변환
 
 tv_fetch 출력을 TV 화면으로 만들려면 `tv-a2ui-catalog` 스킬을 참고하여 presentation JSON으로 변환한다.
