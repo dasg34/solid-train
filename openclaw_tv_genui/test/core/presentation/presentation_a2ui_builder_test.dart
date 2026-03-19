@@ -140,6 +140,9 @@ void main() {
       final heroMetricLabelText = components.firstWhere(
         (component) => component['id'] == 'heroMetricLabelText',
       );
+      final heroDividerInset = components.firstWhere(
+        (component) => component['id'] == 'heroDividerInset',
+      );
       final heroMetricValueText = components.firstWhere(
         (component) => component['id'] == 'heroMetricValueText',
       );
@@ -156,6 +159,7 @@ void main() {
       expect(heroTitleText['variant'], 'h2');
       expect(heroSummaryText['variant'], 'body');
       expect(heroSummaryInset['vertical'], 6);
+      expect(heroDividerInset['vertical'], 4);
       expect(heroMetricLabelText['variant'], 'caption');
       expect(heroMetricValueText['variant'], 'h2');
       expect(heroMetricDetailText['variant'], 'body');
@@ -163,7 +167,7 @@ void main() {
       expect(heroInset['all'], 22);
       expect(
         components.any((component) => component['id'] == 'heroDivider'),
-        isFalse,
+        isTrue,
       );
     });
   });

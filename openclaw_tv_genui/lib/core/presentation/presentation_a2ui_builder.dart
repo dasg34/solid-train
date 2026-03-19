@@ -178,10 +178,16 @@ class _PresentationA2uiBuilder {
         },
       );
       heroChildren.add('heroSummaryInset');
-      if (!_isSidePanel) {
-        _addComponent(id: 'heroDivider', component: 'Divider', props: const {});
-        heroChildren.add('heroDivider');
-      }
+      _addComponent(id: 'heroDivider', component: 'Divider', props: const {});
+      _addComponent(
+        id: 'heroDividerInset',
+        component: 'Inset',
+        props: {
+          'child': 'heroDivider',
+          'vertical': _isSidePanel ? 4 : 8,
+        },
+      );
+      heroChildren.add('heroDividerInset');
     }
 
     _addComponent(
