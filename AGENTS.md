@@ -222,15 +222,15 @@ The OpenClaw Gemini agent generates presentation JSON for the TV app:
 
 ```
 User request → OpenClaw Gemini agent
-  1. tv-a2ui-catalog skill → learn presentation JSON rules
+  1. tizen-tool-presentation-catalog skill → learn presentation JSON rules
   2. Domain skill (e.g., tv-weather-briefing) → fetch data
   3. Generate semantic presentation JSON
 → TV App converts it to deterministic A2UI and renders it
 ```
 
-The `tv-a2ui-catalog` skill in `/skills/tv-a2ui-catalog/` is the shared
-knowledge base for presentation JSON generation. The name is historical, but
-the content now describes semantic TV presentation output rather than raw A2UI.
+The `tizen-tool-presentation-catalog` skill in
+`/skills/tizen-tool-presentation-catalog/` is the shared knowledge base for
+presentation JSON generation.
 
 Domain skills (`/skills/tv-scenarios/tv-*/`) provide data fetching and
 domain-specific context. They do NOT generate A2UI. The app owns the final

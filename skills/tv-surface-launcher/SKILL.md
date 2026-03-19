@@ -17,7 +17,7 @@ Turn a short Korean utterance into a prepared or previewed TV surface.
 This skill is presentation-first. It uses:
 
 - `tv-fetch` for normalized domain data
-- `tv-a2ui-catalog` for the presentation JSON schema
+- `tizen-tool-presentation-catalog` for the presentation JSON schema
 
 ## Current Reality
 
@@ -37,7 +37,7 @@ This skill is presentation-first. It uses:
    short Korean follow-up question. Ask only for the single missing piece.
 3. Inspect the fetch contract: `tv_fetch describe <domain> --format pretty`
 4. Fetch domain data: `tv_fetch <domain> [options] --format json`
-5. Generate one presentation JSON object using `tv-a2ui-catalog`
+5. Generate one presentation JSON object using `tizen-tool-presentation-catalog`
 6. Save it to `/tmp/tv-presentation/<domain>-<timestamp>.json`
 7. Validate it with `tv_presentation_validate`
 8. Deliver it using one of these modes:
@@ -113,7 +113,7 @@ tv_fetch describe <domain> --format pretty
 
 ## Presentation Rules
 
-Generate the final surface payload with `tv-a2ui-catalog`.
+Generate the final surface payload with `tizen-tool-presentation-catalog`.
 
 - One strong hero metric is better than many competing numbers.
 - Add `metrics`, `facts`, `chart`, and `alert` only when they materially help.
@@ -123,8 +123,8 @@ Generate the final surface payload with `tv-a2ui-catalog`.
 
 For examples, read:
 
-- `skills/tv-a2ui-catalog/references/examples/weather_today.json`
-- `skills/tv-a2ui-catalog/references/examples/finance_focus.json`
+- `skills/tizen-tool-presentation-catalog/references/examples/weather_today.json`
+- `skills/tizen-tool-presentation-catalog/references/examples/finance_focus.json`
 
 ## Delivery Modes
 

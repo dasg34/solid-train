@@ -64,4 +64,4 @@ tv_fetch weather --source mock --format pretty
 
 ## 다음 단계: Presentation 변환
 
-tv_fetch 출력을 TV 화면으로 만들려면 `tv-a2ui-catalog` 스킬을 참고하여 presentation JSON으로 변환한다.
+tv_fetch 출력을 TV 화면으로 만들려면 `tizen-tool-presentation-catalog` 스킬을 참고하여 presentation JSON으로 변환한다.

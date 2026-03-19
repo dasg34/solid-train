@@ -2,7 +2,7 @@
 
 ## Summary
 
-Create a shared skill (`tv-a2ui-catalog`) that teaches the OpenClaw Gemini
+Create a shared skill (`tizen-tool-presentation-catalog`) that teaches the OpenClaw Gemini
 agent how to generate valid A2UI JSON for the TV app. The skill contains
 catalog component definitions, generation rules, TV UX principles, and
 reference examples.
@@ -20,7 +20,7 @@ reference examples.
 ```
 User: "날씨 보여줘"
 → OpenClaw Gemini agent
-  1. tv-a2ui-catalog skill 참조 → A2UI 생성법 습득
+  1. tizen-tool-presentation-catalog skill 참조 → A2UI 생성법 습득
   2. tv-weather-briefing skill → 날씨 데이터 획득
   3. 카탈로그 부품으로 A2UI JSON 조립
 → TV App: 렌더링
@@ -42,7 +42,7 @@ consumption than formal schemas.
 ## Skill Structure
 
 ```
-/skills/tv-a2ui-catalog/
+/skills/tizen-tool-presentation-catalog/
 ├── SKILL.md                    — A2UI generation guide for the LLM
 ├── agents/openai.yaml          — skill metadata
 └── references/
@@ -202,8 +202,8 @@ skill-generated JSON files use icon names that are not in the genui
 
 Add a section documenting:
 - Post-refactoring TV app architecture (thin A2UI renderer)
-- LLM integration direction (OpenClaw agent + tv-a2ui-catalog skill)
-- Skills structure (tv-a2ui-catalog as shared A2UI knowledge base)
+- LLM integration direction (OpenClaw agent + tizen-tool-presentation-catalog skill)
+- Skills structure (tizen-tool-presentation-catalog as shared A2UI knowledge base)
 
 ### openclaw_tv_genui/README.md (new file)
 

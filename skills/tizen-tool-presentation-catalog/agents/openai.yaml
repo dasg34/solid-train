@@ -1,5 +1,5 @@
 interface:
-  display_name: "TV Presentation Catalog"
+  display_name: "Tizen Tool Presentation Catalog"
   short_description: "Presentation JSON schema and generation rules for Samsung Tizen TV"
   default_prompt: |
     Use this skill to learn how to generate valid presentation JSON for the TV app.

@@ -105,9 +105,8 @@ assets/presentation/                   # built-in presentation scenarios
 {"version":"v0.9","updateComponents":{"surfaceId":"...","components":[...]}}
 ```
 
-LLM-facing presentation JSON 규칙은 `/skills/tv-a2ui-catalog/SKILL.md`를
-참조하세요. Skill 이름은 역사적인 이유로 유지되지만, 현재 내용은 raw A2UI가
-아니라 presentation JSON 생성 기준입니다.
+LLM-facing presentation JSON 규칙은
+`/skills/tizen-tool-presentation-catalog/SKILL.md`를 참조하세요.
 
 ## Dependencies
 

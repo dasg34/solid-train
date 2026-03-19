@@ -1,12 +1,12 @@
 ---
-name: tv-a2ui-catalog
+name: tizen-tool-presentation-catalog
 description: >
-  Historical name. Use this skill when generating presentation JSON for the
-  Samsung Tizen TV app. The LLM should output semantic TV presentation data,
-  not raw A2UI NDJSON. The app converts this JSON into deterministic A2UI.
+  Use this skill when generating presentation JSON for the Samsung Tizen TV
+  app. The LLM should output semantic TV presentation data, not raw A2UI
+  NDJSON. The app converts this JSON into deterministic A2UI.
 ---
 
-# TV Presentation Catalog
+# Tizen Tool Presentation Catalog
 
 This skill defines the preferred LLM output for the OpenClaw TV app.
 
