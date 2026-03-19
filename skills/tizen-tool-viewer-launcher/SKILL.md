@@ -7,13 +7,14 @@ description: >
   브리핑해줘', 'show me the weather', 'show my commute', or any request that
   implies preparing domain data and
   rendering it on a TV surface. This skill handles the presentation-first
-  pipeline: scenario inference → structured source data → presentation JSON → save → local
-  preview or app handoff.
+  pipeline: scenario inference → structured source data → presentation JSON →
+  save → runtime handoff.
 ---
 
 # Tizen Tool Viewer Launcher
 
-Turn a short natural-language request into a prepared or previewed TV surface.
+Turn a short natural-language request into a prepared TV surface payload and
+hand it off to the TV app.
 
 This skill is presentation-first. It uses:
 
@@ -21,8 +22,6 @@ This skill is presentation-first. It uses:
 
 ## Current Reality
 
-- Today the most reliable delivery path is local preview through
-  `openclaw_tv_genui`.
 - `tv_a2ui_launcher` is a historical name, but it now transports presentation
   JSON to the app.
 
@@ -35,11 +34,9 @@ This skill is presentation-first. It uses:
 4. Generate one presentation JSON object using
    `tizen-tool-presentation-catalog`
 5. Save it to `/tmp/tv-presentation/<domain>-<timestamp>.json`
-6. Deliver it using one of these modes:
-   - Local preview: preferred default today
-   - Runtime handoff: send the presentation JSON to the TV app
+6. Deliver it with runtime handoff to the TV app
 7. Report domain, source, assumptions, saved path, and
-   preview or handoff result
+   handoff result
 
 ## Domain Routing
 
@@ -75,30 +72,9 @@ If no domain is clear, ask one short clarification question.
 - Ask at most one short follow-up question per turn when a required input is missing.
 - Preserve source semantics when mapping upstream data into presentation JSON.
 
-## Delivery Modes
+## Delivery
 
-### Local Preview
-
-This is the default launch path today.
-
-1. Save the generated JSON to `/tmp/tv-presentation/<domain>-<timestamp>.json`
-2. If the user wants to see it in the app, mirror the JSON into
-   `openclaw_tv_genui/assets/presentation/<scenario>.json`
-3. Reuse an existing scenario id when possible. Add a new scenario entry only
-   when needed.
-4. Preview with:
-
-```bash
-cd /Users/yohoho/work/openclaw_tv_genui
-flutter run -d web-server --web-hostname=127.0.0.1 --web-port=3000 \
-  --dart-define=OPENCLAW_DEFAULT_SCENARIO=<scenario>
-```
-
-Do not commit preview asset changes unless the user explicitly asks.
-
-### Runtime Handoff
-
-Use this when the user wants an external launch instead of local preview.
+Use runtime handoff for delivery.
 
 1. Save the generated JSON to `/tmp/tv-presentation/<domain>-<timestamp>.json`
 2. Launch with:
@@ -120,5 +96,4 @@ After finishing the workflow, briefly tell the user:
 - Which domain and data source were used
 - Any follow-up assumptions made
 - Where the presentation JSON file was saved
-- Whether local preview was started, and the preview URL if applicable
 - If handoff was blocked, what integration was missing
