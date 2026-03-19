@@ -157,7 +157,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'heroTitleText',
       component: 'Text',
-      props: {'text': _path('title'), 'variant': 'h5'},
+      props: {'text': _path('title'), 'variant': 'h4'},
     );
 
     final heroChildren = <String>['heroTitleText'];
@@ -186,12 +186,12 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'heroMetricLabelText',
       component: 'Text',
-      props: {'text': _path('heroLabel'), 'variant': 'h5'},
+      props: {'text': _path('heroLabel'), 'variant': 'h4'},
     );
     _addComponent(
       id: 'heroMetricValueText',
       component: 'Text',
-      props: {'text': _path('heroValue'), 'variant': 'h5'},
+      props: {'text': _path('heroValue'), 'variant': 'h4'},
     );
 
     final heroMetricChildren = <String>[
@@ -262,7 +262,7 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: valueId,
         component: 'Text',
-        props: {'text': _path('metric${index}Value'), 'variant': 'h5'},
+        props: {'text': _path('metric${index}Value'), 'variant': 'h4'},
       );
 
       final detailKey = 'metric${index}Detail';
@@ -313,7 +313,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'chartTitleText',
       component: 'Text',
-      props: {'text': _path('chartTitle'), 'variant': 'h5'},
+      props: {'text': _path('chartTitle'), 'variant': 'h4'},
     );
     chartChildren.add('chartTitleText');
 
@@ -412,7 +412,7 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: valueId,
         component: 'Text',
-        props: {'text': _path('fact${index}Value'), 'variant': 'h5'},
+        props: {'text': _path('fact${index}Value'), 'variant': 'h4'},
       );
 
       final detailKey = 'fact${index}Detail';
@@ -466,7 +466,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'alertTitleText',
       component: 'Text',
-      props: {'text': _path('alertTitle'), 'variant': 'h5'},
+      props: {'text': _path('alertTitle'), 'variant': 'h4'},
     );
     _addComponent(
       id: 'alertHeaderRow',

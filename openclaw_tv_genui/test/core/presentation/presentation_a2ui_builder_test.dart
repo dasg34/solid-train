@@ -235,12 +235,12 @@ void main() {
         (component) => component['id'] == 'alertInset',
       );
 
-      expect(heroTitleText['variant'], 'h5');
+      expect(heroTitleText['variant'], 'h4');
       expect(heroSummaryText['variant'], 'body');
       expect(heroSummaryInset['vertical'], 5);
       expect(heroDividerInset['vertical'], 3);
-      expect(heroMetricLabelText['variant'], 'h5');
-      expect(heroMetricValueText['variant'], 'h5');
+      expect(heroMetricLabelText['variant'], 'h4');
+      expect(heroMetricValueText['variant'], 'h4');
       expect(heroMetricDetailText['variant'], 'caption');
       expect(heroMetricInset['vertical'], 4);
       expect(heroInset['all'], 18);
