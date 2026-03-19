@@ -28,8 +28,8 @@ class _PresentationA2uiBuilder {
   final List<String> _rootChildren = [];
 
   bool get _isSidePanel => surface.theme.pattern == 'sidePanel';
-  double get _smallCardInsetAll => _isSidePanel ? 16 : 20;
-  double get _featureCardInsetAll => _isSidePanel ? 18 : 24;
+  double get _smallCardInsetAll => _isSidePanel ? 14 : 20;
+  double get _featureCardInsetAll => _isSidePanel ? 16 : 24;
   double get _sidePanelMasonryExtent => 220;
   double get _sidePanelMasonrySpacing => 12;
 
@@ -158,7 +158,7 @@ class _PresentationA2uiBuilder {
       component: 'Text',
       props: {
         'text': _path('title'),
-        'variant': _isSidePanel ? 'h2' : 'h1',
+        'variant': _isSidePanel ? 'h1' : 'h1',
       },
     );
 
@@ -170,7 +170,7 @@ class _PresentationA2uiBuilder {
         component: 'Text',
         props: {
           'text': _path('summary'),
-          'variant': _isSidePanel ? 'body' : 'h4',
+          'variant': _isSidePanel ? 'h4' : 'h4',
         },
       );
       _addComponent(
@@ -178,7 +178,7 @@ class _PresentationA2uiBuilder {
         component: 'Inset',
         props: {
           'child': 'heroSummaryText',
-          'vertical': _isSidePanel ? 6 : 10,
+          'vertical': _isSidePanel ? 5 : 10,
         },
       );
       heroChildren.add('heroSummaryInset');
@@ -188,7 +188,7 @@ class _PresentationA2uiBuilder {
         component: 'Inset',
         props: {
           'child': 'heroDivider',
-          'vertical': _isSidePanel ? 4 : 8,
+          'vertical': _isSidePanel ? 3 : 8,
         },
       );
       heroChildren.add('heroDividerInset');
@@ -199,7 +199,7 @@ class _PresentationA2uiBuilder {
       component: 'Text',
       props: {
         'text': _path('heroLabel'),
-        'variant': _isSidePanel ? 'caption' : 'body',
+        'variant': _isSidePanel ? 'body' : 'body',
       },
     );
     _addComponent(
@@ -222,7 +222,7 @@ class _PresentationA2uiBuilder {
         component: 'Text',
         props: {
           'text': _path('heroDetail'),
-          'variant': _isSidePanel ? 'body' : 'h4',
+          'variant': _isSidePanel ? 'h5' : 'h4',
         },
       );
       heroMetricChildren.add('heroMetricDetailText');
@@ -238,7 +238,7 @@ class _PresentationA2uiBuilder {
       component: 'Inset',
       props: {
         'child': 'heroMetricColumn',
-        'vertical': _isSidePanel ? 10 : 14,
+        'vertical': _isSidePanel ? 8 : 14,
       },
     );
     heroChildren.add('heroMetricInset');
@@ -260,7 +260,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'heroInset',
       component: 'Inset',
-      props: {'child': 'heroColumn', 'all': _isSidePanel ? 22 : 28},
+      props: {'child': 'heroColumn', 'all': _isSidePanel ? 18 : 28},
     );
     return _addComponent(
       id: 'heroCard',

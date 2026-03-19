@@ -181,24 +181,24 @@ void main() {
         (component) => component['id'] == 'alertInset',
       );
 
-      expect(heroTitleText['variant'], 'h2');
-      expect(heroSummaryText['variant'], 'body');
-      expect(heroSummaryInset['vertical'], 6);
-      expect(heroDividerInset['vertical'], 4);
-      expect(heroMetricLabelText['variant'], 'caption');
+      expect(heroTitleText['variant'], 'h1');
+      expect(heroSummaryText['variant'], 'h4');
+      expect(heroSummaryInset['vertical'], 5);
+      expect(heroDividerInset['vertical'], 3);
+      expect(heroMetricLabelText['variant'], 'body');
       expect(heroMetricValueText['variant'], 'h2');
-      expect(heroMetricDetailText['variant'], 'body');
-      expect(heroMetricInset['vertical'], 10);
-      expect(heroInset['all'], 22);
+      expect(heroMetricDetailText['variant'], 'h5');
+      expect(heroMetricInset['vertical'], 8);
+      expect(heroInset['all'], 18);
       expect(metricWrap['component'], 'Masonry');
       expect(metricWrap['maxCrossAxisExtent'], 220);
       expect(metricWrap['crossAxisSpacing'], 12);
       expect(metricWrap['mainAxisSpacing'], 12);
-      expect(metricInset['all'], 16);
+      expect(metricInset['all'], 14);
       expect(factWrap['component'], 'Masonry');
       expect(factWrap['maxCrossAxisExtent'], 220);
-      expect(factInset['all'], 16);
-      expect(alertInset['all'], 18);
+      expect(factInset['all'], 14);
+      expect(alertInset['all'], 16);
       expect(
         components.any((component) => component['id'] == 'heroDivider'),
         isTrue,
