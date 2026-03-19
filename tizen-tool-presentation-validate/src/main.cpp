@@ -4,20 +4,20 @@
 #include <type_traits>
 #include <variant>
 
-#include "tv_presentation_validate/cli.hpp"
-#include "tv_presentation_validate/error.hpp"
-#include "tv_presentation_validate/json.hpp"
-#include "tv_presentation_validate/validator.hpp"
+#include "tizen_tool_presentation_validate/cli.hpp"
+#include "tizen_tool_presentation_validate/error.hpp"
+#include "tizen_tool_presentation_validate/json.hpp"
+#include "tizen_tool_presentation_validate/validator.hpp"
 
 namespace {
 
-using tv_presentation_validate::AppError;
-using tv_presentation_validate::Command;
-using tv_presentation_validate::DescribeCommand;
-using tv_presentation_validate::JsonValue;
-using tv_presentation_validate::ObjectSet;
-using tv_presentation_validate::OutputFormat;
-using tv_presentation_validate::ValidateCommand;
+using tizen_tool_presentation_validate::AppError;
+using tizen_tool_presentation_validate::Command;
+using tizen_tool_presentation_validate::DescribeCommand;
+using tizen_tool_presentation_validate::JsonValue;
+using tizen_tool_presentation_validate::ObjectSet;
+using tizen_tool_presentation_validate::OutputFormat;
+using tizen_tool_presentation_validate::ValidateCommand;
 
 void PrintJson(const JsonValue& document, OutputFormat format) {
   std::cout << document.Dump(format == OutputFormat::kPretty) << '\n';
@@ -63,11 +63,12 @@ std::string ReadStdin() {
 int main(int argc, char** argv) {
   if (argc == 1 || (argc > 1 && std::string_view(argv[1]) == "--help") ||
       (argc > 1 && std::string_view(argv[1]) == "-h")) {
-    std::cout << tv_presentation_validate::RenderHelp();
+    std::cout << tizen_tool_presentation_validate::RenderHelp();
     return 0;
   }
 
-  const auto parsed = tv_presentation_validate::ParseCommand(argc, argv);
+  const auto parsed =
+      tizen_tool_presentation_validate::ParseCommand(argc, argv);
   if (std::holds_alternative<AppError>(parsed)) {
     PrintError(std::get<AppError>(parsed), OutputFormat::kJson);
     return std::get<AppError>(parsed).exit_code;
@@ -80,7 +81,7 @@ int main(int argc, char** argv) {
         using CommandType = std::decay_t<decltype(typed_command)>;
 
         if constexpr (std::is_same_v<CommandType, DescribeCommand>) {
-          PrintJson(tv_presentation_validate::BuildDescribeDocument(),
+          PrintJson(tizen_tool_presentation_validate::BuildDescribeDocument(),
                     typed_command.format);
           return 0;
         } else if constexpr (std::is_same_v<CommandType, ValidateCommand>) {
@@ -102,13 +103,14 @@ int main(int argc, char** argv) {
           }
 
           const auto report =
-              tv_presentation_validate::Validate(content, file_name);
+              tizen_tool_presentation_validate::Validate(content, file_name);
 
           if (typed_command.format == OutputFormat::kJson) {
-            PrintJson(tv_presentation_validate::ReportToJson(report),
+            PrintJson(tizen_tool_presentation_validate::ReportToJson(report),
                       typed_command.format);
           } else {
-            std::cout << tv_presentation_validate::RenderPrettyReport(report);
+            std::cout
+                << tizen_tool_presentation_validate::RenderPrettyReport(report);
           }
           return report.passed ? 0 : 1;
         }

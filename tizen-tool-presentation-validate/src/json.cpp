@@ -1,17 +1,17 @@
-#include "tv_presentation_validate/json.hpp"
+#include "tizen_tool_presentation_validate/json.hpp"
 
 #if __has_include(<json.h>)
 #include <json.h>
 #elif __has_include(<json-c/json.h>)
 #include <json-c/json.h>
 #else
-#error "json-c headers are required to build tv_presentation_validate."
+#error "json-c headers are required to build tizen-tool-presentation-validate."
 #endif
 
 #include <string>
 #include <utility>
 
-namespace tv_presentation_validate {
+namespace tizen_tool_presentation_validate {
 
 namespace {
 
@@ -288,4 +288,4 @@ std::vector<std::string> ObjectKeys(const JsonValue& object) {
   return keys;
 }
 
-}  // namespace tv_presentation_validate
+}  // namespace tizen_tool_presentation_validate

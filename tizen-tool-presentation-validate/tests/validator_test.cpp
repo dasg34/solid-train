@@ -2,12 +2,12 @@
 #include <iostream>
 #include <string>
 
-#include "tv_presentation_validate/validator.hpp"
+#include "tizen_tool_presentation_validate/validator.hpp"
 
 namespace {
 
-using tv_presentation_validate::Severity;
-using tv_presentation_validate::Validate;
+using tizen_tool_presentation_validate::Severity;
+using tizen_tool_presentation_validate::Validate;
 
 const std::string kValidMinimal = R"({
   "surfaceId": "weather_today",
@@ -121,6 +121,6 @@ int main() {
   TestChartLabelMismatch();
   TestFooterRejected();
   TestDensityWarning();
-  std::cout << "tv_presentation_validate_tests passed\n";
+  std::cout << "tizen_tool_presentation_validate_tests passed\n";
   return 0;
 }

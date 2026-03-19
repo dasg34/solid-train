@@ -1,4 +1,4 @@
 interface:
   display_name: "TV Surface Launcher"
   short_description: "Fetch TV data, validate presentation JSON, and preview"
-  default_prompt: "Use $tv-surface-launcher to fetch data, generate presentation JSON, validate it with tv_presentation_validate, save it, and launch a local TV surface preview."
+  default_prompt: "Use $tv-surface-launcher to fetch data, generate presentation JSON, validate it with tizen-tool-presentation-validate, save it, and launch a local TV surface preview."

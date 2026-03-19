@@ -1,4 +1,4 @@
-#include "tv_presentation_validate/validator.hpp"
+#include "tizen_tool_presentation_validate/validator.hpp"
 
 #include <algorithm>
 #include <array>
@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace tv_presentation_validate {
+namespace tizen_tool_presentation_validate {
 
 namespace {
 
@@ -530,4 +530,4 @@ std::string RenderPrettyReport(const ValidationReport& report) {
   return stream.str();
 }
 
-}  // namespace tv_presentation_validate
+}  // namespace tizen_tool_presentation_validate

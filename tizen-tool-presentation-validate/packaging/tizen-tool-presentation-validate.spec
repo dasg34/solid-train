@@ -1,4 +1,4 @@
-Name:       tv_presentation_validate
+Name:       tizen-tool-presentation-validate
 Version:    0.1.0
 Release:    0
 Summary:    Presentation JSON validator for Tizen TV
@@ -11,7 +11,7 @@ BuildRequires: pkgconfig(json)
 Requires:    libjson
 
 %description
-tv_presentation_validate checks semantic TV presentation JSON before the
+tizen-tool-presentation-validate checks semantic TV presentation JSON before the
 Flutter renderer converts it into deterministic A2UI. It validates required
 fields, chart shape, alert shape, forbidden footer fields, and TV-oriented
 density limits.
@@ -30,4 +30,4 @@ DESTDIR=%{buildroot} meson install -C builddir --no-rebuild
 
 %files
 %defattr(-,root,root,-)
-%{_bindir}/tv_presentation_validate
+%{_bindir}/tizen-tool-presentation-validate

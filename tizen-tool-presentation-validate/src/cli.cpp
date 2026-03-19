@@ -1,9 +1,9 @@
-#include "tv_presentation_validate/cli.hpp"
+#include "tizen_tool_presentation_validate/cli.hpp"
 
 #include <sstream>
 #include <vector>
 
-namespace tv_presentation_validate {
+namespace tizen_tool_presentation_validate {
 
 namespace {
 
@@ -54,7 +54,7 @@ std::variant<ValidateCommand, AppError> ParseValidate(
     if (arg.starts_with("--")) {
       return InvalidArguments(
           "Unsupported option.",
-          "Use tv_presentation_validate <file> [--format json|pretty].");
+          "Use tizen-tool-presentation-validate <file> [--format json|pretty].");
     }
     command.file = std::string(arg);
     ++index;
@@ -83,7 +83,7 @@ std::variant<DescribeCommand, AppError> ParseDescribe(
     }
     return InvalidArguments(
         "Unsupported describe option.",
-        "Use tv_presentation_validate describe [--format json|pretty].");
+        "Use tizen-tool-presentation-validate describe [--format json|pretty].");
   }
 
   return command;
@@ -112,7 +112,7 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
   if (argc < 2) {
     return InvalidArguments(
         "Missing file path.",
-        "Use tv_presentation_validate <file> or tv_presentation_validate --stdin.");
+        "Use tizen-tool-presentation-validate <file> or tizen-tool-presentation-validate --stdin.");
   }
 
   const std::string_view first(argv[1]);
@@ -140,12 +140,12 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
 
 std::string RenderHelp() {
   std::ostringstream stream;
-  stream << "tv_presentation_validate\n"
+  stream << "tizen-tool-presentation-validate\n"
          << "Presentation JSON validator for Samsung Tizen TV.\n\n"
          << "Usage:\n"
-         << "  tv_presentation_validate <file>     Validate a presentation JSON file\n"
-         << "  tv_presentation_validate --stdin    Read from stdin\n"
-         << "  tv_presentation_validate describe   Show validation rules\n\n"
+         << "  tizen-tool-presentation-validate <file>     Validate a presentation JSON file\n"
+         << "  tizen-tool-presentation-validate --stdin    Read from stdin\n"
+         << "  tizen-tool-presentation-validate describe   Show validation rules\n\n"
          << "Options:\n"
          << "  --format json|pretty               Output format (default: pretty)\n";
   return stream.str();
@@ -153,7 +153,7 @@ std::string RenderHelp() {
 
 JsonValue BuildDescribeDocument() {
   return MakeObject({
-      {"name", JsonValue::String("tv_presentation_validate")},
+      {"name", JsonValue::String("tizen-tool-presentation-validate")},
       {"description",
        JsonValue::String(
            "Validates semantic TV presentation JSON before the Flutter app "
@@ -217,4 +217,4 @@ JsonValue BuildDescribeDocument() {
   });
 }
 
-}  // namespace tv_presentation_validate
+}  // namespace tizen_tool_presentation_validate

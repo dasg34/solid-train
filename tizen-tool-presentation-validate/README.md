@@ -1,6 +1,6 @@
-# tv_presentation_validate
+# tizen-tool-presentation-validate
 
-`tv_presentation_validate` is a C++ validator for the Samsung Tizen TV
+`tizen-tool-presentation-validate` is a C++ validator for the Samsung Tizen TV
 presentation JSON payload used by `openclaw_tv_genui`.
 
 It checks the semantic presentation object before the Flutter app converts it
@@ -21,7 +21,7 @@ into deterministic A2UI.
 ## Build
 
 ```bash
-cd /Users/yohoho/work/tv_presentation_validate
+cd /Users/yohoho/work/tizen-tool-presentation-validate
 meson setup builddir
 meson compile -C builddir
 ```
@@ -29,7 +29,7 @@ meson compile -C builddir
 ## Test
 
 ```bash
-cd /Users/yohoho/work/tv_presentation_validate
+cd /Users/yohoho/work/tizen-tool-presentation-validate
 meson test -C builddir
 ```
 
@@ -38,27 +38,27 @@ meson test -C builddir
 Validate a file:
 
 ```bash
-./builddir/tv_presentation_validate /path/to/payload.json --format pretty
+./builddir/tizen-tool-presentation-validate /path/to/payload.json --format pretty
 ```
 
 Read from stdin:
 
 ```bash
-cat /path/to/payload.json | ./builddir/tv_presentation_validate --stdin
+cat /path/to/payload.json | ./builddir/tizen-tool-presentation-validate --stdin
 ```
 
 Show built-in validation rules:
 
 ```bash
-./builddir/tv_presentation_validate describe --format pretty
+./builddir/tizen-tool-presentation-validate describe --format pretty
 ```
 
 ## Tizen packaging
 
 Packaging files are in `packaging/`.
 
-- `packaging/tv_presentation_validate.spec`
-- `packaging/tv_presentation_validate.manifest`
+- `packaging/tizen-tool-presentation-validate.spec`
+- `packaging/tizen-tool-presentation-validate.manifest`
 
 The packaging layout mirrors `tv_a2ui_validate` so it can be built in the same
 Tizen native CLI environment.

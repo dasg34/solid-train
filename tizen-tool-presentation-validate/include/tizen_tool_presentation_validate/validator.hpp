@@ -4,9 +4,9 @@
 #include <string_view>
 #include <vector>
 
-#include "tv_presentation_validate/json.hpp"
+#include "tizen_tool_presentation_validate/json.hpp"
 
-namespace tv_presentation_validate {
+namespace tizen_tool_presentation_validate {
 
 enum class Severity { kError, kWarning };
 
@@ -34,4 +34,4 @@ ValidationReport Validate(std::string_view content, std::string_view file_name);
 JsonValue ReportToJson(const ValidationReport& report);
 std::string RenderPrettyReport(const ValidationReport& report);
 
-}  // namespace tv_presentation_validate
+}  // namespace tizen_tool_presentation_validate

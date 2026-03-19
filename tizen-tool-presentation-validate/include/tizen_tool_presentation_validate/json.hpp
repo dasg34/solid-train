@@ -7,11 +7,11 @@
 #include <variant>
 #include <vector>
 
-#include "tv_presentation_validate/error.hpp"
+#include "tizen_tool_presentation_validate/error.hpp"
 
 struct json_object;
 
-namespace tv_presentation_validate {
+namespace tizen_tool_presentation_validate {
 
 class JsonValue {
  public:
@@ -67,4 +67,4 @@ void ArrayAppend(JsonValue& array, JsonValue value);
 bool ObjectHasKey(const JsonValue& object, std::string_view key);
 std::vector<std::string> ObjectKeys(const JsonValue& object);
 
-}  // namespace tv_presentation_validate
+}  // namespace tizen_tool_presentation_validate

@@ -3,10 +3,10 @@
 #include <string>
 #include <variant>
 
-#include "tv_presentation_validate/error.hpp"
-#include "tv_presentation_validate/json.hpp"
+#include "tizen_tool_presentation_validate/error.hpp"
+#include "tizen_tool_presentation_validate/json.hpp"
 
-namespace tv_presentation_validate {
+namespace tizen_tool_presentation_validate {
 
 enum class OutputFormat { kJson, kPretty };
 
@@ -25,4 +25,4 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv);
 std::string RenderHelp();
 JsonValue BuildDescribeDocument();
 
-}  // namespace tv_presentation_validate
+}  // namespace tizen_tool_presentation_validate
