@@ -27,10 +27,22 @@ void main() {
       final root = components.firstWhere(
         (component) => component['id'] == 'root',
       );
+      final heroMetricDetailText = components.firstWhere(
+        (component) => component['id'] == 'heroMetricDetailText',
+      );
+      final heroMetricInset = components.firstWhere(
+        (component) => component['id'] == 'heroMetricInset',
+      );
+      final heroInset = components.firstWhere(
+        (component) => component['id'] == 'heroInset',
+      );
 
       expect(theme['scale'], 'compact');
       expect(value['heroValue'], '74,300원');
       expect(root['children'], ['heroCard']);
+      expect(heroMetricDetailText['variant'], 'h5');
+      expect(heroMetricInset['vertical'], 8);
+      expect(heroInset['all'], 18);
       expect(
         components.where((component) => component['component'] == 'LineChart'),
         isEmpty,
@@ -87,10 +99,42 @@ void main() {
           document[2]['updateComponents']! as Map<String, Object?>;
       final components = (updateComponents['components']! as List<Object?>)
           .cast<Map<String, Object?>>();
+      final heroSummaryText = components.firstWhere(
+        (component) => component['id'] == 'heroSummaryText',
+      );
+      final heroSummaryInset = components.firstWhere(
+        (component) => component['id'] == 'heroSummaryInset',
+      );
+      final heroDividerInset = components.firstWhere(
+        (component) => component['id'] == 'heroDividerInset',
+      );
+      final heroInset = components.firstWhere(
+        (component) => component['id'] == 'heroInset',
+      );
+      final metricInset = components.firstWhere(
+        (component) => component['id'] == 'metric1Inset',
+      );
+      final factInset = components.firstWhere(
+        (component) => component['id'] == 'fact1Inset',
+      );
+      final chartInset = components.firstWhere(
+        (component) => component['id'] == 'chartInset',
+      );
+      final alertInset = components.firstWhere(
+        (component) => component['id'] == 'alertInset',
+      );
 
       expect(theme['scale'], 'standard');
       expect(value['chartTitle'], '장중 추이');
       expect(value['chartValues'], [74200.0, 73900.0, 74100.0, 74300.0]);
+      expect(heroSummaryText['variant'], 'h4');
+      expect(heroSummaryInset['vertical'], 5);
+      expect(heroDividerInset['vertical'], 3);
+      expect(heroInset['all'], 18);
+      expect(metricInset['all'], 14);
+      expect(factInset['all'], 14);
+      expect(chartInset['all'], 16);
+      expect(alertInset['all'], 16);
       expect(
         components.any((component) => component['component'] == 'LineChart'),
         isTrue,
@@ -109,7 +153,7 @@ void main() {
       expect(messages[2], isA<UpdateComponents>());
     });
 
-    test('tightens hero card typography and spacing for side panels', () {
+    test('uses masonry layout for side panels while sharing compact spacing', () {
       final surface = PresentationSurface.fromJson({
         'surfaceId': 'commute',
         'theme': {'domain': 'commute', 'pattern': 'sidePanel'},
