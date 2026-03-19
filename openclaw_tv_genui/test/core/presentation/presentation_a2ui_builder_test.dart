@@ -40,7 +40,7 @@ void main() {
       expect(theme['scale'], 'compact');
       expect(value['heroValue'], '74,300원');
       expect(root['children'], ['heroCard']);
-      expect(heroMetricDetailText['variant'], 'h4');
+      expect(heroMetricDetailText['variant'], 'caption');
       expect(heroMetricInset['vertical'], 4);
       expect(heroInset['all'], 18);
       expect(
@@ -127,7 +127,7 @@ void main() {
       expect(theme['scale'], 'standard');
       expect(value['chartTitle'], '장중 추이');
       expect(value['chartValues'], [74200.0, 73900.0, 74100.0, 74300.0]);
-      expect(heroSummaryText['variant'], 'h4');
+      expect(heroSummaryText['variant'], 'body');
       expect(heroSummaryInset['vertical'], 5);
       expect(heroDividerInset['vertical'], 3);
       expect(heroInset['all'], 18);
@@ -225,13 +225,13 @@ void main() {
         (component) => component['id'] == 'alertInset',
       );
 
-      expect(heroTitleText['variant'], 'h1');
-      expect(heroSummaryText['variant'], 'h4');
+      expect(heroTitleText['variant'], 'h5');
+      expect(heroSummaryText['variant'], 'body');
       expect(heroSummaryInset['vertical'], 5);
       expect(heroDividerInset['vertical'], 3);
-      expect(heroMetricLabelText['variant'], 'h2');
-      expect(heroMetricValueText['variant'], 'h2');
-      expect(heroMetricDetailText['variant'], 'h4');
+      expect(heroMetricLabelText['variant'], 'h5');
+      expect(heroMetricValueText['variant'], 'h5');
+      expect(heroMetricDetailText['variant'], 'caption');
       expect(heroMetricInset['vertical'], 4);
       expect(heroInset['all'], 18);
       expect(metricWrap['component'], 'Masonry');

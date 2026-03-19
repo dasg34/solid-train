@@ -156,7 +156,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'heroTitleText',
       component: 'Text',
-      props: {'text': _path('title'), 'variant': 'h1'},
+      props: {'text': _path('title'), 'variant': 'h5'},
     );
 
     final heroChildren = <String>['heroTitleText'];
@@ -165,7 +165,7 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: 'heroSummaryText',
         component: 'Text',
-        props: {'text': _path('summary'), 'variant': 'h4'},
+        props: {'text': _path('summary'), 'variant': 'body'},
       );
       _addComponent(
         id: 'heroSummaryInset',
@@ -185,15 +185,12 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'heroMetricLabelText',
       component: 'Text',
-      props: {'text': _path('heroLabel'), 'variant': 'h2'},
+      props: {'text': _path('heroLabel'), 'variant': 'h5'},
     );
     _addComponent(
       id: 'heroMetricValueText',
       component: 'Text',
-      props: {
-        'text': _path('heroValue'),
-        'variant': _isSidePanel ? 'h2' : 'h1',
-      },
+      props: {'text': _path('heroValue'), 'variant': 'h5'},
     );
 
     final heroMetricChildren = <String>[
@@ -205,7 +202,7 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: 'heroMetricDetailText',
         component: 'Text',
-        props: {'text': _path('heroDetail'), 'variant': 'h4'},
+        props: {'text': _path('heroDetail'), 'variant': 'caption'},
       );
       heroMetricChildren.add('heroMetricDetailText');
     }
@@ -264,7 +261,7 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: valueId,
         component: 'Text',
-        props: {'text': _path('metric${index}Value'), 'variant': 'h3'},
+        props: {'text': _path('metric${index}Value'), 'variant': 'h5'},
       );
 
       final detailKey = 'metric${index}Detail';
@@ -317,7 +314,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'chartTitleText',
       component: 'Text',
-      props: {'text': _path('chartTitle'), 'variant': 'h3'},
+      props: {'text': _path('chartTitle'), 'variant': 'h5'},
     );
     chartChildren.add('chartTitleText');
 
@@ -416,7 +413,7 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: valueId,
         component: 'Text',
-        props: {'text': _path('fact${index}Value'), 'variant': 'h4'},
+        props: {'text': _path('fact${index}Value'), 'variant': 'h5'},
       );
 
       final detailKey = 'fact${index}Detail';
@@ -472,7 +469,7 @@ class _PresentationA2uiBuilder {
     _addComponent(
       id: 'alertTitleText',
       component: 'Text',
-      props: {'text': _path('alertTitle'), 'variant': 'h4'},
+      props: {'text': _path('alertTitle'), 'variant': 'h5'},
     );
     _addComponent(
       id: 'alertHeaderRow',

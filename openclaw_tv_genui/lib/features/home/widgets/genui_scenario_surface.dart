@@ -14,7 +14,6 @@ import '../models/scenario_entry.dart';
 
 // Skills emit this catalogId in their createSurface messages.
 const _catalogId = 'https://a2ui.org/specification/v0_9/standard_catalog.json';
-const _tvSurfaceTextScale = 0.65;
 const _keyboardScrollStepMin = 88.0;
 const _keyboardScrollStepMax = 168.0;
 const _keyboardScrollStepViewportFactor = 0.22;
@@ -356,44 +355,39 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       pattern: _pattern,
       scale: _scale,
     );
-    final content = MediaQuery(
-      data: MediaQuery.of(
-        context,
-      ).copyWith(textScaler: const TextScaler.linear(_tvSurfaceTextScale)),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final contentWidth =
-              (constraints.maxWidth - contentPadding.horizontal).clamp(
-                0.0,
-                4000.0,
-              );
-          final contentHeight =
-              (constraints.maxHeight - contentPadding.vertical).clamp(
-                0.0,
-                4000.0,
-              );
+    final content = LayoutBuilder(
+      builder: (context, constraints) {
+        final contentWidth =
+            (constraints.maxWidth - contentPadding.horizontal).clamp(
+              0.0,
+              4000.0,
+            );
+        final contentHeight =
+            (constraints.maxHeight - contentPadding.vertical).clamp(
+              0.0,
+              4000.0,
+            );
 
-          return SingleChildScrollView(
-            controller: _scrollController,
-            padding: contentPadding,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: contentWidth,
-                minHeight: contentHeight,
-              ),
-              child: Align(
-                alignment: contentAlignment,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: contentWidth),
-                  child: Surface(
-                    surfaceContext: _controller.contextFor(_surfaceId),
-                  ),
+        return SingleChildScrollView(
+          controller: _scrollController,
+          padding: contentPadding,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: contentWidth,
+              minHeight: contentHeight,
+            ),
+            child: Align(
+              alignment: contentAlignment,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: contentWidth),
+                child: Surface(
+                  surfaceContext: _controller.contextFor(_surfaceId),
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
     final overlayContent = Stack(
       children: [
@@ -411,13 +405,8 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
               contentPadding: contentPadding,
               contentAlignment: contentAlignment,
               onMeasured: _handleMeasuredContentSize,
-              child: MediaQuery(
-                data: MediaQuery.of(context).copyWith(
-                  textScaler: const TextScaler.linear(_tvSurfaceTextScale),
-                ),
-                child: Surface(
-                  surfaceContext: _controller.contextFor(_surfaceId),
-                ),
+              child: Surface(
+                surfaceContext: _controller.contextFor(_surfaceId),
               ),
             ),
           ),
