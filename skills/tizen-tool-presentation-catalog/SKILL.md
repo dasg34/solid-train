@@ -32,9 +32,7 @@ validate it with `tizen-tool-presentation-validate` before delivery.
 Preferred command:
 
 ```bash
-cd /Users/yohoho/work/tizen-tool-presentation-validate
-meson compile -C builddir
-./builddir/tizen-tool-presentation-validate /tmp/tv-presentation/<domain>-<timestamp>.json --format pretty
+tizen-tool-presentation-validate /tmp/tv-presentation/<domain>-<timestamp>.json --format pretty
 ```
 
 If the payload has not been saved to a file yet, stdin validation is also
@@ -42,11 +40,14 @@ allowed:
 
 ```bash
 cat /tmp/tv-presentation/<domain>-<timestamp>.json | \
-  /Users/yohoho/work/tizen-tool-presentation-validate/builddir/tizen-tool-presentation-validate --stdin
+  tizen-tool-presentation-validate --stdin
 ```
 
 Validation is not part of the JSON payload itself. Do not mention validator
 commands inside the output JSON.
+
+Assume `tizen-tool-presentation-validate` is already installed and available on
+`PATH`.
 
 ## Missing Information Rule
 

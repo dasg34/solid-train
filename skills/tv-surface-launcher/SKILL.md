@@ -58,19 +58,11 @@ The saved payload must be one raw JSON object only.
 Validate saved payloads before preview or handoff:
 
 ```bash
-cd /Users/yohoho/work/tizen-tool-presentation-validate
-meson setup builddir
-meson compile -C builddir
-./builddir/tizen-tool-presentation-validate /tmp/tv-presentation/<domain>-<timestamp>.json --format pretty
+tizen-tool-presentation-validate /tmp/tv-presentation/<domain>-<timestamp>.json --format pretty
 ```
 
-If `builddir` already exists, use:
-
-```bash
-cd /Users/yohoho/work/tizen-tool-presentation-validate
-meson compile -C builddir
-./builddir/tizen-tool-presentation-validate /tmp/tv-presentation/<domain>-<timestamp>.json --format pretty
-```
+Assume `tizen-tool-presentation-validate` is already installed and available on
+`PATH`. Do not rebuild it during the normal skill flow.
 
 ## Domain Routing
 
