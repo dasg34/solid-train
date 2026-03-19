@@ -29,6 +29,11 @@ This skill is presentation-first. It uses:
   internally.
 - `tv_a2ui_launcher` is a historical name, but it now transports presentation
   JSON to the app.
+- For runtime handoff, assume `tv_a2ui_launcher` is already installed on the
+  target TV or Tizen environment and callable by name.
+- If source lookup is needed, the local repo is
+  `/Users/yohoho/work/tv_a2ui_launcher`, but do not block on finding it when
+  the installed binary is the thing being used.
 
 ## Workflow
 
@@ -165,6 +170,10 @@ tv_a2ui_launcher --file /tmp/tv-presentation/<domain>-<timestamp>.json
 
 The launcher name is historical. It now sends presentation JSON using App
 Control extra data key `json`.
+
+Assume the launcher binary is already installed on the target TV or Tizen
+environment. Only look in `/Users/yohoho/work/tv_a2ui_launcher` when the user
+specifically asks about source, build, or packaging details.
 
 ## Response Contract
 
