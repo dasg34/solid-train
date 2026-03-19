@@ -21,12 +21,8 @@ This skill is presentation-first. It uses:
 
 ## Current Reality
 
-- Preferred output is semantic presentation JSON.
-- Do NOT generate raw A2UI NDJSON in the default flow.
 - Today the most reliable delivery path is local preview through
   `openclaw_tv_genui`.
-- The Flutter app converts presentation payloads into deterministic A2UI
-  internally.
 - `tv_a2ui_launcher` is a historical name, but it now transports presentation
   JSON to the app.
 
@@ -36,22 +32,14 @@ This skill is presentation-first. It uses:
 2. If the scenario is unclear or a required fetch input is missing, ask one
    short follow-up question. Ask only for the single missing piece.
 3. Collect or accept structured domain data for the chosen scenario
-4. Generate one presentation JSON object using `tizen-tool-presentation-catalog`
+4. Generate one presentation JSON object using
+   `tizen-tool-presentation-catalog`
 5. Save it to `/tmp/tv-presentation/<domain>-<timestamp>.json`
 6. Deliver it using one of these modes:
    - Local preview: preferred default today
    - Runtime handoff: send the presentation JSON to the TV app
 7. Report domain, source, assumptions, saved path, and
    preview or handoff result
-
-## Raw JSON Only
-
-The saved payload must be one raw JSON object only.
-
-- Do NOT save NDJSON.
-- Do NOT wrap the payload in Markdown fences.
-- Do NOT prefix the file with commentary or headings.
-- The first character of the file must be `{`.
 
 ## Domain Routing
 
@@ -86,20 +74,6 @@ If no domain is clear, ask one short clarification question.
   or flight data.
 - Ask at most one short follow-up question per turn when a required input is missing.
 - Preserve source semantics when mapping upstream data into presentation JSON.
-
-## Presentation Rules
-
-Generate the final surface payload with `tizen-tool-presentation-catalog`.
-
-- One strong hero metric is better than many competing numbers.
-- Add `metrics`, `facts`, `chart`, and `alert` only when they materially help.
-- Prefer stable `surfaceId` values such as `weather_today` or `finance_focus`.
-- Do not emit footer fields or low-level component trees.
-
-For examples, read:
-
-- `skills/tizen-tool-presentation-catalog/references/examples/weather_today.json`
-- `skills/tizen-tool-presentation-catalog/references/examples/finance_focus.json`
 
 ## Delivery Modes
 
