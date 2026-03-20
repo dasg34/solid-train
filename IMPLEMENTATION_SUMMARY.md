@@ -62,6 +62,45 @@ user request
   -> tizen-tool-viewer
 ```
 
+조금 더 직관적으로 표현하면 전체 흐름은 다음과 같습니다.
+
+```text
+[ 사용자 요청 ]
+      |
+      v
+[ LLM / 에이전트 ]
+  - 요청 의도 해석
+  - 필요한 정보 종류 결정
+      |
+      v
+[ 데이터 수집 / 외부 도구 ]
+  - tizen-tool-domain-fetch
+  - 기타 API / 스킬 / 외부 소스
+      |
+      v
+[ LLM / 에이전트 ]
+  - 수집된 데이터 정리
+  - 중요한 정보만 선택
+  - presentation JSON 생성
+      |
+      v
+[ tizen-tool-presentation-validate ]
+  - payload 형식 검증
+      |
+      v
+[ tizen-tool-viewer-launch ]
+  - viewer 앱으로 runtime handoff
+      |
+      v
+[ tizen-tool-viewer ]
+  - presentation JSON 수신
+  - deterministic A2UI로 변환
+  - TV UI 렌더링
+      |
+      v
+[ TV 화면 ]
+```
+
 ## 각 프로젝트 역할
 
 ### `tizen-tool-domain-fetch`
