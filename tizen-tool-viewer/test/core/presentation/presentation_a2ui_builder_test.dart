@@ -170,13 +170,13 @@ void main() {
       expect(metricWrap['runSpacing'], 12);
       expect(metricWrap['crossAlign'], 'center');
       expect(metricMaxWidth['component'], 'MaxWidth');
-      expect(metricMaxWidth['maxWidth'], 220);
+      expect(metricMaxWidth['maxWidth'], 210);
       expect(factWrap['component'], 'Wrap');
       expect(factWrap['spacing'], 12);
       expect(factWrap['runSpacing'], 12);
       expect(factWrap['crossAlign'], 'center');
       expect(factMaxWidth['component'], 'MaxWidth');
-      expect(factMaxWidth['maxWidth'], 220);
+      expect(factMaxWidth['maxWidth'], 210);
       expect(
         components.any((component) => component['component'] == 'LineChart'),
         isTrue,
@@ -293,7 +293,7 @@ void main() {
       expect(metricWrap['runSpacing'], 12);
       expect(metricWrap['crossAlign'], 'center');
       expect(metricMaxWidth['component'], 'MaxWidth');
-      expect(metricMaxWidth['maxWidth'], 220);
+      expect(metricMaxWidth['maxWidth'], 210);
       expect(metricLabelText['variant'], 'h4');
       expect(metricValueText['variant'], 'body');
       expect(metricInset['all'], 14);
@@ -302,7 +302,7 @@ void main() {
       expect(factWrap['runSpacing'], 12);
       expect(factWrap['crossAlign'], 'center');
       expect(factMaxWidth['component'], 'MaxWidth');
-      expect(factMaxWidth['maxWidth'], 220);
+      expect(factMaxWidth['maxWidth'], 210);
       expect(factLabelText['variant'], 'h4');
       expect(factValueText['variant'], 'body');
       expect(factInset['all'], 14);
