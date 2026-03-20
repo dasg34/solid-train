@@ -566,7 +566,7 @@ class _OverlaySurfaceFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fittedWidth = measuredContentSize == null
+    final fittedWidth = !spec.fitWidthToContent || measuredContentSize == null
         ? spec.width
         : (measuredContentSize!.width + contentPadding.horizontal).clamp(
             spec.minWidth,
@@ -606,6 +606,7 @@ class _OverlayLayoutSpec {
     required this.alignment,
     required this.width,
     required this.height,
+    required this.fitWidthToContent,
     required this.minWidth,
     required this.maxWidth,
     required this.minHeight,
@@ -616,6 +617,7 @@ class _OverlayLayoutSpec {
   final Alignment alignment;
   final double width;
   final double height;
+  final bool fitWidthToContent;
   final double minWidth;
   final double maxWidth;
   final double minHeight;
@@ -649,10 +651,12 @@ class _OverlayLayoutSpec {
     late final double maxWidth;
     late final double heightFactor;
     late final double minHeight;
+    late final bool fitWidthToContent;
 
     switch (pattern) {
       case TvSurfacePattern.immersive:
         alignment = Alignment.center;
+        fitWidthToContent = true;
         switch (scale) {
           case TvSurfaceScale.compact:
             widthFactor = smallScreen ? 0.88 : (compactTv ? 0.50 : 0.56);
@@ -675,6 +679,7 @@ class _OverlayLayoutSpec {
         }
       case TvSurfacePattern.sidePanel:
         alignment = smallScreen ? Alignment.center : Alignment.centerRight;
+        fitWidthToContent = false;
         switch (scale) {
           case TvSurfaceScale.compact:
             widthFactor = smallScreen ? 0.78 : (compactTv ? 0.30 : 0.34);
@@ -697,6 +702,7 @@ class _OverlayLayoutSpec {
         }
       case TvSurfacePattern.centerCard:
         alignment = Alignment.center;
+        fitWidthToContent = true;
         switch (scale) {
           case TvSurfaceScale.compact:
             widthFactor = smallScreen ? 0.72 : (compactTv ? 0.28 : 0.32);
@@ -719,6 +725,7 @@ class _OverlayLayoutSpec {
         }
       case TvSurfacePattern.topBanner:
         alignment = Alignment.topCenter;
+        fitWidthToContent = true;
         switch (scale) {
           case TvSurfaceScale.compact:
             widthFactor = smallScreen ? 0.88 : (compactTv ? 0.82 : 0.84);
@@ -741,6 +748,7 @@ class _OverlayLayoutSpec {
         }
       case TvSurfacePattern.bottomRibbon:
         alignment = Alignment.bottomCenter;
+        fitWidthToContent = true;
         switch (scale) {
           case TvSurfaceScale.compact:
             widthFactor = smallScreen ? 0.88 : (compactTv ? 0.84 : 0.86);
@@ -773,6 +781,7 @@ class _OverlayLayoutSpec {
       alignment: alignment,
       width: width,
       height: height,
+      fitWidthToContent: fitWidthToContent,
       minWidth: minWidth,
       maxWidth: maxWidth,
       minHeight: minHeight,
@@ -799,9 +808,10 @@ class _OffstageSurfaceMeasurer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxContentWidth = (spec.maxWidth - contentPadding.horizontal).clamp(
+    final measuredPanelWidth = spec.fitWidthToContent ? spec.maxWidth : spec.width;
+    final maxContentWidth = (measuredPanelWidth - contentPadding.horizontal).clamp(
       0.0,
-      spec.maxWidth,
+      measuredPanelWidth,
     );
     final maxContentHeight = (spec.maxHeight - contentPadding.vertical).clamp(
       0.0,
@@ -813,6 +823,7 @@ class _OffstageSurfaceMeasurer extends StatelessWidget {
         alignment: spec.alignment,
         child: ConstrainedBox(
           constraints: BoxConstraints(
+            minWidth: spec.fitWidthToContent ? 0 : maxContentWidth,
             maxWidth: maxContentWidth,
             maxHeight: maxContentHeight,
           ),

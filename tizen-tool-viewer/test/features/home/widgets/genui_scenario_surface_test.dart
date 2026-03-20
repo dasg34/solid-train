@@ -36,11 +36,14 @@ void main() {
 
     final firstChartSize = tester.getSize(chartFinder.first);
     final secondChartSize = tester.getSize(chartFinder.at(1));
+    final highMetricOffset = tester.getTopLeft(find.text('고가'));
+    final lowMetricOffset = tester.getTopLeft(find.text('저가'));
 
     expect(firstChartSize.width, greaterThan(120));
     expect(firstChartSize.height, greaterThan(60));
     expect(secondChartSize.width, greaterThan(120));
     expect(secondChartSize.height, greaterThan(60));
+    expect((highMetricOffset.dy - lowMetricOffset.dy).abs(), lessThan(16));
   });
 
   testWidgets('surface scrolls with keyboard arrow keys', (tester) async {
