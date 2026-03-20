@@ -147,8 +147,10 @@ void main() {
       expect(metricWrap['maxCrossAxisExtent'], 220);
       expect(metricWrap['crossAxisSpacing'], 12);
       expect(metricWrap['mainAxisSpacing'], 12);
+      expect(metricWrap['expandOddTail'], isTrue);
       expect(factWrap['component'], 'Masonry');
       expect(factWrap['maxCrossAxisExtent'], 220);
+      expect(factWrap['expandOddTail'], isTrue);
       expect(
         components.any((component) => component['component'] == 'LineChart'),
         isTrue,
@@ -250,9 +252,11 @@ void main() {
       expect(metricWrap['maxCrossAxisExtent'], 220);
       expect(metricWrap['crossAxisSpacing'], 12);
       expect(metricWrap['mainAxisSpacing'], 12);
+      expect(metricWrap['expandOddTail'], isTrue);
       expect(metricInset['all'], 14);
       expect(factWrap['component'], 'Masonry');
       expect(factWrap['maxCrossAxisExtent'], 220);
+      expect(factWrap['expandOddTail'], isTrue);
       expect(factInset['all'], 14);
       expect(alertInset['all'], 16);
       expect(

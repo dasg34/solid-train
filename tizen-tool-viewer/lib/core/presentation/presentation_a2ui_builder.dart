@@ -302,6 +302,7 @@ class _PresentationA2uiBuilder {
         'maxCrossAxisExtent': _masonryExtent,
         'crossAxisSpacing': _masonrySpacing,
         'mainAxisSpacing': _masonrySpacing,
+        'expandOddTail': true,
       },
     );
   }
@@ -452,6 +453,7 @@ class _PresentationA2uiBuilder {
         'maxCrossAxisExtent': _masonryExtent,
         'crossAxisSpacing': _masonrySpacing,
         'mainAxisSpacing': _masonrySpacing,
+        'expandOddTail': true,
       },
     );
   }

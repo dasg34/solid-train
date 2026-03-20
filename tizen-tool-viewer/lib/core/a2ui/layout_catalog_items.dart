@@ -85,6 +85,10 @@ final _masonrySchema = S.object(
       description: 'Vertical spacing between tiles in logical pixels.',
       minimum: 0,
     ),
+    'expandOddTail': S.boolean(
+      description:
+          'When true, a lone last tile in a multi-column odd-length layout expands to the full row width.',
+    ),
   },
   required: ['children', 'maxCrossAxisExtent'],
 );
@@ -113,6 +117,22 @@ extension type _MasonryData.fromMap(JsonMap _json) {
       (_json['crossAxisSpacing'] as num?)?.toDouble() ?? 16;
   double get mainAxisSpacing =>
       (_json['mainAxisSpacing'] as num?)?.toDouble() ?? 16;
+  bool get expandOddTail => _json['expandOddTail'] as bool? ?? false;
+}
+
+int _masonryCrossAxisCount(
+  double availableWidth,
+  double maxCrossAxisExtent,
+  double crossAxisSpacing,
+) {
+  if (!availableWidth.isFinite || availableWidth <= 0) {
+    return 1;
+  }
+  final count =
+      ((availableWidth + crossAxisSpacing) /
+              (maxCrossAxisExtent + crossAxisSpacing))
+          .floor();
+  return count.clamp(1, 1000);
 }
 
 WrapAlignment _parseWrapAlignment(String? alignment) => switch (alignment) {
@@ -240,6 +260,7 @@ final masonryFlow = CatalogItem(
           "maxCrossAxisExtent": 220,
           "crossAxisSpacing": 12,
           "mainAxisSpacing": 12,
+          "expandOddTail": true,
           "children": ["card1", "card2", "card3"]
         },
         {
@@ -284,18 +305,51 @@ final masonryFlow = CatalogItem(
       return const SizedBox.shrink();
     }
 
-    return MasonryGridView.extent(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
-      maxCrossAxisExtent: masonryData.maxCrossAxisExtent,
-      mainAxisSpacing: masonryData.mainAxisSpacing,
-      crossAxisSpacing: masonryData.crossAxisSpacing,
-      itemCount: childIds.length,
-      itemBuilder: (context, index) {
-        return itemContext.buildChild(
-          childIds[index],
-          itemContext.dataContext,
+    Widget buildGrid(List<String> ids) {
+      return MasonryGridView.extent(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        maxCrossAxisExtent: masonryData.maxCrossAxisExtent,
+        mainAxisSpacing: masonryData.mainAxisSpacing,
+        crossAxisSpacing: masonryData.crossAxisSpacing,
+        itemCount: ids.length,
+        itemBuilder: (context, index) {
+          return itemContext.buildChild(
+            ids[index],
+            itemContext.dataContext,
+          );
+        },
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final crossAxisCount = _masonryCrossAxisCount(
+          constraints.maxWidth,
+          masonryData.maxCrossAxisExtent,
+          masonryData.crossAxisSpacing,
+        );
+        final shouldExpandOddTail =
+            masonryData.expandOddTail &&
+            crossAxisCount > 1 &&
+            childIds.length > 1 &&
+            childIds.length.isOdd;
+
+        if (!shouldExpandOddTail) {
+          return buildGrid(childIds);
+        }
+
+        final leadingIds = childIds.sublist(0, childIds.length - 1);
+        final tailId = childIds.last;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            buildGrid(leadingIds),
+            SizedBox(height: masonryData.mainAxisSpacing),
+            itemContext.buildChild(tailId, itemContext.dataContext),
+          ],
         );
       },
     );
