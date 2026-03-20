@@ -168,12 +168,14 @@ void main() {
       expect(metricWrap['component'], 'Wrap');
       expect(metricWrap['spacing'], 12);
       expect(metricWrap['runSpacing'], 12);
+      expect(metricWrap['alignment'], 'spaceAround');
       expect(metricWrap['crossAlign'], 'center');
       expect(metricMaxWidth['component'], 'MaxWidth');
       expect(metricMaxWidth['maxWidth'], 210);
       expect(factWrap['component'], 'Wrap');
       expect(factWrap['spacing'], 12);
       expect(factWrap['runSpacing'], 12);
+      expect(factWrap['alignment'], 'spaceAround');
       expect(factWrap['crossAlign'], 'center');
       expect(factMaxWidth['component'], 'MaxWidth');
       expect(factMaxWidth['maxWidth'], 210);
@@ -291,6 +293,7 @@ void main() {
       expect(metricWrap['component'], 'Wrap');
       expect(metricWrap['spacing'], 12);
       expect(metricWrap['runSpacing'], 12);
+      expect(metricWrap['alignment'], 'spaceAround');
       expect(metricWrap['crossAlign'], 'center');
       expect(metricMaxWidth['component'], 'MaxWidth');
       expect(metricMaxWidth['maxWidth'], 210);
@@ -300,6 +303,7 @@ void main() {
       expect(factWrap['component'], 'Wrap');
       expect(factWrap['spacing'], 12);
       expect(factWrap['runSpacing'], 12);
+      expect(factWrap['alignment'], 'spaceAround');
       expect(factWrap['crossAlign'], 'center');
       expect(factMaxWidth['component'], 'MaxWidth');
       expect(factMaxWidth['maxWidth'], 210);

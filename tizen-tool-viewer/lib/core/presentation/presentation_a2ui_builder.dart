@@ -306,6 +306,7 @@ class _PresentationA2uiBuilder {
         'children': metricCardIds,
         'spacing': _cardWrapSpacing,
         'runSpacing': _cardWrapSpacing,
+        'alignment': 'spaceAround',
         'crossAlign': 'center',
       },
     );
@@ -461,6 +462,7 @@ class _PresentationA2uiBuilder {
         'children': factCardIds,
         'spacing': _cardWrapSpacing,
         'runSpacing': _cardWrapSpacing,
+        'alignment': 'spaceAround',
         'crossAlign': 'center',
       },
     );
