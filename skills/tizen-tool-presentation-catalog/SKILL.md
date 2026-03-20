@@ -100,7 +100,6 @@ Rules:
 - if `labels` is present, it must match `values` length
 - prefer 4-8 points for TV readability
 - prefer adding `chart` whenever numeric trend, sequence, or comparison data exists
-- prefer `chart` over expanding too many `metrics` or `facts`
 
 ### Alert
 
@@ -126,7 +125,6 @@ Do not force optional fields to appear.
 
 - Sparse requests such as "삼성전자만 보여줘" can be just `title + hero`
 - Richer requests can add `metrics`, `chart`, `facts`, and `alert`
-- If both `chart` and extra `metrics`/`facts` are possible, prefer keeping the `chart`
 
 ## What Not To Output
 
