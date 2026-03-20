@@ -12,14 +12,14 @@ questions that make the system feel like a real TV agent.
 
 ## How To Read This
 
-- `Supported now`: Requests that map well to the current `tv_fetch` live
+- `Supported now`: Requests that map well to the current `tizen-tool-domain-fetch` live
   adapters.
 - `Stretch`: Requests that are adjacent to current capability and may work with
   good orchestration or prompt routing, but are not guaranteed.
 - `Missing`: Requests a real boss is likely to try that are not covered by the
-  current `tv_fetch` surface.
+  current `tizen-tool-domain-fetch` surface.
 
-Current `tv_fetch` live coverage:
+Current `tizen-tool-domain-fetch` live coverage:
 
 - `weather`
 - `news`
@@ -28,7 +28,7 @@ Current `tv_fetch` live coverage:
 - `commute`
 - `sports`
 
-Not yet covered in `tv_fetch` but already present as live scenario skills:
+Not yet covered in `tizen-tool-domain-fetch` but already present as live scenario skills:
 
 - `schedule`
 - `travel`
