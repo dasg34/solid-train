@@ -115,8 +115,20 @@ void main() {
       final metricInset = components.firstWhere(
         (component) => component['id'] == 'metric1Inset',
       );
+      final metricLabelText = components.firstWhere(
+        (component) => component['id'] == 'metric1LabelText',
+      );
+      final metricValueText = components.firstWhere(
+        (component) => component['id'] == 'metric1ValueText',
+      );
       final factInset = components.firstWhere(
         (component) => component['id'] == 'fact1Inset',
+      );
+      final factLabelText = components.firstWhere(
+        (component) => component['id'] == 'fact1LabelText',
+      );
+      final factValueText = components.firstWhere(
+        (component) => component['id'] == 'fact1ValueText',
       );
       final chartInset = components.firstWhere(
         (component) => component['id'] == 'chartInset',
@@ -139,7 +151,11 @@ void main() {
       expect(heroSummaryInset['vertical'], 5);
       expect(heroDividerInset['vertical'], 3);
       expect(heroInset['all'], 18);
+      expect(metricLabelText['variant'], 'h4');
+      expect(metricValueText['variant'], 'body');
       expect(metricInset['all'], 14);
+      expect(factLabelText['variant'], 'h4');
+      expect(factValueText['variant'], 'body');
       expect(factInset['all'], 14);
       expect(chartInset['all'], 16);
       expect(alertInset['all'], 16);
@@ -226,11 +242,23 @@ void main() {
       final metricInset = components.firstWhere(
         (component) => component['id'] == 'metric1Inset',
       );
+      final metricLabelText = components.firstWhere(
+        (component) => component['id'] == 'metric1LabelText',
+      );
+      final metricValueText = components.firstWhere(
+        (component) => component['id'] == 'metric1ValueText',
+      );
       final metricWrap = components.firstWhere(
         (component) => component['id'] == 'metricWrap',
       );
       final factInset = components.firstWhere(
         (component) => component['id'] == 'fact1Inset',
+      );
+      final factLabelText = components.firstWhere(
+        (component) => component['id'] == 'fact1LabelText',
+      );
+      final factValueText = components.firstWhere(
+        (component) => component['id'] == 'fact1ValueText',
       );
       final factWrap = components.firstWhere(
         (component) => component['id'] == 'factWrap',
@@ -253,10 +281,14 @@ void main() {
       expect(metricWrap['crossAxisSpacing'], 12);
       expect(metricWrap['mainAxisSpacing'], 12);
       expect(metricWrap['expandOddTail'], isTrue);
+      expect(metricLabelText['variant'], 'h4');
+      expect(metricValueText['variant'], 'body');
       expect(metricInset['all'], 14);
       expect(factWrap['component'], 'Masonry');
       expect(factWrap['maxCrossAxisExtent'], 220);
       expect(factWrap['expandOddTail'], isTrue);
+      expect(factLabelText['variant'], 'h4');
+      expect(factValueText['variant'], 'body');
       expect(factInset['all'], 14);
       expect(alertInset['all'], 16);
       expect(

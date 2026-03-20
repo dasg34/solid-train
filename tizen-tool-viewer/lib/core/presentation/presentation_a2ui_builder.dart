@@ -256,12 +256,12 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: labelId,
         component: 'Text',
-        props: {'text': _path('metric${index}Label'), 'variant': 'body'},
+        props: {'text': _path('metric${index}Label'), 'variant': 'h4'},
       );
       _addComponent(
         id: valueId,
         component: 'Text',
-        props: {'text': _path('metric${index}Value'), 'variant': 'h4'},
+        props: {'text': _path('metric${index}Value'), 'variant': 'body'},
       );
 
       final detailKey = 'metric${index}Detail';
@@ -407,12 +407,12 @@ class _PresentationA2uiBuilder {
       _addComponent(
         id: labelId,
         component: 'Text',
-        props: {'text': _path('fact${index}Label'), 'variant': 'body'},
+        props: {'text': _path('fact${index}Label'), 'variant': 'h4'},
       );
       _addComponent(
         id: valueId,
         component: 'Text',
-        props: {'text': _path('fact${index}Value'), 'variant': 'h4'},
+        props: {'text': _path('fact${index}Value'), 'variant': 'body'},
       );
 
       final detailKey = 'fact${index}Detail';
