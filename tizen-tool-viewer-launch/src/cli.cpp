@@ -86,15 +86,15 @@ std::variant<LaunchCommand, AppError> ParseCommand(int argc, char** argv) {
 std::string RenderHelp() {
   std::ostringstream stream;
   stream << "tizen-tool-viewer-launch\n"
-         << "Launch com.example.tizen_tool_viewer with presentation JSON via Tizen App Control.\n\n"
+         << "Launch org.tizen.tizen-tool-viewer with presentation JSON via Tizen App Control.\n\n"
          << "Usage:\n"
          << "  cat /tmp/presentation.json | tizen-tool-viewer-launch\n"
          << "  tizen-tool-viewer-launch --file /tmp/presentation.json\n"
-         << "  tizen-tool-viewer-launch --file /tmp/presentation.json --app-id com.example.tizen_tool_viewer\n"
+         << "  tizen-tool-viewer-launch --file /tmp/presentation.json --app-id org.tizen.tizen-tool-viewer\n"
          << "  tizen-tool-viewer-launch --file /tmp/presentation.json --dry-run --format pretty\n\n"
          << "Options:\n"
          << "  --file PATH         Use an existing presentation JSON file instead of stdin\n"
-         << "  --app-id APP_ID     Target application ID (default: com.example.tizen_tool_viewer)\n"
+         << "  --app-id APP_ID     Target application ID (default: org.tizen.tizen-tool-viewer)\n"
          << "  --dry-run           Read the payload but do not send the launch request\n"
          << "  --format FORMAT     Output json or pretty (default: json)\n";
   return stream.str();

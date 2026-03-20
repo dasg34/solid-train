@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "openclaw_tv_genui" "\0"
+            VALUE "CompanyName", "org.tizen" "\0"
+            VALUE "FileDescription", "tizen-tool-viewer" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "openclaw_tv_genui" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "openclaw_tv_genui.exe" "\0"
-            VALUE "ProductName", "openclaw_tv_genui" "\0"
+            VALUE "InternalName", "tizen-tool-viewer" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 org.tizen. All rights reserved." "\0"
+            VALUE "OriginalFilename", "tizen-tool-viewer.exe" "\0"
+            VALUE "ProductName", "tizen-tool-viewer" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

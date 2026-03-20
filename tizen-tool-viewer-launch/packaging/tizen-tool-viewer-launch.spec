@@ -1,7 +1,7 @@
 Name:       tizen-tool-viewer-launch
 Version:    0.1.0
 Release:    0
-Summary:    Launches com.example.tizen_tool_viewer with piped presentation payloads
+Summary:    Launches org.tizen.tizen-tool-viewer with piped presentation payloads
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
 Source1001: packaging/%{name}.manifest

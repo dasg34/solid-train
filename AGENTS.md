@@ -242,11 +242,11 @@ For the actual PoC app, prefer package-based setup:
 
 - `flutter pub add genui`
 - `flutter pub add genui_a2a`
-- `cd /Users/yohoho/work/openclaw_tv_genui && flutter run`
+- `cd /Users/yohoho/work/tizen-tool-viewer && flutter run`
 - For temporary validation, prefer web-first testing:
-  `cd /Users/yohoho/work/openclaw_tv_genui && flutter run -d chrome`
+  `cd /Users/yohoho/work/tizen-tool-viewer && flutter run -d chrome`
 - If browser launch is inconvenient, use the local web server:
-  `cd /Users/yohoho/work/openclaw_tv_genui && flutter run -d web-server --web-hostname=127.0.0.1 --web-port=3000`
+  `cd /Users/yohoho/work/tizen-tool-viewer && flutter run -d web-server --web-hostname=127.0.0.1 --web-port=3000`
 
 Use the local `genui/` repository only for reference and example inspection:
 

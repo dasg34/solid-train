@@ -1,7 +1,7 @@
-# OpenClaw TV GenUI
+# tizen-tool-viewer
 
-Samsung Tizen TV용 presentation-first 렌더링 앱. OpenClaw에서 전달받은
-semantic presentation JSON을 Flutter UI로 렌더링합니다.
+Samsung Tizen TV용 presentation-first viewer 앱. 전달받은 semantic
+presentation JSON을 Flutter UI로 렌더링합니다.
 
 ## Architecture
 

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns="http://tizen.org/ns/packages"
           api-version="10.0"
-          package="com.example.tizen_tool_viewer"
+          package="org.tizen.tizen-tool-viewer"
           version="1.0.0">
   <profile name="tv" />
-  <ui-application appid="com.example.tizen_tool_viewer"
+  <ui-application appid="org.tizen.tizen-tool-viewer"
                   exec="Runner.dll"
                   type="dotnet"
                   multiple="false"

@@ -17,7 +17,7 @@ void Assert(bool condition, const std::string& message) {
 void TestParseCommand() {
   const char* argv[] = {
       "tizen-tool-viewer-launch", "--file", "/tmp/presentation.json", "--app-id",
-      "com.example.tizen_tool_viewer", "--dry-run", "--format", "pretty"};
+      "org.tizen.tizen-tool-viewer", "--dry-run", "--format", "pretty"};
   const auto parsed =
       tizen_tool_viewer_launch::ParseCommand(8, const_cast<char**>(argv));
   Assert(std::holds_alternative<tizen_tool_viewer_launch::LaunchCommand>(parsed),
@@ -26,7 +26,7 @@ void TestParseCommand() {
       std::get<tizen_tool_viewer_launch::LaunchCommand>(parsed);
   Assert(command.input_file == "/tmp/presentation.json",
          "input file should parse");
-  Assert(command.app_id == "com.example.tizen_tool_viewer",
+  Assert(command.app_id == "org.tizen.tizen-tool-viewer",
          "app id should parse");
   Assert(command.dry_run, "dry-run should parse");
   Assert(command.format == tizen_tool_viewer_launch::OutputFormat::kPretty,

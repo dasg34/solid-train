@@ -1,7 +1,7 @@
 # tizen-tool-presentation-validate
 
 `tizen-tool-presentation-validate` is a C++ validator for the Samsung Tizen TV
-presentation JSON payload used by `openclaw_tv_genui`.
+presentation JSON payload used by `tizen-tool-viewer`.
 
 It checks the semantic presentation object before the Flutter app converts it
 into deterministic A2UI.
@@ -44,4 +44,3 @@ Packaging files are in `packaging/`.
 
 - `packaging/tizen-tool-presentation-validate.spec`
 - `packaging/tizen-tool-presentation-validate.manifest`
-
