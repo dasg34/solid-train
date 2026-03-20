@@ -93,6 +93,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
         BasicCatalogItems.row,
         BasicCatalogItems.text,
         inset,
+        balancedWrap,
         masonryFlow,
         flowingWrap,
         lineChart,

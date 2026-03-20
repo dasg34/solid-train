@@ -159,14 +159,12 @@ void main() {
       expect(factInset['all'], 14);
       expect(chartInset['all'], 16);
       expect(alertInset['all'], 16);
-      expect(metricWrap['component'], 'Masonry');
+      expect(metricWrap['component'], 'BalancedWrap');
       expect(metricWrap['maxCrossAxisExtent'], 220);
       expect(metricWrap['crossAxisSpacing'], 12);
       expect(metricWrap['mainAxisSpacing'], 12);
-      expect(metricWrap['expandOddTail'], isTrue);
-      expect(factWrap['component'], 'Masonry');
+      expect(factWrap['component'], 'BalancedWrap');
       expect(factWrap['maxCrossAxisExtent'], 220);
-      expect(factWrap['expandOddTail'], isTrue);
       expect(
         components.any((component) => component['component'] == 'LineChart'),
         isTrue,
@@ -183,7 +181,7 @@ void main() {
       expect(messages[2], isA<UpdateComponents>());
     });
 
-    test('uses masonry layout for side panels while sharing compact spacing', () {
+    test('uses balanced wrap layout for side panels while sharing compact spacing', () {
       final surface = PresentationSurface.fromJson({
         'surfaceId': 'commute',
         'theme': {'domain': 'commute', 'pattern': 'sidePanel'},
@@ -276,17 +274,15 @@ void main() {
       expect(heroMetricDetailText['variant'], 'caption');
       expect(heroMetricInset['vertical'], 4);
       expect(heroInset['all'], 18);
-      expect(metricWrap['component'], 'Masonry');
+      expect(metricWrap['component'], 'BalancedWrap');
       expect(metricWrap['maxCrossAxisExtent'], 220);
       expect(metricWrap['crossAxisSpacing'], 12);
       expect(metricWrap['mainAxisSpacing'], 12);
-      expect(metricWrap['expandOddTail'], isTrue);
       expect(metricLabelText['variant'], 'h4');
       expect(metricValueText['variant'], 'body');
       expect(metricInset['all'], 14);
-      expect(factWrap['component'], 'Masonry');
+      expect(factWrap['component'], 'BalancedWrap');
       expect(factWrap['maxCrossAxisExtent'], 220);
-      expect(factWrap['expandOddTail'], isTrue);
       expect(factLabelText['variant'], 'h4');
       expect(factValueText['variant'], 'body');
       expect(factInset['all'], 14);

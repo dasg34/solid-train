@@ -296,13 +296,12 @@ class _PresentationA2uiBuilder {
 
     return _addComponent(
       id: 'metricWrap',
-      component: 'Masonry',
+      component: 'BalancedWrap',
       props: {
         'children': metricCardIds,
         'maxCrossAxisExtent': _masonryExtent,
         'crossAxisSpacing': _masonrySpacing,
         'mainAxisSpacing': _masonrySpacing,
-        'expandOddTail': true,
       },
     );
   }
@@ -447,13 +446,12 @@ class _PresentationA2uiBuilder {
 
     return _addComponent(
       id: 'factWrap',
-      component: 'Masonry',
+      component: 'BalancedWrap',
       props: {
         'children': factCardIds,
         'maxCrossAxisExtent': _masonryExtent,
         'crossAxisSpacing': _masonrySpacing,
         'mainAxisSpacing': _masonrySpacing,
-        'expandOddTail': true,
       },
     );
   }

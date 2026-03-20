@@ -85,9 +85,30 @@ final _masonrySchema = S.object(
       description: 'Vertical spacing between tiles in logical pixels.',
       minimum: 0,
     ),
-    'expandOddTail': S.boolean(
+  },
+  required: ['children', 'maxCrossAxisExtent'],
+);
+
+final _balancedWrapSchema = S.object(
+  description:
+      'A non-scrollable balanced wrap layout that moves items onto a new row when needed and evenly shares each row width across the remaining items.',
+  properties: {
+    'children': A2uiSchemas.componentArrayReference(
       description:
-          'When true, a lone last tile in a multi-column odd-length layout expands to the full row width.',
+          'An explicit list of widget IDs that will be placed into balanced rows.',
+    ),
+    'maxCrossAxisExtent': S.number(
+      description:
+          'Maximum target width of each tile before an additional column is added.',
+      minimum: 1,
+    ),
+    'crossAxisSpacing': S.number(
+      description: 'Horizontal spacing between items in logical pixels.',
+      minimum: 0,
+    ),
+    'mainAxisSpacing': S.number(
+      description: 'Vertical spacing between rows in logical pixels.',
+      minimum: 0,
     ),
   },
   required: ['children', 'maxCrossAxisExtent'],
@@ -117,7 +138,16 @@ extension type _MasonryData.fromMap(JsonMap _json) {
       (_json['crossAxisSpacing'] as num?)?.toDouble() ?? 16;
   double get mainAxisSpacing =>
       (_json['mainAxisSpacing'] as num?)?.toDouble() ?? 16;
-  bool get expandOddTail => _json['expandOddTail'] as bool? ?? false;
+}
+
+extension type _BalancedWrapData.fromMap(JsonMap _json) {
+  Object? get children => _json['children'];
+  double get maxCrossAxisExtent =>
+      (_json['maxCrossAxisExtent'] as num?)?.toDouble() ?? 240;
+  double get crossAxisSpacing =>
+      (_json['crossAxisSpacing'] as num?)?.toDouble() ?? 16;
+  double get mainAxisSpacing =>
+      (_json['mainAxisSpacing'] as num?)?.toDouble() ?? 16;
 }
 
 int _masonryCrossAxisCount(
@@ -260,7 +290,6 @@ final masonryFlow = CatalogItem(
           "maxCrossAxisExtent": 220,
           "crossAxisSpacing": 12,
           "mainAxisSpacing": 12,
-          "expandOddTail": true,
           "children": ["card1", "card2", "card3"]
         },
         {
@@ -305,50 +334,141 @@ final masonryFlow = CatalogItem(
       return const SizedBox.shrink();
     }
 
-    Widget buildGrid(List<String> ids) {
-      return MasonryGridView.extent(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
-        maxCrossAxisExtent: masonryData.maxCrossAxisExtent,
-        mainAxisSpacing: masonryData.mainAxisSpacing,
-        crossAxisSpacing: masonryData.crossAxisSpacing,
-        itemCount: ids.length,
-        itemBuilder: (context, index) {
-          return itemContext.buildChild(
-            ids[index],
-            itemContext.dataContext,
-          );
+    return MasonryGridView.extent(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      maxCrossAxisExtent: masonryData.maxCrossAxisExtent,
+      mainAxisSpacing: masonryData.mainAxisSpacing,
+      crossAxisSpacing: masonryData.crossAxisSpacing,
+      itemCount: childIds.length,
+      itemBuilder: (context, index) {
+        return itemContext.buildChild(
+          childIds[index],
+          itemContext.dataContext,
+        );
+      },
+    );
+  },
+);
+
+final balancedWrap = CatalogItem(
+  name: 'BalancedWrap',
+  dataSchema: _balancedWrapSchema,
+  exampleData: [
+    () => '''
+      [
+        {
+          "id": "root",
+          "component": "BalancedWrap",
+          "maxCrossAxisExtent": 220,
+          "crossAxisSpacing": 12,
+          "mainAxisSpacing": 12,
+          "children": ["card1", "card2", "card3", "card4", "card5"]
         },
-      );
+        {
+          "id": "card1",
+          "component": "Card",
+          "child": "text1"
+        },
+        {
+          "id": "text1",
+          "component": "Text",
+          "text": "First"
+        },
+        {
+          "id": "card2",
+          "component": "Card",
+          "child": "text2"
+        },
+        {
+          "id": "text2",
+          "component": "Text",
+          "text": "Second"
+        },
+        {
+          "id": "card3",
+          "component": "Card",
+          "child": "text3"
+        },
+        {
+          "id": "text3",
+          "component": "Text",
+          "text": "Third"
+        },
+        {
+          "id": "card4",
+          "component": "Card",
+          "child": "text4"
+        },
+        {
+          "id": "text4",
+          "component": "Text",
+          "text": "Fourth"
+        },
+        {
+          "id": "card5",
+          "component": "Card",
+          "child": "text5"
+        },
+        {
+          "id": "text5",
+          "component": "Text",
+          "text": "Fifth"
+        }
+      ]
+    ''',
+  ],
+  widgetBuilder: (itemContext) {
+    final wrapData = _BalancedWrapData.fromMap(itemContext.data as JsonMap);
+    final childIds = (wrapData.children as List<Object?>?)
+        ?.map((child) => child.toString())
+        .toList();
+    if (childIds == null || childIds.isEmpty) {
+      return const SizedBox.shrink();
     }
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : wrapData.maxCrossAxisExtent;
         final crossAxisCount = _masonryCrossAxisCount(
-          constraints.maxWidth,
-          masonryData.maxCrossAxisExtent,
-          masonryData.crossAxisSpacing,
+          availableWidth,
+          wrapData.maxCrossAxisExtent,
+          wrapData.crossAxisSpacing,
         );
-        final shouldExpandOddTail =
-            masonryData.expandOddTail &&
-            crossAxisCount > 1 &&
-            childIds.length > 1 &&
-            childIds.length.isOdd;
+        final rows = <List<String>>[];
 
-        if (!shouldExpandOddTail) {
-          return buildGrid(childIds);
+        for (var index = 0; index < childIds.length; index += crossAxisCount) {
+          final end = (index + crossAxisCount).clamp(0, childIds.length);
+          rows.add(childIds.sublist(index, end));
         }
-
-        final leadingIds = childIds.sublist(0, childIds.length - 1);
-        final tailId = childIds.last;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            buildGrid(leadingIds),
-            SizedBox(height: masonryData.mainAxisSpacing),
-            itemContext.buildChild(tailId, itemContext.dataContext),
+            for (var rowIndex = 0; rowIndex < rows.length; rowIndex++) ...[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (var itemIndex = 0;
+                      itemIndex < rows[rowIndex].length;
+                      itemIndex++) ...[
+                    Expanded(
+                      child: itemContext.buildChild(
+                        rows[rowIndex][itemIndex],
+                        itemContext.dataContext,
+                      ),
+                    ),
+                    if (itemIndex != rows[rowIndex].length - 1)
+                      SizedBox(width: wrapData.crossAxisSpacing),
+                  ],
+                ],
+              ),
+              if (rowIndex != rows.length - 1)
+                SizedBox(height: wrapData.mainAxisSpacing),
+            ],
           ],
         );
       },

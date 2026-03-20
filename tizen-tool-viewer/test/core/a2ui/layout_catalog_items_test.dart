@@ -4,15 +4,13 @@ import 'package:genui/genui.dart';
 import 'package:openclaw_tv_genui/core/a2ui/layout_catalog_items.dart';
 
 void main() {
-  testWidgets('masonry expands the final odd card to fill the row', (
-    tester,
-  ) async {
+  testWidgets('balanced wrap shares remaining row width evenly', (tester) async {
     final controller = SurfaceController(
       catalogs: [
         Catalog([
           BasicCatalogItems.card,
           BasicCatalogItems.text,
-          masonryFlow,
+          balancedWrap,
         ], catalogId: 'test_catalog'),
       ],
     );
@@ -24,21 +22,24 @@ void main() {
         components: [
           Component(
             id: 'root',
-            type: 'Masonry',
+            type: 'BalancedWrap',
             properties: {
-              'children': ['card1', 'card2', 'card3'],
-              'maxCrossAxisExtent': 200.0,
+              'children': ['card1', 'card2', 'card3', 'card4', 'card5'],
+              'maxCrossAxisExtent': 150.0,
               'crossAxisSpacing': 12.0,
               'mainAxisSpacing': 12.0,
-              'expandOddTail': true,
             },
           ),
           Component(id: 'card1', type: 'Card', properties: {'child': 'text1'}),
           Component(id: 'card2', type: 'Card', properties: {'child': 'text2'}),
           Component(id: 'card3', type: 'Card', properties: {'child': 'text3'}),
+          Component(id: 'card4', type: 'Card', properties: {'child': 'text4'}),
+          Component(id: 'card5', type: 'Card', properties: {'child': 'text5'}),
           Component(id: 'text1', type: 'Text', properties: {'text': 'First'}),
           Component(id: 'text2', type: 'Text', properties: {'text': 'Second'}),
           Component(id: 'text3', type: 'Text', properties: {'text': 'Third'}),
+          Component(id: 'text4', type: 'Text', properties: {'text': 'Fourth'}),
+          Component(id: 'text5', type: 'Text', properties: {'text': 'Fifth'}),
         ],
       ),
     );
@@ -64,14 +65,21 @@ void main() {
       of: find.text('First'),
       matching: find.byType(Card),
     );
-    final thirdCard = find.ancestor(
-      of: find.text('Third'),
+    final fourthCard = find.ancestor(
+      of: find.text('Fourth'),
+      matching: find.byType(Card),
+    );
+    final fifthCard = find.ancestor(
+      of: find.text('Fifth'),
       matching: find.byType(Card),
     );
 
     final firstWidth = tester.getSize(firstCard).width;
-    final thirdWidth = tester.getSize(thirdCard).width;
+    final fourthWidth = tester.getSize(fourthCard).width;
+    final fifthWidth = tester.getSize(fifthCard).width;
 
-    expect(thirdWidth, greaterThan(firstWidth * 1.5));
+    expect(firstWidth, greaterThan(150));
+    expect(fourthWidth, greaterThan(firstWidth));
+    expect(fifthWidth, closeTo(fourthWidth, 1.0));
   });
 }
