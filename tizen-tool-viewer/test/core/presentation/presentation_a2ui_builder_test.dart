@@ -139,8 +139,14 @@ void main() {
       final metricWrap = components.firstWhere(
         (component) => component['id'] == 'metricWrap',
       );
+      final metricMaxWidth = components.firstWhere(
+        (component) => component['id'] == 'metric1MaxWidth',
+      );
       final factWrap = components.firstWhere(
         (component) => component['id'] == 'factWrap',
+      );
+      final factMaxWidth = components.firstWhere(
+        (component) => component['id'] == 'fact1MaxWidth',
       );
 
       expect(theme['scale'], 'standard');
@@ -159,19 +165,21 @@ void main() {
       expect(factInset['all'], 14);
       expect(chartInset['all'], 16);
       expect(alertInset['all'], 16);
-      expect(metricWrap['component'], 'BalancedWrap');
-      expect(metricWrap['maxCrossAxisExtent'], 208);
-      expect(metricWrap['crossAxisSpacing'], 12);
-      expect(metricWrap['mainAxisSpacing'], 12);
-      expect(factWrap['component'], 'BalancedWrap');
-      expect(factWrap['maxCrossAxisExtent'], 208);
+      expect(metricWrap['component'], 'Wrap');
+      expect(metricWrap['spacing'], 12);
+      expect(metricWrap['runSpacing'], 12);
+      expect(metricWrap['crossAlign'], 'center');
+      expect(metricMaxWidth['component'], 'MaxWidth');
+      expect(metricMaxWidth['maxWidth'], 220);
+      expect(factWrap['component'], 'Wrap');
+      expect(factWrap['spacing'], 12);
+      expect(factWrap['runSpacing'], 12);
+      expect(factWrap['crossAlign'], 'center');
+      expect(factMaxWidth['component'], 'MaxWidth');
+      expect(factMaxWidth['maxWidth'], 220);
       expect(
         components.any((component) => component['component'] == 'LineChart'),
         isTrue,
-      );
-      expect(
-        components.where((component) => component['component'] == 'Wrap'),
-        isEmpty,
       );
 
       final messages = buildPresentationMessages(surface);
@@ -181,7 +189,7 @@ void main() {
       expect(messages[2], isA<UpdateComponents>());
     });
 
-    test('uses balanced wrap layout for side panels while sharing compact spacing', () {
+    test('uses wrap layout with bounded card widths for side panels', () {
       final surface = PresentationSurface.fromJson({
         'surfaceId': 'commute',
         'theme': {'domain': 'commute', 'pattern': 'sidePanel'},
@@ -249,6 +257,9 @@ void main() {
       final metricWrap = components.firstWhere(
         (component) => component['id'] == 'metricWrap',
       );
+      final metricMaxWidth = components.firstWhere(
+        (component) => component['id'] == 'metric1MaxWidth',
+      );
       final factInset = components.firstWhere(
         (component) => component['id'] == 'fact1Inset',
       );
@@ -260,6 +271,9 @@ void main() {
       );
       final factWrap = components.firstWhere(
         (component) => component['id'] == 'factWrap',
+      );
+      final factMaxWidth = components.firstWhere(
+        (component) => component['id'] == 'fact1MaxWidth',
       );
       final alertInset = components.firstWhere(
         (component) => component['id'] == 'alertInset',
@@ -274,15 +288,21 @@ void main() {
       expect(heroMetricDetailText['variant'], 'caption');
       expect(heroMetricInset['vertical'], 4);
       expect(heroInset['all'], 18);
-      expect(metricWrap['component'], 'BalancedWrap');
-      expect(metricWrap['maxCrossAxisExtent'], 208);
-      expect(metricWrap['crossAxisSpacing'], 12);
-      expect(metricWrap['mainAxisSpacing'], 12);
+      expect(metricWrap['component'], 'Wrap');
+      expect(metricWrap['spacing'], 12);
+      expect(metricWrap['runSpacing'], 12);
+      expect(metricWrap['crossAlign'], 'center');
+      expect(metricMaxWidth['component'], 'MaxWidth');
+      expect(metricMaxWidth['maxWidth'], 220);
       expect(metricLabelText['variant'], 'h4');
       expect(metricValueText['variant'], 'body');
       expect(metricInset['all'], 14);
-      expect(factWrap['component'], 'BalancedWrap');
-      expect(factWrap['maxCrossAxisExtent'], 208);
+      expect(factWrap['component'], 'Wrap');
+      expect(factWrap['spacing'], 12);
+      expect(factWrap['runSpacing'], 12);
+      expect(factWrap['crossAlign'], 'center');
+      expect(factMaxWidth['component'], 'MaxWidth');
+      expect(factMaxWidth['maxWidth'], 220);
       expect(factLabelText['variant'], 'h4');
       expect(factValueText['variant'], 'body');
       expect(factInset['all'], 14);

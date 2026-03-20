@@ -30,8 +30,8 @@ class _PresentationA2uiBuilder {
   String get _forcedPattern => 'sidePanel';
   double get _smallCardInsetAll => 14;
   double get _featureCardInsetAll => 16;
-  double get _masonryExtent => 208;
-  double get _masonrySpacing => 12;
+  double get _cardMaxWidth => 220;
+  double get _cardWrapSpacing => 12;
 
   List<Map<String, Object?>> build() {
     _bindSurfaceData();
@@ -289,19 +289,24 @@ class _PresentationA2uiBuilder {
         component: 'Inset',
         props: {'child': columnId, 'all': _smallCardInsetAll},
       );
-      metricCardIds.add(
-        _addComponent(id: cardId, component: 'Card', props: {'child': insetId}),
+      _addComponent(id: cardId, component: 'Card', props: {'child': insetId});
+      final maxWidthId = 'metric${index}MaxWidth';
+      _addComponent(
+        id: maxWidthId,
+        component: 'MaxWidth',
+        props: {'child': cardId, 'maxWidth': _cardMaxWidth},
       );
+      metricCardIds.add(maxWidthId);
     }
 
     return _addComponent(
       id: 'metricWrap',
-      component: 'BalancedWrap',
+      component: 'Wrap',
       props: {
         'children': metricCardIds,
-        'maxCrossAxisExtent': _masonryExtent,
-        'crossAxisSpacing': _masonrySpacing,
-        'mainAxisSpacing': _masonrySpacing,
+        'spacing': _cardWrapSpacing,
+        'runSpacing': _cardWrapSpacing,
+        'crossAlign': 'center',
       },
     );
   }
@@ -439,19 +444,24 @@ class _PresentationA2uiBuilder {
         component: 'Inset',
         props: {'child': columnId, 'all': _smallCardInsetAll},
       );
-      factCardIds.add(
-        _addComponent(id: cardId, component: 'Card', props: {'child': insetId}),
+      _addComponent(id: cardId, component: 'Card', props: {'child': insetId});
+      final maxWidthId = 'fact${index}MaxWidth';
+      _addComponent(
+        id: maxWidthId,
+        component: 'MaxWidth',
+        props: {'child': cardId, 'maxWidth': _cardMaxWidth},
       );
+      factCardIds.add(maxWidthId);
     }
 
     return _addComponent(
       id: 'factWrap',
-      component: 'BalancedWrap',
+      component: 'Wrap',
       props: {
         'children': factCardIds,
-        'maxCrossAxisExtent': _masonryExtent,
-        'crossAxisSpacing': _masonrySpacing,
-        'mainAxisSpacing': _masonrySpacing,
+        'spacing': _cardWrapSpacing,
+        'runSpacing': _cardWrapSpacing,
+        'crossAlign': 'center',
       },
     );
   }
