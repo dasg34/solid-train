@@ -356,6 +356,7 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
       pattern: _pattern,
       scale: _scale,
     );
+    final fillContentWidth = !spec.fitWidthToContent;
     final content = LayoutBuilder(
       builder: (context, constraints) {
         final contentWidth =
@@ -380,7 +381,10 @@ class _GenUiScenarioSurfaceState extends State<GenUiScenarioSurface> {
             child: Align(
               alignment: contentAlignment,
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: contentWidth),
+                constraints: BoxConstraints(
+                  minWidth: fillContentWidth ? contentWidth : 0,
+                  maxWidth: contentWidth,
+                ),
                 child: Surface(
                   surfaceContext: _controller.contextFor(_surfaceId),
                 ),
@@ -688,9 +692,9 @@ class _OverlayLayoutSpec {
             heightFactor = smallScreen ? 0.74 : (compactTv ? 0.74 : 0.72);
             minHeight = 260;
           case TvSurfaceScale.standard:
-            widthFactor = smallScreen ? 0.88 : (compactTv ? 0.38 : 0.42);
+            widthFactor = smallScreen ? 0.88 : 0.42;
             minWidth = 320;
-            maxWidth = compactTv ? 440 : 700;
+            maxWidth = compactTv ? 520 : 700;
             heightFactor = smallScreen ? 0.88 : (compactTv ? 0.94 : 0.94);
             minHeight = 320;
           case TvSurfaceScale.expanded:

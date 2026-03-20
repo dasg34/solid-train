@@ -30,7 +30,7 @@ class _PresentationA2uiBuilder {
   String get _forcedPattern => 'sidePanel';
   double get _smallCardInsetAll => 14;
   double get _featureCardInsetAll => 16;
-  double get _masonryExtent => 220;
+  double get _masonryExtent => 208;
   double get _masonrySpacing => 12;
 
   List<Map<String, Object?>> build() {

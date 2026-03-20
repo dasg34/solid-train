@@ -160,11 +160,11 @@ void main() {
       expect(chartInset['all'], 16);
       expect(alertInset['all'], 16);
       expect(metricWrap['component'], 'BalancedWrap');
-      expect(metricWrap['maxCrossAxisExtent'], 220);
+      expect(metricWrap['maxCrossAxisExtent'], 208);
       expect(metricWrap['crossAxisSpacing'], 12);
       expect(metricWrap['mainAxisSpacing'], 12);
       expect(factWrap['component'], 'BalancedWrap');
-      expect(factWrap['maxCrossAxisExtent'], 220);
+      expect(factWrap['maxCrossAxisExtent'], 208);
       expect(
         components.any((component) => component['component'] == 'LineChart'),
         isTrue,
@@ -275,14 +275,14 @@ void main() {
       expect(heroMetricInset['vertical'], 4);
       expect(heroInset['all'], 18);
       expect(metricWrap['component'], 'BalancedWrap');
-      expect(metricWrap['maxCrossAxisExtent'], 220);
+      expect(metricWrap['maxCrossAxisExtent'], 208);
       expect(metricWrap['crossAxisSpacing'], 12);
       expect(metricWrap['mainAxisSpacing'], 12);
       expect(metricLabelText['variant'], 'h4');
       expect(metricValueText['variant'], 'body');
       expect(metricInset['all'], 14);
       expect(factWrap['component'], 'BalancedWrap');
-      expect(factWrap['maxCrossAxisExtent'], 220);
+      expect(factWrap['maxCrossAxisExtent'], 208);
       expect(factLabelText['variant'], 'h4');
       expect(factValueText['variant'], 'body');
       expect(factInset['all'], 14);
