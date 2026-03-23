@@ -26,6 +26,18 @@ bool Contains(const Container& container, std::string_view value) {
          container.end();
 }
 
+template <typename Container>
+std::string JoinStringViews(const Container& array, std::string_view sep) {
+  std::string result;
+  for (std::size_t i = 0; i < array.size(); ++i) {
+    if (i > 0) {
+      result += sep;
+    }
+    result += array[i];
+  }
+  return result;
+}
+
 std::string_view Trim(std::string_view content) {
   const auto start = content.find_first_not_of(" \t\r\n");
   if (start == std::string_view::npos) {
@@ -100,17 +112,6 @@ void AddWarning(std::vector<CheckResult>& checks, std::string rule,
 
 bool IsNonEmptyString(const JsonValue& value) {
   return value.IsString() && !Trim(value.AsString()).empty();
-}
-
-std::string JoinStringViews(const auto& array, std::string_view sep) {
-  std::string result;
-  for (std::size_t i = 0; i < array.size(); ++i) {
-    if (i > 0) {
-      result += sep;
-    }
-    result += array[i];
-  }
-  return result;
 }
 
 bool ValidateLabelValueObject(const JsonValue& value, std::string_view path,

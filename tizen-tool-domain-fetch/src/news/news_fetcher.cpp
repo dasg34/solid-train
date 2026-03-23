@@ -13,6 +13,16 @@ namespace tizen_tool_domain_fetch::news {
 
 namespace {
 
+bool StartsWith(std::string_view value, std::string_view prefix) {
+  return value.size() >= prefix.size() &&
+         value.substr(0, prefix.size()) == prefix;
+}
+
+bool EndsWith(std::string_view value, std::string_view suffix) {
+  return value.size() >= suffix.size() &&
+         value.substr(value.size() - suffix.size()) == suffix;
+}
+
 struct FeedItem {
   std::string title;
   std::string link;
@@ -93,7 +103,7 @@ std::string DecodeXmlEntities(std::string value) {
 std::string StripCdata(std::string_view value) {
   constexpr std::string_view kPrefix = "<![CDATA[";
   constexpr std::string_view kSuffix = "]]>";
-  if (value.starts_with(kPrefix) && value.ends_with(kSuffix) &&
+  if (StartsWith(value, kPrefix) && EndsWith(value, kSuffix) &&
       value.size() >= kPrefix.size() + kSuffix.size()) {
     value.remove_prefix(kPrefix.size());
     value.remove_suffix(kSuffix.size());
@@ -111,8 +121,7 @@ FeedItem NormalizeFeedItem(std::string_view item_xml) {
       CleanText(StripCdata(ExtractTag(item_xml, "source").value_or("")), 28);
   if (!publisher.empty()) {
     const std::string suffix = " - " + publisher;
-    if (title.size() > suffix.size() &&
-        title.ends_with(suffix)) {
+    if (title.size() > suffix.size() && EndsWith(title, suffix)) {
       title.erase(title.size() - suffix.size());
     }
   }

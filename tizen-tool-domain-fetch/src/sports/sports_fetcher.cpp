@@ -154,7 +154,7 @@ JsonValue NormalizeSportsPayload(const LeaguePreset& preset) {
     for (std::size_t index = 0; index < events.Size(); ++index) {
       JsonValue event = events.At(index);
       const std::string event_id = event.At("idEvent").AsString("");
-      if (!event_id.empty() && seen_ids.contains(event_id)) {
+      if (!event_id.empty() && seen_ids.find(event_id) != seen_ids.end()) {
         continue;
       }
       if (!event_id.empty()) {

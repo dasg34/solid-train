@@ -7,6 +7,11 @@ namespace tizen_tool_presentation_validate {
 
 namespace {
 
+bool StartsWith(std::string_view value, std::string_view prefix) {
+  return value.size() >= prefix.size() &&
+         value.substr(0, prefix.size()) == prefix;
+}
+
 AppError InvalidArguments(std::string message, std::string hint = {}) {
   return AppError{
       .code = "invalid_arguments",
@@ -51,7 +56,7 @@ std::variant<ValidateCommand, AppError> ParseValidate(
       ++index;
       continue;
     }
-    if (arg.starts_with("--")) {
+    if (StartsWith(arg, "--")) {
       return InvalidArguments(
           "Unsupported option.",
           "Use tizen-tool-presentation-validate <file> [--format json|pretty].");

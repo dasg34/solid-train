@@ -32,6 +32,11 @@ constexpr std::array<std::string_view, 15> kDescribeTargets = {
     "wellness",
 };
 
+bool StartsWith(std::string_view value, std::string_view prefix) {
+  return value.size() >= prefix.size() &&
+         value.substr(0, prefix.size()) == prefix;
+}
+
 bool ContainsControlChars(std::string_view value) {
   return std::any_of(value.begin(), value.end(), [](unsigned char ch) {
     return std::iscntrl(ch) != 0;
@@ -91,7 +96,7 @@ std::variant<DescribeCommand, AppError> ParseDescribe(
     const std::vector<std::string_view>& args) {
   DescribeCommand command;
   std::size_t index = 0;
-  if (index < args.size() && !args[index].starts_with("--")) {
+  if (index < args.size() && !StartsWith(args[index], "--")) {
     command.target = std::string(args[index]);
     ++index;
   }
