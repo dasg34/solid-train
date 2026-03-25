@@ -147,6 +147,8 @@ YouTube Data API v3 requires an API key:
 export TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_API_KEY=your_api_key
 ```
 
+The CLI reads the key only from `TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_API_KEY`.
+
 Dry run:
 
 ```bash

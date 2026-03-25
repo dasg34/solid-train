@@ -1674,7 +1674,6 @@ JsonValue YouTubeDescribeDocument() {
       MakeObject({
           {"api_key_env",
            JsonValue::String("TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_API_KEY")},
-          {"api_key_env_fallback", JsonValue::String("YOUTUBE_DATA_API_KEY")},
           {"legacy_sp_envs",
            MakeArray({
                JsonValue::String("TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_LAST_HOUR"),

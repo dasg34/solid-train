@@ -21,7 +21,6 @@ constexpr std::string_view kSearchUrl =
     "https://www.googleapis.com/youtube/v3/search";
 constexpr std::string_view kPrimaryApiKeyEnv =
     "TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_API_KEY";
-constexpr std::string_view kFallbackApiKeyEnv = "YOUTUBE_DATA_API_KEY";
 constexpr std::string_view kTimeZoneId = "Asia/Seoul";
 constexpr std::time_t kKstOffsetSeconds = 9 * 60 * 60;
 
@@ -61,11 +60,6 @@ constexpr std::array<FilterMapping, 5> kFilterMappings = {{
      365 * 24 * 60 * 60},
 }};
 
-struct ApiKeyConfig {
-  std::string env_name;
-  std::string api_key;
-};
-
 AppError MakeYouTubeError(std::string code,
                           std::string message,
                           std::string hint,
@@ -87,18 +81,12 @@ std::optional<TimeFilter> MatchConfiguredToken(std::string_view sp) {
   return std::nullopt;
 }
 
-std::optional<ApiKeyConfig> ResolveApiKeyConfig() {
-  const std::array<std::string_view, 2> env_names = {
-      kPrimaryApiKeyEnv,
-      kFallbackApiKeyEnv,
-  };
-  for (const auto env_name : env_names) {
-    const char* value = std::getenv(std::string(env_name).c_str());
-    if (value != nullptr && value[0] != '\0') {
-      return ApiKeyConfig{std::string(env_name), std::string(value)};
-    }
+std::optional<std::string> ResolveApiKey() {
+  const char* value = std::getenv(std::string(kPrimaryApiKeyEnv).c_str());
+  if (value == nullptr || value[0] == '\0') {
+    return std::nullopt;
   }
-  return std::nullopt;
+  return std::string(value);
 }
 
 std::tm GmTime(std::time_t timestamp) {
@@ -356,7 +344,6 @@ JsonResult Execute(const YouTubeCommand& command) {
         {"safe_search", JsonValue::String("moderate")},
         {"time_zone", JsonValue::String(kTimeZoneId)},
         {"api_key_env", JsonValue::String(kPrimaryApiKeyEnv)},
-        {"api_key_env_fallback", JsonValue::String(kFallbackApiKeyEnv)},
         {"url_preview",
          JsonValue::String(BuildSearchUrlWithoutKey(command, filter, now) +
                            "&key=<redacted>")},
@@ -376,16 +363,16 @@ JsonResult Execute(const YouTubeCommand& command) {
     });
   }
 
-  const auto api_key = ResolveApiKeyConfig();
+  const auto api_key = ResolveApiKey();
   if (!api_key.has_value()) {
     return MakeYouTubeError(
         "youtube_api_key_missing",
         "YouTube Data API key is not configured.",
-        "Set TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_API_KEY or YOUTUBE_DATA_API_KEY.",
+        "Set TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_API_KEY.",
         2);
   }
 
-  const std::string url = BuildSearchUrl(command, filter, now, api_key->api_key);
+  const std::string url = BuildSearchUrl(command, filter, now, *api_key);
   const auto response = HttpGetDetailed(url);
   if (std::holds_alternative<AppError>(response)) {
     AppError error = std::get<AppError>(response);
