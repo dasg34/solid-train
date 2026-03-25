@@ -15,6 +15,7 @@
 #include "tizen_tool_domain_fetch/sports/sports_fetcher.hpp"
 #include "tizen_tool_domain_fetch/travel/travel_fetcher.hpp"
 #include "tizen_tool_domain_fetch/weather/weather_fetcher.hpp"
+#include "tizen_tool_domain_fetch/youtube/youtube_fetcher.hpp"
 
 namespace {
 
@@ -34,6 +35,7 @@ using tizen_tool_domain_fetch::ScenarioCommand;
 using tizen_tool_domain_fetch::SportsCommand;
 using tizen_tool_domain_fetch::TravelCommand;
 using tizen_tool_domain_fetch::WeatherCommand;
+using tizen_tool_domain_fetch::YouTubeCommand;
 
 JsonValue ErrorToJson(const AppError& error) {
   JsonValue document = JsonValue::Object();
@@ -66,6 +68,8 @@ tizen_tool_domain_fetch::JsonResult ExecuteCommand(const Command& command) {
           return tizen_tool_domain_fetch::weather::Execute(typed_command);
         } else if constexpr (std::is_same_v<CommandType, NewsCommand>) {
           return tizen_tool_domain_fetch::news::Execute(typed_command);
+        } else if constexpr (std::is_same_v<CommandType, YouTubeCommand>) {
+          return tizen_tool_domain_fetch::youtube::Execute(typed_command);
         } else if constexpr (std::is_same_v<CommandType, FinanceCommand>) {
           return tizen_tool_domain_fetch::finance::Execute(typed_command);
         } else if constexpr (std::is_same_v<CommandType, CommuteCommand>) {

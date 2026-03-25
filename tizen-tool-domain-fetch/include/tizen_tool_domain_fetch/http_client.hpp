@@ -8,9 +8,19 @@
 
 namespace tizen_tool_domain_fetch {
 
+struct HttpResponse {
+  long status_code = 0;
+  std::string body;
+};
+
 std::variant<std::string, AppError> HttpGet(std::string_view url,
                                             long connect_timeout_seconds = 5,
                                             long max_timeout_seconds = 20);
+
+std::variant<HttpResponse, AppError> HttpGetDetailed(
+    std::string_view url,
+    long connect_timeout_seconds = 5,
+    long max_timeout_seconds = 20);
 
 std::variant<std::string, AppError> HttpPostForm(
     std::string_view url,

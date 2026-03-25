@@ -41,6 +41,14 @@ struct NewsCommand {
   bool dry_run = false;
 };
 
+struct YouTubeCommand {
+  OutputFormat format = OutputFormat::kJson;
+  std::string query;
+  std::string sp;
+  int count = 10;
+  bool dry_run = false;
+};
+
 struct FinanceCommand {
   enum class Source { kMock, kNaverPublic };
 
@@ -180,6 +188,7 @@ struct ScenarioCommand {
 using Command = std::variant<DescribeCommand,
                              WeatherCommand,
                              NewsCommand,
+                             YouTubeCommand,
                              FinanceCommand,
                              CommuteCommand,
                              SportsCommand,

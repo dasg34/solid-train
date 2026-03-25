@@ -16,6 +16,7 @@
 #include "tizen_tool_domain_fetch/sports/sports_fetcher.hpp"
 #include "tizen_tool_domain_fetch/travel/travel_fetcher.hpp"
 #include "tizen_tool_domain_fetch/weather/weather_fetcher.hpp"
+#include "tizen_tool_domain_fetch/youtube/youtube_fetcher.hpp"
 
 namespace {
 
@@ -35,10 +36,15 @@ void TestDescribeWeather() {
 void TestDescribeAdditionalDomains() {
   const auto root = tizen_tool_domain_fetch::BuildDescribeDocument(std::nullopt);
   Assert(root.At("commands").IsArray(), "describe root commands");
-  Assert(root.At("commands").Size() == 15, "describe root command count");
+  Assert(root.At("commands").Size() == 16, "describe root command count");
 
   const auto news = tizen_tool_domain_fetch::BuildDescribeDocument(std::string("news"));
   Assert(news.At("name").AsString() == "news", "describe news name");
+  const auto youtube =
+      tizen_tool_domain_fetch::BuildDescribeDocument(std::string("youtube"));
+  Assert(youtube.At("name").AsString() == "youtube", "describe youtube name");
+  Assert(youtube.At("compatibility").At("time_zone").AsString() == "Asia/Seoul",
+         "describe youtube time zone");
   const auto finance = tizen_tool_domain_fetch::BuildDescribeDocument(std::string("finance"));
   Assert(finance.At("name").AsString() == "finance", "describe finance name");
   const auto commute = tizen_tool_domain_fetch::BuildDescribeDocument(std::string("commute"));
@@ -86,6 +92,139 @@ void TestNewsDefaultsAreExplicitInDescribeAndParse() {
                  .At("query_requires_search_source")
                  .AsBoolean(false) == true,
          "news describe should expose query search rule");
+}
+
+void TestParseYouTubeCommand() {
+  const char* argv[] = {
+      "tizen-tool-domain-fetch", "youtube", "--query", "아이유", "--sp",
+      "today",                   "--count", "7"};
+  const auto parsed = tizen_tool_domain_fetch::ParseCommand(8, const_cast<char**>(argv));
+  Assert(std::holds_alternative<tizen_tool_domain_fetch::Command>(parsed),
+         "youtube command should parse");
+  const auto& command = std::get<tizen_tool_domain_fetch::Command>(parsed);
+  Assert(std::holds_alternative<tizen_tool_domain_fetch::YouTubeCommand>(command),
+         "parsed command should be youtube");
+  const auto& youtube = std::get<tizen_tool_domain_fetch::YouTubeCommand>(command);
+  Assert(youtube.query == "아이유", "youtube query should be preserved");
+  Assert(youtube.sp == "today", "youtube sp should be preserved");
+  Assert(youtube.count == 7, "youtube count should be preserved");
+}
+
+void TestYouTubeTimeFilterHelpers() {
+  const auto none = tizen_tool_domain_fetch::youtube::TimeFilterFromLegacySp("");
+  Assert(std::holds_alternative<tizen_tool_domain_fetch::youtube::TimeFilter>(none),
+         "empty sp should map to none");
+  Assert(std::get<tizen_tool_domain_fetch::youtube::TimeFilter>(none) ==
+             tizen_tool_domain_fetch::youtube::TimeFilter::kNone,
+         "empty sp should map to none filter");
+
+  setenv("TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_WEEK", "LEGACY_WEEK_TOKEN", 1);
+  const auto configured =
+      tizen_tool_domain_fetch::youtube::TimeFilterFromLegacySp("LEGACY_WEEK_TOKEN");
+  Assert(std::holds_alternative<tizen_tool_domain_fetch::youtube::TimeFilter>(configured),
+         "configured sp token should parse");
+  Assert(std::get<tizen_tool_domain_fetch::youtube::TimeFilter>(configured) ==
+             tizen_tool_domain_fetch::youtube::TimeFilter::kLast7Days,
+         "configured sp token should map to week");
+  unsetenv("TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_WEEK");
+
+  const auto invalid =
+      tizen_tool_domain_fetch::youtube::TimeFilterFromLegacySp("UNKNOWN_TOKEN");
+  Assert(std::holds_alternative<tizen_tool_domain_fetch::AppError>(invalid),
+         "unknown sp should fail");
+}
+
+void TestYouTubeWindowAndUrlBuilders() {
+  const std::time_t now = 1704067200;
+  const auto window = tizen_tool_domain_fetch::youtube::BuildPublishedWindow(
+      tizen_tool_domain_fetch::youtube::TimeFilter::kLast30Days, now);
+  Assert(window.has_value(), "month filter should produce a published window");
+  Assert(window->published_after == "2023-12-02T00:00:00Z",
+         "month window start should be 30 days earlier");
+  Assert(window->published_before == "2024-01-01T00:00:00Z",
+         "month window end should be now");
+
+  tizen_tool_domain_fetch::YouTubeCommand command;
+  command.query = "K-pop live";
+  command.count = 5;
+  const std::string url = tizen_tool_domain_fetch::youtube::BuildSearchUrl(
+      command, tizen_tool_domain_fetch::youtube::TimeFilter::kLast30Days, now,
+      "key123");
+  Assert(url.find("q=K-pop%20live") != std::string::npos, "query should be url encoded");
+  Assert(url.find("maxResults=5") != std::string::npos, "maxResults should be present");
+  Assert(url.find("publishedAfter=2023-12-02T00%3A00%3A00Z") != std::string::npos,
+         "publishedAfter should be encoded");
+  Assert(url.find("publishedBefore=2024-01-01T00%3A00%3A00Z") != std::string::npos,
+         "publishedBefore should be encoded");
+  Assert(url.find("key=key123") != std::string::npos, "api key should be appended");
+}
+
+void TestNormalizeYouTubeResponse() {
+  const auto sample = tizen_tool_domain_fetch::JsonValue::Parse(
+      R"({
+        "pageInfo": {
+          "totalResults": 2
+        },
+        "items": [
+          {
+            "id": {
+              "videoId": "video-1"
+            },
+            "snippet": {
+              "title": "Lead Video",
+              "channelTitle": "Alpha Channel",
+              "publishedAt": "2026-03-25T01:00:00Z",
+              "thumbnails": {
+                "high": {
+                  "url": "https://img.example/high.jpg"
+                }
+              }
+            }
+          },
+          {
+            "id": {
+              "videoId": "video-2"
+            },
+            "snippet": {
+              "title": "Fallback Video",
+              "channelTitle": "Beta Channel",
+              "publishedAt": "2026-03-25T02:00:00Z",
+              "thumbnails": {
+                "default": {
+                  "url": "https://img.example/default.jpg"
+                }
+              }
+            }
+          }
+        ]
+      })",
+      "test_parse_failed", "Sample youtube JSON should parse.", 1);
+  Assert(std::holds_alternative<tizen_tool_domain_fetch::JsonValue>(sample),
+         "sample youtube JSON should parse");
+
+  tizen_tool_domain_fetch::YouTubeCommand command;
+  command.query = "아이유";
+  command.sp = "today";
+  command.count = 2;
+  const auto normalized = tizen_tool_domain_fetch::youtube::NormalizeSearchResponse(
+      std::get<tizen_tool_domain_fetch::JsonValue>(sample), command,
+      tizen_tool_domain_fetch::youtube::TimeFilter::kLast24Hours);
+  Assert(std::holds_alternative<tizen_tool_domain_fetch::JsonValue>(normalized),
+         "youtube search response should normalize");
+
+  const auto& payload = std::get<tizen_tool_domain_fetch::JsonValue>(normalized);
+  Assert(payload.At("domain").AsString() == "youtube", "youtube domain");
+  Assert(payload.At("source").AsString() == "youtube-data-api-v3",
+         "youtube source");
+  Assert(payload.At("timeFilter").AsString() == "last-24-hours",
+         "youtube time filter");
+  Assert(payload.At("videos").Size() == 2, "youtube results size");
+  Assert(payload.At("videos").At(0).At("videoId").AsString() == "video-1",
+         "youtube first id");
+  Assert(payload.At("videos").At(1).At("thumbnail").AsString() ==
+             "https://img.example/default.jpg",
+         "youtube thumbnail fallback");
+  Assert(payload.At("totalResults").AsInt() == 2, "youtube total results");
 }
 
 void TestParseScheduleCommand() {
@@ -282,6 +421,10 @@ int main() {
   TestDescribeAdditionalDomains();
   TestParseNewsQueryCommand();
   TestNewsDefaultsAreExplicitInDescribeAndParse();
+  TestParseYouTubeCommand();
+  TestYouTubeTimeFilterHelpers();
+  TestYouTubeWindowAndUrlBuilders();
+  TestNormalizeYouTubeResponse();
   TestParseScheduleCommand();
   TestLiveDefaultsAndMockOnlyScenarios();
   TestNormalizeOpenMeteoResponse();

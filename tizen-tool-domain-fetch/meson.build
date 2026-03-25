@@ -38,6 +38,7 @@ tizen_tool_domain_fetch_lib = static_library(
     'src/json.cpp',
     'src/support.cpp',
     'src/news/news_fetcher.cpp',
+    'src/youtube/youtube_fetcher.cpp',
     'src/finance/finance_fetcher.cpp',
     'src/commute/commute_fetcher.cpp',
     'src/daily/daily_fetcher.cpp',

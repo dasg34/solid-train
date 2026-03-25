@@ -14,9 +14,10 @@ namespace tizen_tool_domain_fetch {
 
 namespace {
 
-constexpr std::array<std::string_view, 15> kDescribeTargets = {
+constexpr std::array<std::string_view, 16> kDescribeTargets = {
     "weather",
     "news",
+    "youtube",
     "finance",
     "commute",
     "sports",
@@ -117,7 +118,7 @@ std::variant<DescribeCommand, AppError> ParseDescribe(
     }
     return InvalidArguments(
         "Unsupported describe option.",
-        "Use tizen-tool-domain-fetch describe [weather|news|finance|commute|sports|daily|emergency|family|meal-delivery|media|schedule|shopping|smart-home|travel|wellness] [--format json|pretty].");
+        "Use tizen-tool-domain-fetch describe [weather|news|youtube|finance|commute|sports|daily|emergency|family|meal-delivery|media|schedule|shopping|smart-home|travel|wellness] [--format json|pretty].");
   }
 
   return command;
@@ -346,6 +347,78 @@ std::variant<NewsCommand, AppError> ParseNews(
     return InvalidArguments(
         "Google News search requires a query.",
         "Use tizen-tool-domain-fetch news --query 반도체 [--count ...] [--format pretty].");
+  }
+
+  return command;
+}
+
+std::variant<YouTubeCommand, AppError> ParseYouTube(
+    const std::vector<std::string_view>& args) {
+  YouTubeCommand command;
+
+  for (std::size_t index = 0; index < args.size();) {
+    const auto arg = args[index];
+    if (arg == "--query") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --query.");
+      }
+      if (ContainsControlChars(args[index + 1])) {
+        return InvalidArguments("Query contains control characters.");
+      }
+      command.query = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--sp") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --sp.");
+      }
+      if (ContainsControlChars(args[index + 1])) {
+        return InvalidArguments("sp contains control characters.");
+      }
+      command.sp = std::string(args[index + 1]);
+      index += 2;
+      continue;
+    }
+    if (arg == "--count") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --count.");
+      }
+      int count = 0;
+      if (!ParseInt(args[index + 1], &count) || count < 1 || count > 50) {
+        return InvalidArguments("Count must be an integer between 1 and 50.");
+      }
+      command.count = count;
+      index += 2;
+      continue;
+    }
+    if (arg == "--format") {
+      if (index + 1 >= args.size()) {
+        return InvalidArguments("Missing value for --format.");
+      }
+      const auto parsed = ParseOutputFormat(args[index + 1]);
+      if (std::holds_alternative<AppError>(parsed)) {
+        return std::get<AppError>(parsed);
+      }
+      command.format = std::get<OutputFormat>(parsed);
+      index += 2;
+      continue;
+    }
+    if (arg == "--dry-run") {
+      command.dry_run = true;
+      ++index;
+      continue;
+    }
+    return InvalidArguments(
+        "Unsupported youtube option.",
+        "Use tizen-tool-domain-fetch youtube --query ... [--sp ...] [--count 1-50] "
+        "[--dry-run] [--format json|pretty].");
+  }
+
+  if (command.query.empty()) {
+    return InvalidArguments(
+        "YouTube search requires a query.",
+        "Use tizen-tool-domain-fetch youtube --query 아이유 [--sp ...] [--count ...].");
   }
 
   return command;
@@ -1535,6 +1608,90 @@ JsonValue NewsDescribeDocument() {
   return document;
 }
 
+JsonValue YouTubeDescribeDocument() {
+  JsonValue document = DomainDescribeBase(
+      "youtube",
+      "Search YouTube videos through the official YouTube Data API v3.",
+      true,
+      "youtube-data-api-v3",
+      MakeArray({JsonValue::String("youtube-data-api-v3")}),
+      MakeArray({
+          MakeObject({
+              {"name", JsonValue::String("--query")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(true)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--sp")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"description",
+               JsonValue::String(
+                   "Legacy compatibility input. Supports empty sp, readable aliases (last-hour, today, week, month, year), or runtime-configured legacy tokens.")},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--count")},
+              {"type", JsonValue::String("integer")},
+              {"required", JsonValue::Boolean(false)},
+              {"range", MakeArray({JsonValue::Integer(1), JsonValue::Integer(50)})},
+              {"default", JsonValue::Integer(10)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--dry-run")},
+              {"type", JsonValue::String("boolean")},
+              {"required", JsonValue::Boolean(false)},
+              {"default", JsonValue::Boolean(false)},
+          }),
+          MakeObject({
+              {"name", JsonValue::String("--format")},
+              {"type", JsonValue::String("string")},
+              {"required", JsonValue::Boolean(false)},
+              {"values",
+               MakeArray(
+                   {JsonValue::String("json"), JsonValue::String("pretty")})},
+              {"default", JsonValue::String("json")},
+          }),
+      }),
+      MakeObject({
+          {"domain", JsonValue::String("youtube")},
+          {"source", JsonValue::String("youtube-data-api-v3")},
+          {"query", JsonValue::String("string")},
+          {"sp", JsonValue::String("string|null")},
+          {"timeFilter", JsonValue::String("string")},
+          {"count", JsonValue::String("integer")},
+          {"totalResults", JsonValue::String("integer|null")},
+          {"videos", JsonValue::String("array")},
+      }));
+  ObjectSet(
+      document, "compatibility",
+      MakeObject({
+          {"legacy_input", JsonValue::String("query + sp")},
+          {"empty_sp_behavior",
+           JsonValue::String(
+               "Omit time bounds and perform a plain YouTube search.")},
+          {"rolling_windows",
+           JsonValue::String(
+               "today=24h, week=7d, month=30d, year=365d")},
+          {"time_zone", JsonValue::String("Asia/Seoul")},
+      }));
+  ObjectSet(
+      document, "environment",
+      MakeObject({
+          {"api_key_env",
+           JsonValue::String("TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_API_KEY")},
+          {"api_key_env_fallback", JsonValue::String("YOUTUBE_DATA_API_KEY")},
+          {"legacy_sp_envs",
+           MakeArray({
+               JsonValue::String("TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_LAST_HOUR"),
+               JsonValue::String("TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_TODAY"),
+               JsonValue::String("TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_WEEK"),
+               JsonValue::String("TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_MONTH"),
+               JsonValue::String("TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_YEAR"),
+           })},
+      }));
+  return document;
+}
+
 JsonValue FinanceDescribeDocument() {
   return DomainDescribeBase(
       "finance",
@@ -2087,7 +2244,7 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
   if (argc < 2) {
     return InvalidArguments(
         "Missing command.",
-        "Use tizen-tool-domain-fetch describe, weather, news, finance, commute, sports, daily, emergency, family, meal-delivery, media, schedule, shopping, smart-home, travel, or wellness.");
+        "Use tizen-tool-domain-fetch describe, weather, news, youtube, finance, commute, sports, daily, emergency, family, meal-delivery, media, schedule, shopping, smart-home, travel, or wellness.");
   }
 
   const std::string_view command_name(argv[1]);
@@ -2117,6 +2274,13 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
       return std::get<AppError>(parsed);
     }
     return Command{std::get<NewsCommand>(parsed)};
+  }
+  if (command_name == "youtube") {
+    const auto parsed = ParseYouTube(args);
+    if (std::holds_alternative<AppError>(parsed)) {
+      return std::get<AppError>(parsed);
+    }
+    return Command{std::get<YouTubeCommand>(parsed)};
   }
   if (command_name == "finance") {
     const auto parsed = ParseFinance(args);
@@ -2177,7 +2341,7 @@ std::variant<Command, AppError> ParseCommand(int argc, char** argv) {
 
   return InvalidArguments(
       "Unknown command.",
-      "Use tizen-tool-domain-fetch describe, weather, news, finance, commute, sports, daily, emergency, family, meal-delivery, media, schedule, shopping, smart-home, travel, or wellness.");
+      "Use tizen-tool-domain-fetch describe, weather, news, youtube, finance, commute, sports, daily, emergency, family, meal-delivery, media, schedule, shopping, smart-home, travel, or wellness.");
 }
 
 std::string RenderHelp() {
@@ -2186,7 +2350,7 @@ std::string RenderHelp() {
          << "Agent-friendly CLI for fetching normalized TV domain context.\n"
          << "Live sources are the default when available. Mock-only scenarios must use --source mock explicitly.\n\n"
          << "Commands:\n"
-         << "  describe [weather|news|finance|commute|sports|schedule|travel|emergency|daily|family|meal-delivery|media|shopping|smart-home|wellness] [--format json|pretty]\n"
+         << "  describe [weather|news|youtube|finance|commute|sports|schedule|travel|emergency|daily|family|meal-delivery|media|shopping|smart-home|wellness] [--format json|pretty]\n"
          << "  weather [--source mock|open-meteo] [--city ...] [--district ...]\n"
          << "          [--latitude ...] [--longitude ...] [--hours 1-24]\n"
          << "          [--dry-run] [--format json|pretty]\n"
@@ -2194,6 +2358,9 @@ std::string RenderHelp() {
          << "       [--query ...] [--count 1-12]\n"
          << "       (no --query: latest Yonhap headlines, with --query: Google News search)\n"
          << "       [--dry-run] [--format json|pretty]\n"
+         << "  youtube --query ... [--sp ...] [--count 1-50]\n"
+         << "          (uses YouTube Data API v3; empty --sp means no time filter)\n"
+         << "          [--dry-run] [--format json|pretty]\n"
          << "  finance [--source mock|naver-public] [--watchlist ...]\n"
           << "          [--dry-run] [--format json|pretty]\n"
          << "  commute [--source mock|osrm] [--origin ...] [--destination ...]\n"
@@ -2235,6 +2402,7 @@ JsonValue BuildDescribeDocument(const std::optional<std::string>& target) {
          MakeArray({
              WeatherDescribeDocument(),
              NewsDescribeDocument(),
+             YouTubeDescribeDocument(),
              FinanceDescribeDocument(),
              CommuteDescribeDocument(),
              SportsDescribeDocument(),
@@ -2257,6 +2425,9 @@ JsonValue BuildDescribeDocument(const std::optional<std::string>& target) {
   }
   if (*target == "news") {
     return NewsDescribeDocument();
+  }
+  if (*target == "youtube") {
+    return YouTubeDescribeDocument();
   }
   if (*target == "finance") {
     return FinanceDescribeDocument();

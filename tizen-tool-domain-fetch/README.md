@@ -13,7 +13,7 @@ generate presentation payloads and it does not launch the viewer.
 
 Current command coverage is split in two layers:
 
-- Live-ready domains: `weather`, `news`, `finance`, `commute`, `sports`,
+- Live-ready domains: `weather`, `news`, `youtube`, `finance`, `commute`, `sports`,
   `schedule`, `travel`, `emergency`, `daily`
 - Mock-ready scenario parity for the remaining TV skills: `family`,
   `meal-delivery`, `media`, `shopping`, `smart-home`, `wellness`
@@ -138,6 +138,48 @@ Search by keyword:
 ```bash
 ./builddir/tizen-tool-domain-fetch news --query 반도체 --count 6 --format pretty
 ```
+
+### Search YouTube videos
+
+YouTube Data API v3 requires an API key:
+
+```bash
+export TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_API_KEY=your_api_key
+```
+
+Dry run:
+
+```bash
+./builddir/tizen-tool-domain-fetch youtube \
+  --query 아이유 \
+  --sp today \
+  --count 6 \
+  --dry-run \
+  --format pretty
+```
+
+Live search:
+
+```bash
+./builddir/tizen-tool-domain-fetch youtube \
+  --query 아이유 \
+  --sp today \
+  --count 6 \
+  --format pretty
+```
+
+Compatibility notes:
+
+- `--sp` stays as the external legacy input.
+- Readable aliases are supported: `last-hour`, `today`, `week`, `month`, `year`
+- For raw legacy tokens, configure one or more of:
+  `TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_LAST_HOUR`,
+  `TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_TODAY`,
+  `TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_WEEK`,
+  `TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_MONTH`,
+  `TIZEN_TOOL_DOMAIN_FETCH_YOUTUBE_SP_YEAR`
+- Rolling semantics are used: `today=24h`, `week=7d`, `month=30d`, `year=365d`
+- Time policy is fixed to `Asia/Seoul` (`KST`) before converting request bounds to UTC
 
 ### Fetch finance context
 
