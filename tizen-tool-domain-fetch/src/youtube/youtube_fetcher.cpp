@@ -70,12 +70,8 @@ AppError MakeYouTubeError(std::string code,
                           std::string message,
                           std::string hint,
                           int exit_code = 6) {
-  return AppError{
-      .code = std::move(code),
-      .message = std::move(message),
-      .hint = std::move(hint),
-      .exit_code = exit_code,
-  };
+  return AppError{std::move(code), std::move(message), std::move(hint),
+                  exit_code};
 }
 
 std::optional<TimeFilter> MatchConfiguredToken(std::string_view sp) {
@@ -99,10 +95,7 @@ std::optional<ApiKeyConfig> ResolveApiKeyConfig() {
   for (const auto env_name : env_names) {
     const char* value = std::getenv(std::string(env_name).c_str());
     if (value != nullptr && value[0] != '\0') {
-      return ApiKeyConfig{
-          .env_name = std::string(env_name),
-          .api_key = std::string(value),
-      };
+      return ApiKeyConfig{std::string(env_name), std::string(value)};
     }
   }
   return std::nullopt;
@@ -271,10 +264,8 @@ std::optional<PublishedWindow> BuildPublishedWindow(TimeFilter filter,
     const std::time_t now_kst = UtcToKst(now);
     const std::time_t published_after_kst =
         now_kst > mapping.window_seconds ? now_kst - mapping.window_seconds : 0;
-    return PublishedWindow{
-        .published_after = FormatRfc3339Utc(KstToUtc(published_after_kst)),
-        .published_before = FormatRfc3339Utc(KstToUtc(now_kst)),
-    };
+    return PublishedWindow{FormatRfc3339Utc(KstToUtc(published_after_kst)),
+                           FormatRfc3339Utc(KstToUtc(now_kst))};
   }
 
   return std::nullopt;

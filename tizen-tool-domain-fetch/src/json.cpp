@@ -104,12 +104,8 @@ std::variant<JsonValue, AppError> JsonValue::Parse(std::string_view text,
                                                    int exit_code) {
   json_tokener* tokener = json_tokener_new();
   if (tokener == nullptr) {
-    return AppError{
-        .code = std::move(error_code),
-        .message = std::move(error_message),
-        .hint = "Failed to allocate json-c tokener.",
-        .exit_code = exit_code,
-    };
+    return AppError{std::move(error_code), std::move(error_message),
+                    "Failed to allocate json-c tokener.", exit_code};
   }
 
   json_object* parsed = json_tokener_parse_ex(
@@ -121,12 +117,8 @@ std::variant<JsonValue, AppError> JsonValue::Parse(std::string_view text,
     if (parsed != nullptr) {
       json_object_put(parsed);
     }
-    return AppError{
-        .code = std::move(error_code),
-        .message = std::move(error_message),
-        .hint = hint,
-        .exit_code = exit_code,
-    };
+    return AppError{std::move(error_code), std::move(error_message), hint,
+                    exit_code};
   }
 
   json_tokener_free(tokener);

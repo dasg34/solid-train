@@ -22,22 +22,18 @@ AppError MakeSportsError(std::string code,
                          std::string message,
                          std::string hint,
                          int exit_code = 6) {
-  return AppError{
-      .code = std::move(code),
-      .message = std::move(message),
-      .hint = std::move(hint),
-      .exit_code = exit_code,
-  };
+  return AppError{std::move(code), std::move(message), std::move(hint),
+                  exit_code};
 }
 
 LeaguePreset ResolveLeaguePreset(const SportsCommand& command) {
   LeaguePreset preset;
   if (command.league == "kleague1") {
-    preset = LeaguePreset{.id = "4689", .name = "K League 1"};
+    preset = LeaguePreset{"4689", "K League 1"};
   } else if (command.league == "kleague2") {
-    preset = LeaguePreset{.id = "4822", .name = "K League 2"};
+    preset = LeaguePreset{"4822", "K League 2"};
   } else if (command.league == "kbo") {
-    preset = LeaguePreset{.id = "4830", .name = "KBO League"};
+    preset = LeaguePreset{"4830", "KBO League"};
   } else {
     throw MakeSportsError("sports_invalid_league",
                           "Unsupported sports league preset.",

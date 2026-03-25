@@ -277,26 +277,17 @@ std::variant<double, AppError> ParseCoordinate(std::string_view value,
   try {
     return std::stod(std::string(value));
   } catch (...) {
-    return AppError{
-        .code = "geocode_invalid_response",
-        .message = "Geocoding response did not contain usable coordinates.",
-        .hint = std::string(field) + ": " + hint,
-        .exit_code = 7,
-    };
+    return AppError{"geocode_invalid_response",
+                    "Geocoding response did not contain usable coordinates.",
+                    std::string(field) + ": " + hint, 7};
   }
 }
 
 std::variant<ResolvedLocation, AppError> ResolveLocation(
     const WeatherCommand& command) {
   if (command.latitude.has_value() && command.longitude.has_value()) {
-    return ResolvedLocation{
-        .latitude = *command.latitude,
-        .longitude = *command.longitude,
-        .city = command.city,
-        .district = command.district,
-        .geocoding_query = "",
-        .geocoding_url = "",
-    };
+    return ResolvedLocation{*command.latitude, *command.longitude, command.city,
+                            command.district, "", ""};
   }
 
   const std::string geocoding_query = BuildGeocodingQuery(command);
@@ -319,12 +310,9 @@ std::variant<ResolvedLocation, AppError> ResolveLocation(
 
   const JsonValue results = std::get<JsonValue>(parsed);
   if (!results.IsArray() || results.Size() == 0) {
-    return AppError{
-        .code = "geocode_no_match",
-        .message = "No matching location was found for the requested city/district.",
-        .hint = geocoding_query,
-        .exit_code = 7,
-    };
+    return AppError{"geocode_no_match",
+                    "No matching location was found for the requested city/district.",
+                    geocoding_query, 7};
   }
 
   JsonValue best = results.At(0);
@@ -341,12 +329,9 @@ std::variant<ResolvedLocation, AppError> ResolveLocation(
   const std::string latitude_text = best.At("lat").AsString("");
   const std::string longitude_text = best.At("lon").AsString("");
   if (latitude_text.empty() || longitude_text.empty()) {
-    return AppError{
-        .code = "geocode_invalid_response",
-        .message = "Geocoding response did not contain usable coordinates.",
-        .hint = geocoding_url,
-        .exit_code = 7,
-    };
+    return AppError{"geocode_invalid_response",
+                    "Geocoding response did not contain usable coordinates.",
+                    geocoding_url, 7};
   }
 
   const auto latitude = ParseCoordinate(latitude_text, "lat", geocoding_url);
@@ -360,14 +345,12 @@ std::variant<ResolvedLocation, AppError> ResolveLocation(
   }
 
   return ResolvedLocation{
-      .latitude = std::get<double>(latitude),
-      .longitude = std::get<double>(longitude),
-      .city = command.city.empty()
-                  ? best.At("name").AsString("")
-                  : command.city,
-      .district = command.district.empty() ? best.At("name").AsString("") : command.district,
-      .geocoding_query = geocoding_query,
-      .geocoding_url = geocoding_url,
+      std::get<double>(latitude),
+      std::get<double>(longitude),
+      command.city.empty() ? best.At("name").AsString("") : command.city,
+      command.district.empty() ? best.At("name").AsString("") : command.district,
+      geocoding_query,
+      geocoding_url,
   };
 }
 
@@ -377,22 +360,16 @@ JsonResult LoadMockWeatherPayload() {
   const std::filesystem::path path =
       ResolveFixturePath("mock_weather_seoul.json");
   if (path.empty()) {
-    return AppError{
-        .code = "mock_fixture_missing",
-        .message = "Failed to locate bundled mock weather fixture.",
-        .hint = RenderMissingFixtureHint("mock_weather_seoul.json"),
-        .exit_code = 5,
-    };
+    return AppError{"mock_fixture_missing",
+                    "Failed to locate bundled mock weather fixture.",
+                    RenderMissingFixtureHint("mock_weather_seoul.json"), 5};
   }
 
   std::ifstream handle(path);
   if (!handle.is_open()) {
-    return AppError{
-        .code = "mock_fixture_missing",
-        .message = "Failed to open bundled mock weather fixture.",
-        .hint = path.string(),
-        .exit_code = 5,
-    };
+    return AppError{"mock_fixture_missing",
+                    "Failed to open bundled mock weather fixture.", path.string(),
+                    5};
   }
 
   std::ostringstream stream;

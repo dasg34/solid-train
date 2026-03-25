@@ -22,12 +22,8 @@ AppError MakeDailyError(std::string code,
                         std::string message,
                         std::string hint,
                         int exit_code = 6) {
-  return AppError{
-      .code = std::move(code),
-      .message = std::move(message),
-      .hint = std::move(hint),
-      .exit_code = exit_code,
-  };
+  return AppError{std::move(code), std::move(message), std::move(hint),
+                  exit_code};
 }
 
 std::string JsonString(const JsonValue& object, std::string_view key,
@@ -223,16 +219,16 @@ CardBundle ComposeWeatherSection(const JsonValue& payload) {
   }
 
   return CardBundle{
-      .section = MakeObject({
+      MakeObject({
           {"title", JsonValue::String("오늘 날씨")},
           {"items", std::move(items)},
       }),
-      .metric = MakeObject({
+      MakeObject({
           {"label", JsonValue::String("현재 날씨")},
           {"value", JsonValue::String(CleanText(condition + " " + temperature, 28))},
           {"detail", JsonValue::String(CleanText("체감 " + feels_like, 32))},
       }),
-      .snippet = CleanText(JsonString(payload, "headline", city + " 현재 " + condition), 36),
+      CleanText(JsonString(payload, "headline", city + " 현재 " + condition), 36),
   };
 }
 
@@ -256,16 +252,16 @@ CardBundle ComposeNewsSection(const JsonValue& payload) {
       item_values.empty() ? "주요 뉴스를 준비 중입니다."
                           : CleanText(JsonString(item_values.front(), "value"), 36);
   return CardBundle{
-      .section = MakeObject({
+      MakeObject({
           {"title", JsonValue::String("주요 뉴스")},
           {"items", std::move(items)},
       }),
-      .metric = MakeObject({
+      MakeObject({
           {"label", JsonValue::String(CleanText(JsonString(metric_source, "label", "헤드라인"), 20))},
           {"value", JsonValue::String(CleanText(JsonString(metric_source, "value", "0건"), 20))},
           {"detail", JsonValue::String(CleanText(JsonString(metric_source, "detail", "뉴스 카드"), 32))},
       }),
-      .snippet = lead,
+      lead,
   };
 }
 
@@ -289,18 +285,18 @@ CardBundle ComposeScheduleSection(const JsonValue& payload) {
   const std::string value =
       CleanText(JsonString(metric_source, "value", "일정 확인 필요"), 28);
   return CardBundle{
-      .section = MakeObject({
+      MakeObject({
           {"title", JsonValue::String("다음 일정")},
           {"items", std::move(items)},
       }),
-      .metric = MakeObject({
+      MakeObject({
           {"label", JsonValue::String(label)},
           {"value", JsonValue::String(value)},
           {"detail", JsonValue::String(CleanText(JsonString(metric_source, "detail",
                                                              "캘린더 연결 상태 확인"),
                                                  32))},
       }),
-      .snippet = CleanText(label + " " + value, 36),
+      CleanText(label + " " + value, 36),
   };
 }
 
@@ -324,17 +320,17 @@ CardBundle ComposeCommuteSection(const JsonValue& payload) {
   const std::string value =
       CleanText(JsonString(metric_source, "value", "경로 확인 필요"), 28);
   return CardBundle{
-      .section = MakeObject({
+      MakeObject({
           {"title", JsonValue::String("출근")},
           {"items", std::move(items)},
       }),
-      .metric = MakeObject({
+      MakeObject({
           {"label", JsonValue::String(label)},
           {"value", JsonValue::String(value)},
           {"detail",
            JsonValue::String(CleanText(JsonString(metric_source, "detail", "이동 카드"), 32))},
       }),
-      .snippet = CleanText(JsonString(payload, "headline", label + " " + value), 36),
+      CleanText(JsonString(payload, "headline", label + " " + value), 36),
   };
 }
 

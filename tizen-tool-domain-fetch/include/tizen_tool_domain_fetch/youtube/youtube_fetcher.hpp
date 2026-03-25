@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <variant>
 
 #include "tizen_tool_domain_fetch/cli.hpp"
@@ -21,6 +22,11 @@ enum class TimeFilter {
 };
 
 struct PublishedWindow {
+  PublishedWindow() = default;
+  PublishedWindow(std::string after_value, std::string before_value)
+      : published_after(std::move(after_value)),
+        published_before(std::move(before_value)) {}
+
   std::string published_after;
   std::string published_before;
 };

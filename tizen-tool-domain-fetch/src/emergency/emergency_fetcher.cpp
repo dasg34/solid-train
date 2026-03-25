@@ -41,12 +41,8 @@ AppError MakeEmergencyError(std::string code,
                             std::string message,
                             std::string hint,
                             int exit_code = 6) {
-  return AppError{
-      .code = std::move(code),
-      .message = std::move(message),
-      .hint = std::move(hint),
-      .exit_code = exit_code,
-  };
+  return AppError{std::move(code), std::move(message), std::move(hint),
+                  exit_code};
 }
 
 std::time_t ParseIsoLocal(std::string_view value) {
@@ -278,11 +274,8 @@ std::vector<SpecialReportOption> FetchSpecialReportOptions() {
       continue;
     }
     const std::string label = CleanText(StripTags((*iter)[2].str()), 88);
-    options.push_back(SpecialReportOption{
-        .value = value,
-        .kind = value.substr(0, value.find(':')),
-        .label = label,
-    });
+    options.push_back(
+        SpecialReportOption{value, value.substr(0, value.find(':')), label});
   }
   return options;
 }
@@ -479,11 +472,11 @@ std::vector<EarthquakeEvent> ParseEarthquakeEvents(std::string_view page) {
 
     try {
       events.push_back(EarthquakeEvent{
-          .occurred_at = occurred_at,
-          .magnitude = std::stod(cells[2]),
-          .depth_km = static_cast<int>(std::lround(std::stod(cells[3]))),
-          .max_intensity = CleanText(cells[4], 12),
-          .location = CleanText(cells[7], 40),
+          occurred_at,
+          std::stod(cells[2]),
+          static_cast<int>(std::lround(std::stod(cells[3]))),
+          CleanText(cells[4], 12),
+          CleanText(cells[7], 40),
       });
     } catch (...) {
       continue;

@@ -48,12 +48,8 @@ AppError MakeFinanceError(std::string code,
                           std::string message,
                           std::string hint,
                           int exit_code = 6) {
-  return AppError{
-      .code = std::move(code),
-      .message = std::move(message),
-      .hint = std::move(hint),
-      .exit_code = exit_code,
-  };
+  return AppError{std::move(code), std::move(message), std::move(hint),
+                  exit_code};
 }
 
 std::vector<WatchlistEntry> ParseWatchlist(std::string_view raw_value) {
@@ -88,8 +84,7 @@ std::vector<WatchlistEntry> ParseWatchlist(std::string_view raw_value) {
           std::string(raw_value));
     }
 
-    entries.push_back(
-        WatchlistEntry{.code = code, .label = CleanText(label, 24)});
+    entries.push_back(WatchlistEntry{code, CleanText(label, 24)});
   }
 
   if (entries.empty()) {
@@ -284,12 +279,12 @@ MarketSnapshot FetchIndexSnapshot(std::string_view code) {
       ExtractNaverQuote("SERVICE_INDEX:" + std::string(code));
   const std::string rf = quote.At("rf").AsString("");
   return MarketSnapshot{
-      .code = std::string(code),
-      .label = std::string(code),
-      .current = quote.At("nv").AsDouble(0.0) / 100.0,
-      .change = SignedNumber(quote.At("cv"), rf) / 100.0,
-      .change_pct = SignedNumber(quote.At("cr"), rf),
-      .status = MarketStateLabel(quote.At("ms").AsString("")),
+      std::string(code),
+      std::string(code),
+      quote.At("nv").AsDouble(0.0) / 100.0,
+      SignedNumber(quote.At("cv"), rf) / 100.0,
+      SignedNumber(quote.At("cr"), rf),
+      MarketStateLabel(quote.At("ms").AsString("")),
   };
 }
 
@@ -298,12 +293,12 @@ MarketSnapshot FetchStockSnapshot(const WatchlistEntry& entry) {
       ExtractNaverQuote("SERVICE_ITEM:" + entry.code);
   const std::string rf = quote.At("rf").AsString("");
   return MarketSnapshot{
-      .code = entry.code,
-      .label = ResolveWatchLabel(entry, quote),
-      .current = quote.At("nv").AsDouble(0.0),
-      .change = SignedNumber(quote.At("cv"), rf),
-      .change_pct = SignedNumber(quote.At("cr"), rf),
-      .status = MarketStateLabel(quote.At("ms").AsString("")),
+      entry.code,
+      ResolveWatchLabel(entry, quote),
+      quote.At("nv").AsDouble(0.0),
+      SignedNumber(quote.At("cv"), rf),
+      SignedNumber(quote.At("cr"), rf),
+      MarketStateLabel(quote.At("ms").AsString("")),
   };
 }
 
@@ -395,11 +390,11 @@ ExchangeSnapshot FetchExchangeSnapshot() {
   const double jpy100_krw_prev = 100.0 / jpy_previous;
 
   return ExchangeSnapshot{
-      .date = latest_date,
-      .usd_krw = usd_krw,
-      .usd_krw_change = usd_krw - usd_krw_prev,
-      .jpy100_krw = jpy100_krw,
-      .jpy100_krw_change = jpy100_krw - jpy100_krw_prev,
+      latest_date,
+      usd_krw,
+      usd_krw - usd_krw_prev,
+      jpy100_krw,
+      jpy100_krw - jpy100_krw_prev,
   };
 }
 

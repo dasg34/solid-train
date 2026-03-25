@@ -137,20 +137,14 @@ JsonResult Execute(const ScenarioCommand& command) {
   const ScenarioMeta* meta = FindMeta(command.kind);
   if (meta == nullptr) {
     return AppError{
-        .code = "invalid_arguments",
-        .message = "Unknown scenario command.",
-        .hint = "Use tizen-tool-domain-fetch describe to inspect supported domains.",
-        .exit_code = 2,
-    };
+        "invalid_arguments", "Unknown scenario command.",
+        "Use tizen-tool-domain-fetch describe to inspect supported domains.", 2};
   }
 
   if (command.source != "mock") {
-    return AppError{
-        .code = "invalid_arguments",
-        .message = "This tizen-tool-domain-fetch scenario currently supports mock source only.",
-        .hint = std::string(meta->command_name) + " --source mock",
-        .exit_code = 2,
-    };
+    return AppError{"invalid_arguments",
+                    "This tizen-tool-domain-fetch scenario currently supports mock source only.",
+                    std::string(meta->command_name) + " --source mock", 2};
   }
 
   if (command.dry_run) {

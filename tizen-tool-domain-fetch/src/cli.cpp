@@ -45,12 +45,7 @@ bool ContainsControlChars(std::string_view value) {
 }
 
 AppError InvalidArguments(std::string message, std::string hint = {}) {
-  return AppError{
-      .code = "invalid_arguments",
-      .message = std::move(message),
-      .hint = std::move(hint),
-      .exit_code = 2,
-  };
+  return AppError{"invalid_arguments", std::move(message), std::move(hint), 2};
 }
 
 bool ParseDouble(std::string_view value, double* out) {

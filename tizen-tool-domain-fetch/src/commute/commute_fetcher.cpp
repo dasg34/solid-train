@@ -35,12 +35,8 @@ AppError MakeCommuteError(std::string code,
                           std::string message,
                           std::string hint,
                           int exit_code = 6) {
-  return AppError{
-      .code = std::move(code),
-      .message = std::move(message),
-      .hint = std::move(hint),
-      .exit_code = exit_code,
-  };
+  return AppError{std::move(code), std::move(message), std::move(hint),
+                  exit_code};
 }
 
 LocalDateTime NowLocal() {
@@ -51,14 +47,8 @@ LocalDateTime NowLocal() {
                            "Failed to resolve local time.",
                            "std::localtime returned null.");
   }
-  return LocalDateTime{
-      .year = local->tm_year + 1900,
-      .month = local->tm_mon + 1,
-      .day = local->tm_mday,
-      .hour = local->tm_hour,
-      .minute = local->tm_min,
-      .second = local->tm_sec,
-  };
+  return LocalDateTime{local->tm_year + 1900, local->tm_mon + 1, local->tm_mday,
+                       local->tm_hour, local->tm_min, local->tm_sec};
 }
 
 std::time_t ToTimeT(const LocalDateTime& value) {
@@ -86,14 +76,8 @@ LocalDateTime FromTimeT(std::time_t timestamp) {
                            "Failed to materialize date time.",
                            "std::localtime returned null.");
   }
-  return LocalDateTime{
-      .year = local->tm_year + 1900,
-      .month = local->tm_mon + 1,
-      .day = local->tm_mday,
-      .hour = local->tm_hour,
-      .minute = local->tm_min,
-      .second = local->tm_sec,
-  };
+  return LocalDateTime{local->tm_year + 1900, local->tm_mon + 1, local->tm_mday,
+                       local->tm_hour, local->tm_min, local->tm_sec};
 }
 
 LocalDateTime ParseIsoLocal(std::string_view value,
@@ -254,11 +238,9 @@ Place GeocodePlace(std::string_view query) {
                            std::string(query));
   }
 
-  return Place{
-      .latitude = std::stod(place.At("lat").AsString("0")),
-      .longitude = std::stod(place.At("lon").AsString("0")),
-      .display_name = CleanText(place.At("display_name").AsString(""), 80),
-  };
+  return Place{std::stod(place.At("lat").AsString("0")),
+               std::stod(place.At("lon").AsString("0")),
+               CleanText(place.At("display_name").AsString(""), 80)};
 }
 
 std::string ProfileString(CommuteCommand::Profile profile) {

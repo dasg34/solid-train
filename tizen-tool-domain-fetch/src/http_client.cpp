@@ -25,30 +25,20 @@ std::variant<HttpResponse, AppError> PerformRequest(
 
   const CURLcode result = curl_easy_perform(curl);
   if (result != CURLE_OK) {
-    return AppError{
-        .code = "http_request_failed",
-        .message = "Network request failed.",
-        .hint = curl_easy_strerror(result),
-        .exit_code = 4,
-    };
+    return AppError{"http_request_failed", "Network request failed.",
+                    curl_easy_strerror(result), 4};
   }
 
   long status_code = 0;
   const CURLcode info_result =
       curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status_code);
   if (info_result != CURLE_OK) {
-    return AppError{
-        .code = "http_status_failed",
-        .message = "Failed to read HTTP response code.",
-        .hint = curl_easy_strerror(info_result),
-        .exit_code = 4,
-    };
+    return AppError{"http_status_failed",
+                    "Failed to read HTTP response code.",
+                    curl_easy_strerror(info_result), 4};
   }
 
-  return HttpResponse{
-      .status_code = status_code,
-      .body = std::move(body),
-  };
+  return HttpResponse{status_code, std::move(body)};
 }
 
 }  // namespace
@@ -58,12 +48,8 @@ std::variant<std::string, AppError> HttpGet(std::string_view url,
                                             long max_timeout_seconds) {
   CURL* curl = curl_easy_init();
   if (curl == nullptr) {
-    return AppError{
-        .code = "http_init_failed",
-        .message = "Failed to initialize curl.",
-        .hint = "Verify libcurl is available at runtime.",
-        .exit_code = 3,
-    };
+    return AppError{"http_init_failed", "Failed to initialize curl.",
+                    "Verify libcurl is available at runtime.", 3};
   }
 
   const std::string url_string(url);
@@ -84,12 +70,8 @@ std::variant<HttpResponse, AppError> HttpGetDetailed(
     long max_timeout_seconds) {
   CURL* curl = curl_easy_init();
   if (curl == nullptr) {
-    return AppError{
-        .code = "http_init_failed",
-        .message = "Failed to initialize curl.",
-        .hint = "Verify libcurl is available at runtime.",
-        .exit_code = 3,
-    };
+    return AppError{"http_init_failed", "Failed to initialize curl.",
+                    "Verify libcurl is available at runtime.", 3};
   }
 
   const std::string url_string(url);
@@ -109,12 +91,8 @@ std::variant<std::string, AppError> HttpPostForm(
     long max_timeout_seconds) {
   CURL* curl = curl_easy_init();
   if (curl == nullptr) {
-    return AppError{
-        .code = "http_init_failed",
-        .message = "Failed to initialize curl.",
-        .hint = "Verify libcurl is available at runtime.",
-        .exit_code = 3,
-    };
+    return AppError{"http_init_failed", "Failed to initialize curl.",
+                    "Verify libcurl is available at runtime.", 3};
   }
 
   struct curl_slist* headers = nullptr;

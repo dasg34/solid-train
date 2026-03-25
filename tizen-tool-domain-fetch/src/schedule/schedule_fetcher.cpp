@@ -37,12 +37,8 @@ AppError MakeScheduleError(std::string code,
                            std::string message,
                            std::string hint,
                            int exit_code = 6) {
-  return AppError{
-      .code = std::move(code),
-      .message = std::move(message),
-      .hint = std::move(hint),
-      .exit_code = exit_code,
-  };
+  return AppError{std::move(code), std::move(message), std::move(hint),
+                  exit_code};
 }
 
 std::time_t NowLocal() {
@@ -277,17 +273,16 @@ std::vector<ScheduleEvent> ParseIcsEvents(std::string_view text,
     }
 
     expanded.push_back(ScheduleEvent{
-        .start = start,
-        .end = end,
-        .summary = CleanText(props["SUMMARY"].front().value, 40),
-        .location = CleanText(
-            props.find("LOCATION") == props.end() ? "" : props["LOCATION"].front().value,
-            32),
-        .description = CleanText(
-            props.find("DESCRIPTION") == props.end() ? ""
-                                                     : props["DESCRIPTION"].front().value,
-            80),
-        .all_day = all_day,
+        start,
+        end,
+        CleanText(props["SUMMARY"].front().value, 40),
+        CleanText(props.find("LOCATION") == props.end() ? ""
+                                                        : props["LOCATION"].front().value,
+                  32),
+        CleanText(props.find("DESCRIPTION") == props.end() ? ""
+                                                           : props["DESCRIPTION"].front().value,
+                  80),
+        all_day,
     });
   }
 

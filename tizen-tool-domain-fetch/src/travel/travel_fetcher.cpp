@@ -46,12 +46,8 @@ AppError MakeTravelError(std::string code,
                          std::string message,
                          std::string hint,
                          int exit_code = 6) {
-  return AppError{
-      .code = std::move(code),
-      .message = std::move(message),
-      .hint = std::move(hint),
-      .exit_code = exit_code,
-  };
+  return AppError{std::move(code), std::move(message), std::move(hint),
+                  exit_code};
 }
 
 LocalDateTime NowLocal() {
@@ -62,14 +58,8 @@ LocalDateTime NowLocal() {
                           "Failed to resolve local time.",
                           "std::localtime returned null.");
   }
-  return LocalDateTime{
-      .year = local->tm_year + 1900,
-      .month = local->tm_mon + 1,
-      .day = local->tm_mday,
-      .hour = local->tm_hour,
-      .minute = local->tm_min,
-      .second = local->tm_sec,
-  };
+  return LocalDateTime{local->tm_year + 1900, local->tm_mon + 1, local->tm_mday,
+                       local->tm_hour, local->tm_min, local->tm_sec};
 }
 
 std::time_t ToTimeT(const LocalDateTime& value) {
@@ -97,14 +87,8 @@ LocalDateTime FromTimeT(std::time_t timestamp) {
                           "Failed to materialize date time.",
                           "std::localtime returned null.");
   }
-  return LocalDateTime{
-      .year = local->tm_year + 1900,
-      .month = local->tm_mon + 1,
-      .day = local->tm_mday,
-      .hour = local->tm_hour,
-      .minute = local->tm_min,
-      .second = local->tm_sec,
-  };
+  return LocalDateTime{local->tm_year + 1900, local->tm_mon + 1, local->tm_mday,
+                       local->tm_hour, local->tm_min, local->tm_sec};
 }
 
 LocalDateTime ParseIsoLocal(std::string_view value,
@@ -506,11 +490,7 @@ std::optional<CongestionSummary> FetchCongestionSummary(std::string_view date,
     if (rows.empty()) {
       return std::nullopt;
     }
-    return CongestionSummary{
-        .rows = rows,
-        .terminal = std::string(terminal),
-        .date = std::string(date),
-    };
+    return CongestionSummary{rows, std::string(terminal), std::string(date)};
   } catch (...) {
     return std::nullopt;
   }

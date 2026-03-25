@@ -159,22 +159,15 @@ JsonResult LoadFixturePayload(std::string_view file_name,
                               std::string_view source) {
   const std::filesystem::path path = ResolveFixturePath(file_name);
   if (path.empty()) {
-    return AppError{
-        .code = "mock_fixture_missing",
-        .message = "Failed to locate bundled mock fixture.",
-        .hint = RenderMissingFixtureHint(file_name),
-        .exit_code = 5,
-    };
+    return AppError{"mock_fixture_missing",
+                    "Failed to locate bundled mock fixture.",
+                    RenderMissingFixtureHint(file_name), 5};
   }
 
   std::ifstream handle(path);
   if (!handle.is_open()) {
-    return AppError{
-        .code = "mock_fixture_missing",
-        .message = "Failed to open bundled mock fixture.",
-        .hint = path.string(),
-        .exit_code = 5,
-    };
+    return AppError{"mock_fixture_missing",
+                    "Failed to open bundled mock fixture.", path.string(), 5};
   }
 
   std::ostringstream stream;

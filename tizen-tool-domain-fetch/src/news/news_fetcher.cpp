@@ -131,16 +131,15 @@ FeedItem NormalizeFeedItem(std::string_view item_xml) {
   const bool is_breaking = title.find("[속보]") != std::string::npos;
 
   return FeedItem{
-      .title = title,
-      .link = link,
-      .label = is_breaking ? "속보" : category,
-      .detail = published.empty()
-                    ? (publisher.empty() ? "시각 확인 필요"
-                                         : CleanText("시각 확인 필요 · " + publisher, 80))
-                    : CleanText(published + (publisher.empty() ? "" : " · " + publisher),
-                                80),
-      .publisher = publisher,
-      .is_breaking = is_breaking,
+      title,
+      link,
+      is_breaking ? "속보" : category,
+      published.empty()
+          ? (publisher.empty() ? "시각 확인 필요"
+                               : CleanText("시각 확인 필요 · " + publisher, 80))
+          : CleanText(published + (publisher.empty() ? "" : " · " + publisher), 80),
+      publisher,
+      is_breaking,
   };
 }
 
@@ -149,12 +148,9 @@ JsonValue NormalizeYonhapRss(std::string_view xml_text, int count) {
       CleanText(StripCdata(ExtractTag(xml_text, "lastBuildDate").value_or("")), 40);
   const auto item_blocks = ExtractBlocks(xml_text, "item");
   if (item_blocks.empty()) {
-    throw AppError{
-        .code = "news_empty_feed",
-        .message = "Yonhap RSS feed did not contain any items.",
-        .hint = "Check the RSS source or retry later.",
-        .exit_code = 6,
-    };
+    throw AppError{"news_empty_feed",
+                   "Yonhap RSS feed did not contain any items.",
+                   "Check the RSS source or retry later.", 6};
   }
 
   std::vector<FeedItem> items;
@@ -166,12 +162,9 @@ JsonValue NormalizeYonhapRss(std::string_view xml_text, int count) {
     items.push_back(NormalizeFeedItem(item_block));
   }
   if (items.empty()) {
-    throw AppError{
-        .code = "news_empty_feed",
-        .message = "Yonhap RSS feed returned no usable items.",
-        .hint = "Check the RSS XML structure.",
-        .exit_code = 6,
-    };
+    throw AppError{"news_empty_feed",
+                   "Yonhap RSS feed returned no usable items.",
+                   "Check the RSS XML structure.", 6};
   }
 
   JsonValue lead_items = JsonValue::Array();
@@ -281,12 +274,9 @@ JsonValue NormalizeGoogleNewsSearch(std::string_view xml_text,
       CleanText(StripCdata(ExtractTag(xml_text, "lastBuildDate").value_or("")), 40);
   const auto item_blocks = ExtractBlocks(xml_text, "item");
   if (item_blocks.empty()) {
-    throw AppError{
-        .code = "news_empty_feed",
-        .message = "Google News search feed did not contain any items.",
-        .hint = std::string(query),
-        .exit_code = 6,
-    };
+    throw AppError{"news_empty_feed",
+                   "Google News search feed did not contain any items.",
+                   std::string(query), 6};
   }
 
   std::vector<FeedItem> items;
@@ -298,12 +288,9 @@ JsonValue NormalizeGoogleNewsSearch(std::string_view xml_text,
     items.push_back(NormalizeFeedItem(item_block));
   }
   if (items.empty()) {
-    throw AppError{
-        .code = "news_empty_feed",
-        .message = "Google News search returned no usable items.",
-        .hint = std::string(query),
-        .exit_code = 6,
-    };
+    throw AppError{"news_empty_feed",
+                   "Google News search returned no usable items.",
+                   std::string(query), 6};
   }
 
   std::vector<std::string> publishers;
